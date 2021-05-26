@@ -80,12 +80,12 @@ import (
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	appparams "github.com/liubaninc/m0/app/params"
-	"github.com/liubaninc/m0/x/m0"
-	m0keeper "github.com/liubaninc/m0/x/m0/keeper"
-	m0types "github.com/liubaninc/m0/x/m0/types"
 	tmjson "github.com/tendermint/tendermint/libs/json"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
+	"github.com/liubaninc/m0/x/utxo"
+	utxokeeper "github.com/liubaninc/m0/x/utxo/keeper"
+	utxotypes "github.com/liubaninc/m0/x/utxo/types"
 )
 
 const Name = "m0"
@@ -131,8 +131,8 @@ var (
 		evidence.AppModuleBasic{},
 		transfer.AppModuleBasic{},
 		vesting.AppModuleBasic{},
-		m0.AppModuleBasic{},
 		// this line is used by starport scaffolding # stargate/app/moduleBasic
+		utxo.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -198,8 +198,7 @@ type App struct {
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
 	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
 
-	m0Keeper m0keeper.Keeper
-	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
+	utxoKeeper utxokeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -228,8 +227,7 @@ func New(
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
 		govtypes.StoreKey, paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey,
 		evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
-		m0types.StoreKey,
-		// this line is used by starport scaffolding # stargate/app/storeKey
+		utxotypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -319,11 +317,16 @@ func New(
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	app.EvidenceKeeper = *evidenceKeeper
 
-	app.m0Keeper = *m0keeper.NewKeeper(
-		appCodec, keys[m0types.StoreKey], keys[m0types.MemStoreKey],
-	)
-
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
+
+	app.utxoKeeper = *utxokeeper.NewKeeper(
+		appCodec,
+		keys[utxotypes.StoreKey],
+		keys[utxotypes.MemStoreKey],
+		app.GetSubspace(utxotypes.ModuleName),
+		app.BankKeeper,
+	)
+	utxoModule := utxo.NewAppModule(appCodec, app.utxoKeeper)
 
 	app.GovKeeper = govkeeper.NewKeeper(
 		appCodec, keys[govtypes.StoreKey], app.GetSubspace(govtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
@@ -365,8 +368,7 @@ func New(
 		ibc.NewAppModule(app.IBCKeeper),
 		params.NewAppModule(app.ParamsKeeper),
 		transferModule,
-		m0.NewAppModule(appCodec, app.m0Keeper),
-		// this line is used by starport scaffolding # stargate/app/appModule
+		utxoModule,
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -399,8 +401,8 @@ func New(
 		genutiltypes.ModuleName,
 		evidencetypes.ModuleName,
 		ibctransfertypes.ModuleName,
-		m0types.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
+		utxotypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
@@ -583,6 +585,7 @@ func initParamsKeeper(appCodec codec.BinaryMarshaler, legacyAmino *codec.LegacyA
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
+	paramsKeeper.Subspace(utxotypes.ModuleName).WithKeyTable(utxotypes.ParamKeyTable())
 
 	return paramsKeeper
 }
