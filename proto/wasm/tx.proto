@@ -1,0 +1,56 @@
+syntax = "proto3";
+package liubaninc.m0.wasm;
+
+import "utxo/input.proto";
+import "wasm/input_ext.proto";
+
+option go_package = "github.com/liubaninc/m0/x/wasm/types";
+
+// Msg defines the Msg service.
+service Msg {
+  rpc Deploy(MsgDeploy) returns (MsgDeployResponse);
+  rpc Upgrade(MsgUpgrade) returns (MsgUpgradeResponse);
+  rpc Invoke(MsgInvoke) returns (MsgInvokeResponse);
+}
+
+message MsgDeploy {
+  string creator = 1;
+  string desc = 2;
+
+  repeated utxo.Input inputs = 20;
+  repeated utxo.Output outputs = 21;
+  repeated InputExt inputs_ext = 22;
+  repeated OutputExt outputs_ext = 23;
+  repeated InvokeRequest contract_requests = 24;
+}
+
+message MsgDeployResponse {
+}
+
+message MsgUpgrade {
+  string creator = 1;
+  string desc = 2;
+
+  repeated utxo.Input inputs = 20;
+  repeated utxo.Output outputs = 21;
+  repeated InputExt inputs_ext = 22;
+  repeated OutputExt outputs_ext = 23;
+  repeated InvokeRequest contract_requests = 24;
+}
+
+message MsgUpgradeResponse {
+}
+
+message MsgInvoke {
+  string creator = 1;
+  string desc = 2;
+
+  repeated utxo.Input inputs = 20;
+  repeated utxo.Output outputs = 21;
+  repeated InputExt inputs_ext = 22;
+  repeated OutputExt outputs_ext = 23;
+  repeated InvokeRequest contract_requests = 24;
+}
+
+message MsgInvokeResponse {
+}

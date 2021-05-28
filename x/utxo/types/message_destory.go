@@ -22,7 +22,7 @@ func (m *MsgDestroy) Route() string {
 }
 
 func (m *MsgDestroy) Type() string {
-	return "destroy"
+	return "Destroy"
 }
 
 func (m *MsgDestroy) GetSigners() []sdk.AccAddress {

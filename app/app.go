@@ -86,6 +86,9 @@ import (
 	"github.com/liubaninc/m0/x/utxo"
 	utxokeeper "github.com/liubaninc/m0/x/utxo/keeper"
 	utxotypes "github.com/liubaninc/m0/x/utxo/types"
+	"github.com/liubaninc/m0/x/wasm"
+	wasmkeeper "github.com/liubaninc/m0/x/wasm/keeper"
+	wasmtypes "github.com/liubaninc/m0/x/wasm/types"
 )
 
 const Name = "m0"
@@ -132,6 +135,7 @@ var (
 		transfer.AppModuleBasic{},
 		vesting.AppModuleBasic{},
 		// this line is used by starport scaffolding # stargate/app/moduleBasic
+		wasm.AppModuleBasic{},
 		utxo.AppModuleBasic{},
 	)
 
@@ -199,6 +203,7 @@ type App struct {
 	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
 
 	utxoKeeper utxokeeper.Keeper
+	wasmKeeper wasmkeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -319,6 +324,13 @@ func New(
 
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
 
+	app.wasmKeeper = *wasmkeeper.NewKeeper(
+		appCodec,
+		keys[wasmtypes.StoreKey],
+		keys[wasmtypes.MemStoreKey],
+	)
+	wasmModule := wasm.NewAppModule(appCodec, app.wasmKeeper)
+
 	app.utxoKeeper = *utxokeeper.NewKeeper(
 		appCodec,
 		keys[utxotypes.StoreKey],
@@ -369,6 +381,7 @@ func New(
 		params.NewAppModule(app.ParamsKeeper),
 		transferModule,
 		utxoModule,
+		wasmModule,
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -402,6 +415,7 @@ func New(
 		evidencetypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
+		wasmtypes.ModuleName,
 		utxotypes.ModuleName,
 	)
 
@@ -585,6 +599,7 @@ func initParamsKeeper(appCodec codec.BinaryMarshaler, legacyAmino *codec.LegacyA
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
+	paramsKeeper.Subspace(wasmtypes.ModuleName)
 	paramsKeeper.Subspace(utxotypes.ModuleName).WithKeyTable(utxotypes.ParamKeyTable())
 
 	return paramsKeeper

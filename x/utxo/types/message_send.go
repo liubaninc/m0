@@ -22,7 +22,7 @@ func (m *MsgSend) Route() string {
 }
 
 func (m *MsgSend) Type() string {
-	return "send"
+	return "Send"
 }
 
 func (m *MsgSend) GetSigners() []sdk.AccAddress {
