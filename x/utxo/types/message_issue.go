@@ -37,12 +37,12 @@ func (m *MsgIssue) GetSigners() []sdk.AccAddress {
 	seen[m.Creator] = true
 
 	for _, input := range m.Inputs {
-		creator, err := sdk.AccAddressFromBech32(input.FromAddr)
-		if err != nil {
-			panic(err)
-		}
 		if addrStr := input.FromAddr; !seen[addrStr] {
-			signers = append(signers, creator)
+			addr, err := sdk.AccAddressFromBech32(input.FromAddr)
+			if err != nil {
+				panic(err)
+			}
+			signers = append(signers, addr)
 			seen[addrStr] = true
 		}
 	}

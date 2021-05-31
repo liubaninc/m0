@@ -15,8 +15,6 @@ const (
 
 	// MemStoreKey defines the in-memory store key
 	MemStoreKey = "mem_capability"
-
-	// this line is used by starport scaffolding # ibc/keys/name
 )
 
 // this line is used by starport scaffolding # ibc/keys/port

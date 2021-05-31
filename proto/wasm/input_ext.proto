@@ -20,6 +20,12 @@ message OutputExt {
   bytes value = 3;
 }
 
+message ContractEvent {
+  string contract = 1;
+  string name = 2;
+  bytes body = 3;
+}
+
 enum ResourceType {
   CPU = 0;
   MEMORY = 1;
@@ -40,4 +46,23 @@ message InvokeRequest {
   repeated ResourceLimit resource_limits = 5;
   // amount is the amount transfer to the contract
   repeated cosmos.base.v1beta1.Coin amount = 6 [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+}
+
+message VersionedData {
+  PureData pureData = 1;
+  bytes refTx = 2;
+  int32 refMsg = 3;
+  int32 refOffset = 4;
+}
+
+message PureData {
+  string bucket = 1;
+  bytes key = 2;
+  bytes value = 3;
+}
+
+message ContractResponse {
+  int32  status = 1;
+  string message = 2;
+  bytes  body = 3;
 }
