@@ -3,6 +3,7 @@ package liubaninc.m0.wasm;
 
 import "utxo/input.proto";
 import "wasm/input_ext.proto";
+import "wasm/xmodel.proto";
 
 option go_package = "github.com/liubaninc/m0/x/wasm/types";
 
@@ -17,11 +18,13 @@ message MsgDeploy {
   string creator = 1;
   string desc = 2;
 
-  repeated utxo.Input inputs = 20;
-  repeated utxo.Output outputs = 21;
   repeated InputExt inputs_ext = 22;
   repeated OutputExt outputs_ext = 23;
-  repeated InvokeRequest contract_requests = 24;
+  string contract_name = 24;
+  bytes contract_code = 25;
+  WasmCodeDesc contract_desc = 26;
+  string method_name = 27;
+  map<string, bytes> args = 28;
 }
 
 message MsgDeployResponse {
@@ -31,11 +34,10 @@ message MsgUpgrade {
   string creator = 1;
   string desc = 2;
 
-  repeated utxo.Input inputs = 20;
-  repeated utxo.Output outputs = 21;
   repeated InputExt inputs_ext = 22;
   repeated OutputExt outputs_ext = 23;
-  repeated InvokeRequest contract_requests = 24;
+  string contract_name = 24;
+  bytes contract_code = 25;
 }
 
 message MsgUpgradeResponse {

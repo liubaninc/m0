@@ -1,9 +1,10 @@
 package cli
 
 import (
-	utxotypes "github.com/liubaninc/m0/x/utxo/types"
+	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"io/ioutil"
 	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -16,22 +17,25 @@ var _ = strconv.Itoa(0)
 
 func CmdUpgrade() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "deploy [desc]",
+		Use:   "deploy [name] [code]",
 		Short: "deploy an wasm contract",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
 
-			var inputs []*utxotypes.Input
-			var outputs []*utxotypes.Output
+			name := args[0]
+			code, err := ioutil.ReadFile(args[1])
+			if err != nil {
+				return fmt.Errorf("read code file %v, error %v", args[2], err)
+			}
+
 			var inputsExt []*types.InputExt
 			var outputsExt []*types.OutputExt
-			var request []*types.InvokeRequest
 
-			msg := types.NewMsgUpgrade(clientCtx.GetFromAddress().String(), inputs, outputs, inputsExt, outputsExt, request, viper.GetString(flagDesc))
+			msg := types.NewMsgUpgrade(clientCtx.GetFromAddress().String(), name, code, inputsExt, outputsExt, viper.GetString(flagDesc))
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
