@@ -1,9 +1,11 @@
 package types
 
 import (
+	"encoding/json"
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/gogo/protobuf/proto"
 	"github.com/liubaninc/m0/x/wasm/xmodel"
 )
 
@@ -81,4 +83,32 @@ func (m *MsgDeploy) ValidateBasic() error {
 	}
 
 	return nil
+}
+
+func (m *MsgDeploy) ConvertInvokeRequest() *InvokeRequest {
+	desc, err := proto.Marshal(m.ContractDesc)
+	if err != nil {
+		panic(err)
+	}
+	args, err := json.Marshal(m.Args)
+	if err != nil {
+		panic(err)
+	}
+	initArgs, err := json.Marshal(map[string][]byte{
+		m.MethodName: args,
+	})
+	if err != nil {
+		panic(err)
+	}
+	return &InvokeRequest{
+		ModuleName: "kernel",
+		ContractName: "",
+		MethodName: "Deploy",
+		Args: map[string][]byte{
+			"contract_name": []byte(m.ContractName),
+			"contract_code": m.ContractCode,
+			"contract_desc": desc,
+			"init_args": initArgs,
+		},
+	}
 }

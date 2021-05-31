@@ -77,3 +77,15 @@ func (m *MsgUpgrade) ValidateBasic() error {
 	}
 	return nil
 }
+
+func (m *MsgUpgrade) ConvertInvokeRequest() *InvokeRequest {
+	return &InvokeRequest{
+		ModuleName: "kernel",
+		ContractName: "",
+		MethodName: "Upgrade",
+		Args: map[string][]byte{
+			"contract_name": []byte(m.ContractName),
+			"contract_code": m.ContractCode,
+		},
+	}
+}

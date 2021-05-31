@@ -37,12 +37,12 @@ func CmdDeploy() *cobra.Command {
 				return fmt.Errorf("read code file %v, error %v", args[2], err)
 			}
 			method := ""
-			var method_args map[string][]byte
+			var methodArgs []byte
 
 			var inputsExt []*types.InputExt
 			var outputsExt []*types.OutputExt
 
-			msg := types.NewMsgDeploy(clientCtx.GetFromAddress().String(), name, code, nil, method, method_args, inputsExt, outputsExt, viper.GetString(flagDesc))
+			msg := types.NewMsgDeploy(clientCtx.GetFromAddress().String(), name, code, nil, method, methodArgs, inputsExt, outputsExt, viper.GetString(flagDesc))
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}

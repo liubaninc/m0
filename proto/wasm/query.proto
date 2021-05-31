@@ -4,12 +4,35 @@ package liubaninc.m0.wasm;
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 // this line is used by starport scaffolding # 1
+import "wasm/ext.proto";
+import "utxo/input.proto";
+import "xmodel/xmodel.proto";
+
 
 option go_package = "github.com/liubaninc/m0/x/wasm/types";
 
 // Query defines the gRPC querier service.
 service Query {
-    // this line is used by starport scaffolding # 2
+  //预执行合约
+//  rpc PreExec(InvokeRPCRequest) returns (InvokeRPCResponse) {
+//    option (google.api.http) = { post : "/liubaninc/m0/wasm/preexec"; body : "*"};
+//  }
 }
 
 // this line is used by starport scaffolding # 3
+
+message InvokeRPCRequest {
+  string creator = 1;
+  repeated InvokeRequest requests = 3;
+}
+
+message InvokeRPCResponse {
+  repeated utxo.Input inputs = 1;
+  repeated utxo.Output outputs = 2;
+  repeated InputExt inputsExt = 3;
+  repeated OutputExt outputsExt = 4;
+  repeated bytes response = 5;
+  int64 gas_used = 6;
+  repeated InvokeRequest requests = 7;
+  repeated xmodel.ContractResponse responses = 8;
+}
