@@ -328,6 +328,7 @@ func New(
 		appCodec,
 		keys[wasmtypes.StoreKey],
 		keys[wasmtypes.MemStoreKey],
+		app.utxoKeeper,
 	)
 	wasmModule := wasm.NewAppModule(appCodec, app.wasmKeeper)
 
