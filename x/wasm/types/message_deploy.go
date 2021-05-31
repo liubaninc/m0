@@ -4,11 +4,12 @@ import (
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/liubaninc/m0/x/wasm/xmodel"
 )
 
 var _ sdk.Msg = &MsgDeploy{}
 
-func NewMsgDeploy(creator string, contractName string, contractCode []byte, contractDesc *WasmCodeDesc, method string, args map[string][]byte, inputsExt []*InputExt, outputsExt []*OutputExt, desc string) *MsgDeploy {
+func NewMsgDeploy(creator string, contractName string, contractCode []byte, contractDesc *xmodel.WasmCodeDesc, method string, args map[string][]byte, inputsExt []*InputExt, outputsExt []*OutputExt, desc string) *MsgDeploy {
 	return &MsgDeploy{
 		Creator:      creator,
 		Desc:         desc,

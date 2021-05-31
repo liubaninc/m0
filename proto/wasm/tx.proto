@@ -1,9 +1,9 @@
 syntax = "proto3";
 package liubaninc.m0.wasm;
 
+import "xmodel/xmodel.proto";
 import "utxo/input.proto";
-import "wasm/input_ext.proto";
-import "wasm/xmodel.proto";
+import "wasm/ext.proto";
 
 option go_package = "github.com/liubaninc/m0/x/wasm/types";
 
@@ -22,7 +22,7 @@ message MsgDeploy {
   repeated OutputExt outputs_ext = 23;
   string contract_name = 24;
   bytes contract_code = 25;
-  WasmCodeDesc contract_desc = 26;
+  xmodel.WasmCodeDesc contract_desc = 26;
   string method_name = 27;
   map<string, bytes> args = 28;
 }

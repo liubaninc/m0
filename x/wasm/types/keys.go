@@ -22,3 +22,9 @@ const (
 func KeyPrefix(p string) []byte {
 	return []byte(p)
 }
+
+const (
+	ExtUtxoTablePrefix      = "E-"
+	ExtUtxoDelTablePrefix   = "ED-"
+	ExtUtxoValueTablePrefix = "EV-"
+)

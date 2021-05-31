@@ -1,0 +1,32 @@
+syntax = "proto3";
+package liubaninc.m0.wasm;
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "xmodel/xmodel.proto";
+
+option go_package = "github.com/liubaninc/m0/x/wasm/types";
+
+message InputExt {
+  string bucket = 1;
+  string key = 2;
+  string ref_tx = 3;
+  int32  ref_msg = 4;
+  int32 ref_offset = 5;
+}
+
+message OutputExt {
+  string bucket = 1;
+  string key = 2;
+  bytes value = 3;
+}
+
+message InvokeRequest {
+  string module_name = 1;
+  string contract_name = 2;
+  string method_name = 3;
+  map<string, bytes> args = 4;
+  repeated xmodel.ResourceLimit resource_limits = 5;
+  // amount is the amount transfer to the contract
+  repeated cosmos.base.v1beta1.Coin amount = 6 [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+}
