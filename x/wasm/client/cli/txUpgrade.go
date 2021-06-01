@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"github.com/liubaninc/m0/x/wasm/xmodel/contract/kernel"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"io/ioutil"
@@ -17,8 +18,8 @@ var _ = strconv.Itoa(0)
 
 func CmdUpgrade() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "deploy [name] [code]",
-		Short: "deploy an wasm contract",
+		Use:   "upgrade [name] [code-file]",
+		Short: "upgrade an wasm contract",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -27,6 +28,9 @@ func CmdUpgrade() *cobra.Command {
 			}
 
 			name := args[0]
+			if err := kernel.ValidContractName(name); err != nil {
+				return fmt.Errorf("contract name %v, error %v", args[1], err)
+			}
 			code, err := ioutil.ReadFile(args[1])
 			if err != nil {
 				return fmt.Errorf("read code file %v, error %v", args[2], err)

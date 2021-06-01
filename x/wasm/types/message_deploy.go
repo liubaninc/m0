@@ -11,7 +11,7 @@ import (
 
 var _ sdk.Msg = &MsgDeploy{}
 
-func NewMsgDeploy(creator string, contractName string, contractCode []byte, contractDesc *xmodel.WasmCodeDesc, method string, args map[string][]byte, inputsExt []*InputExt, outputsExt []*OutputExt, desc string) *MsgDeploy {
+func NewMsgDeploy(creator string, contractName string, contractCode []byte, contractDesc *xmodel.WasmCodeDesc, args map[string][]byte, inputsExt []*InputExt, outputsExt []*OutputExt, desc string) *MsgDeploy {
 	return &MsgDeploy{
 		Creator:      creator,
 		Desc:         desc,
@@ -20,7 +20,6 @@ func NewMsgDeploy(creator string, contractName string, contractCode []byte, cont
 		ContractName: contractName,
 		ContractCode: contractCode,
 		ContractDesc: contractDesc,
-		MethodName:   method,
 		Args:         args,
 	}
 }
@@ -90,13 +89,7 @@ func (m *MsgDeploy) ConvertInvokeRequest() *InvokeRequest {
 	if err != nil {
 		panic(err)
 	}
-	args, err := json.Marshal(m.Args)
-	if err != nil {
-		panic(err)
-	}
-	initArgs, err := json.Marshal(map[string][]byte{
-		m.MethodName: args,
-	})
+	initArgs, err := json.Marshal(m.Args)
 	if err != nil {
 		panic(err)
 	}

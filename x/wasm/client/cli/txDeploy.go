@@ -1,7 +1,9 @@
 package cli
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/liubaninc/m0/x/wasm/xmodel/contract/kernel"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"io/ioutil"
@@ -22,9 +24,9 @@ const (
 
 func CmdDeploy() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "deploy [name] [code] [method] [args]",
+		Use:   "deploy [name] [code-file] [args]",
 		Short: "deploy an wasm contract",
-		Args:  cobra.ExactArgs(2),
+		Args:  cobra.RangeArgs(2, 3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -32,17 +34,22 @@ func CmdDeploy() *cobra.Command {
 			}
 
 			name := args[0]
+			if err := kernel.ValidContractName(name); err != nil {
+				return fmt.Errorf("contract name %v, error %v", args[1], err)
+			}
 			code, err := ioutil.ReadFile(args[1])
 			if err != nil {
-				return fmt.Errorf("read code file %v, error %v", args[2], err)
+				return fmt.Errorf("contract code file %v, error %v", args[2], err)
 			}
-			method := ""
-			var methodArgs []byte
+			var initArgs map[string][]byte
+			if err := json.Unmarshal([]byte(args[2]), &initArgs); err != nil {
+				return fmt.Errorf("init args, error %v", err)
+			}
 
 			var inputsExt []*types.InputExt
 			var outputsExt []*types.OutputExt
 
-			msg := types.NewMsgDeploy(clientCtx.GetFromAddress().String(), name, code, nil, method, methodArgs, inputsExt, outputsExt, viper.GetString(flagDesc))
+			msg := types.NewMsgDeploy(clientCtx.GetFromAddress().String(), name, code, nil, initArgs, inputsExt, outputsExt, viper.GetString(flagDesc))
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}

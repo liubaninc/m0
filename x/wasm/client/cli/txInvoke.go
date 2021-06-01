@@ -1,7 +1,10 @@
 package cli
 
 import (
+	"encoding/json"
+	"fmt"
 	utxotypes "github.com/liubaninc/m0/x/utxo/types"
+	"github.com/liubaninc/m0/x/wasm/xmodel/contract/kernel"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"strconv"
@@ -16,14 +19,25 @@ var _ = strconv.Itoa(0)
 
 func CmdInvoke() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "deploy [desc]",
-		Short: "deploy an wasm contract",
-		Args:  cobra.ExactArgs(1),
+		Use:   "invoke [name] [method] [args]",
+		Short: "invoke an wasm contract's method",
+		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
+
+			name := args[0]
+			if err := kernel.ValidContractName(name); err != nil {
+				return fmt.Errorf("contract name %v, error %v", args[1], err)
+			}
+			method := args[1]
+			var initArgs map[string][]byte
+			if err := json.Unmarshal([]byte(args[2]), &initArgs); err != nil {
+				return fmt.Errorf("init args, error %v", err)
+			}
+			_ = method
 
 			var inputs []*utxotypes.Input
 			var outputs []*utxotypes.Output

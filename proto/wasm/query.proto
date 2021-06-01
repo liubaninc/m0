@@ -14,15 +14,19 @@ option go_package = "github.com/liubaninc/m0/x/wasm/types";
 // Query defines the gRPC querier service.
 service Query {
   //预执行合约
-//  rpc PreExec(InvokeRPCRequest) returns (InvokeRPCResponse) {
-//    option (google.api.http) = { post : "/liubaninc/m0/wasm/preexec"; body : "*"};
-//  }
+  rpc PreExec(InvokeRPCRequest) returns (InvokeRPCResponse) {
+    option (google.api.http) = {
+      post: "/liubaninc/m0/wasm/preexec"
+      body: "*"
+    };
+  }
 }
 
 // this line is used by starport scaffolding # 3
 
 message InvokeRPCRequest {
   string creator = 1;
+  int64  lock = 2;
   repeated InvokeRequest requests = 3;
 }
 

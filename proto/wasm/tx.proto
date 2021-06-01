@@ -23,7 +23,6 @@ message MsgDeploy {
   string contract_name = 24;
   bytes contract_code = 25;
   xmodel.WasmCodeDesc contract_desc = 26;
-  string method_name = 27;
   map<string, bytes> args = 28;
 }
 

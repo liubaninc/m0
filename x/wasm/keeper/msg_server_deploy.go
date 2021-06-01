@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/liubaninc/m0/x/wasm/xmodel"
@@ -25,6 +26,7 @@ func (k msgServer) Deploy(goCtx context.Context, msg *types.MsgDeploy) (*types.M
 	} else if !ok {
 		return nil, errors.New("verifyTxRWSets failed")
 	}
+
 	// TODO chaogaofeng
 	msgOffset := int32(0)
 	for offset, outputExt := range msg.OutputsExt {
@@ -44,10 +46,10 @@ func (k msgServer) Deploy(goCtx context.Context, msg *types.MsgDeploy) (*types.M
 	}
 
 	var attrs []sdk.Attribute
+	args, _ := json.Marshal(msg.Args)
 	attrs = append(attrs,
 		sdk.NewAttribute(types.AttributeKeyName, msg.ContractName),
-		sdk.NewAttribute(types.AttributeKeyMethod, msg.MethodName),
-		sdk.NewAttribute(types.AttributeKeyArg, string(msg.Args)),
+		sdk.NewAttribute(types.AttributeKeyArg, string(args)),
 	)
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
