@@ -67,7 +67,7 @@ func CmdInvoke() *cobra.Command {
 						ModuleName:   viper.GetString(flagModule),
 						ContractName: name,
 						MethodName:   method,
-						Args: mArgsStr        ,
+						Args: string(mArgsStr),
 					},
 				},
 			})
