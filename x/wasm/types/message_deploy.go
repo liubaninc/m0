@@ -6,21 +6,25 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/gogo/protobuf/proto"
+	utxotypes "github.com/liubaninc/m0/x/utxo/types"
 	"github.com/liubaninc/m0/x/wasm/xmodel"
 )
 
 var _ sdk.Msg = &MsgDeploy{}
 
-func NewMsgDeploy(creator string, contractName string, contractCode []byte, contractDesc *xmodel.WasmCodeDesc, args map[string][]byte, inputsExt []*InputExt, outputsExt []*OutputExt, desc string) *MsgDeploy {
+func NewMsgDeploy(creator string, contractName string, contractCode []byte, contractDesc *xmodel.WasmCodeDesc, args map[string][]byte, limits []*xmodel.ResourceLimit, inputs []*utxotypes.Input, outputs []*utxotypes.Output, inputsExt []*InputExt, outputsExt []*OutputExt, desc string) *MsgDeploy {
 	return &MsgDeploy{
 		Creator:      creator,
 		Desc:         desc,
+		Inputs: inputs,
+		Outputs: outputs,
 		InputsExt:    inputsExt,
 		OutputsExt:   outputsExt,
 		ContractName: contractName,
 		ContractCode: contractCode,
 		ContractDesc: contractDesc,
 		Args:         args,
+		ResourceLimits: limits,
 	}
 }
 
@@ -56,6 +60,35 @@ func (m *MsgDeploy) ValidateBasic() error {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
 	}
 
+	totalIn := sdk.NewCoins()
+	inputsMap := map[string]bool{}
+	for _, input := range m.Inputs {
+		if err := input.ValidateBasic(); err != nil {
+			return err
+		}
+		key := fmt.Sprintf("%s_%d_%d", input.RefTx, input.RefMsg, input.RefOffset)
+		if _, ok := inputsMap[input.Index()]; ok {
+			return sdkerrors.Wrapf(utxotypes.ErrUTXODuplicated, "invalid spend utxo %s (%s)", key, err)
+		}
+		inputsMap[input.Index()] = true
+		totalIn = totalIn.Add(input.Amount)
+	}
+
+	totalOut := sdk.NewCoins()
+	outputsMap := map[string]int{}
+	for _, output := range m.Outputs {
+		if err := output.ValidateBasic(); err != nil {
+			return err
+		}
+		key := fmt.Sprintf("%s_%s", output.ToAddr, output.Amount)
+		outputsMap[key]++
+		totalOut = totalOut.Add(output.Amount)
+	}
+
+	if !totalIn.IsAllLTE(totalOut) {
+		return sdkerrors.Wrapf(utxotypes.ErrInputOutputNotLitter, "inputs amount %v outputs amount %v", totalIn, totalOut)
+	}
+
 	if len(m.OutputsExt) != 0 {
 		// 读集合 key列表
 		inputExtKeys := map[string]bool{}
@@ -79,6 +112,30 @@ func (m *MsgDeploy) ValidateBasic() error {
 				return sdkerrors.Wrapf(ErrUnexpected, "output ext value is null")
 			}
 		}
+
+		contractInputs, err := ParseInputsFromExt(m.OutputsExt)
+		if err != nil {
+			return sdkerrors.Wrapf(ErrUnexpected, "parse contract inputs error - %v", err)
+		}
+		for _, contractInput := range contractInputs {
+			key := fmt.Sprintf("%s_%d_%d", contractInput.RefTx, contractInput.RefMsg, contractInput.RefOffset)
+			if _, ok := inputsMap[key]; !ok {
+				return sdkerrors.Wrapf(ErrUnexpected, "missing contract input in inputs")
+			}
+		}
+
+		contractOutputs, err := ParseOutputsFromExt(m.OutputsExt)
+		if err != nil {
+			return sdkerrors.Wrapf(ErrUnexpected, "parse contract outputs error - %v", err)
+		}
+		for _, contractOutput := range contractOutputs {
+			key := fmt.Sprintf("%s_%s", contractOutput.ToAddr, contractOutput.Amount)
+			if val, ok := outputsMap[key]; !ok || val < 1 {
+				return sdkerrors.Wrapf(ErrUnexpected, "missing contract output in outputs")
+			} else {
+				outputsMap[key] = val - 1
+			}
+		}
 	}
 
 	return nil
@@ -93,15 +150,17 @@ func (m *MsgDeploy) ConvertInvokeRequest() *InvokeRequest {
 	if err != nil {
 		panic(err)
 	}
+	args, _ := json.Marshal(map[string][]byte{
+		"contract_name": []byte(m.ContractName),
+		"contract_code": m.ContractCode,
+		"contract_desc": desc,
+		"init_args": initArgs,
+	})
 	return &InvokeRequest{
 		ModuleName: "kernel",
 		ContractName: "",
 		MethodName: "Deploy",
-		Args: map[string][]byte{
-			"contract_name": []byte(m.ContractName),
-			"contract_code": m.ContractCode,
-			"contract_desc": desc,
-			"init_args": initArgs,
-		},
+		Args: string(args),
+		ResourceLimits: m.ResourceLimits,
 	}
 }

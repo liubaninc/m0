@@ -18,12 +18,15 @@ message MsgDeploy {
   string creator = 1;
   string desc = 2;
 
+  repeated utxo.Input inputs = 20;
+  repeated utxo.Output outputs = 21;
   repeated InputExt inputs_ext = 22;
   repeated OutputExt outputs_ext = 23;
   string contract_name = 24;
   bytes contract_code = 25;
   xmodel.WasmCodeDesc contract_desc = 26;
   map<string, bytes> args = 28;
+  repeated xmodel.ResourceLimit resource_limits = 30;
 }
 
 message MsgDeployResponse {
@@ -33,10 +36,13 @@ message MsgUpgrade {
   string creator = 1;
   string desc = 2;
 
+  repeated utxo.Input inputs = 20;
+  repeated utxo.Output outputs = 21;
   repeated InputExt inputs_ext = 22;
   repeated OutputExt outputs_ext = 23;
   string contract_name = 24;
   bytes contract_code = 25;
+  repeated xmodel.ResourceLimit resource_limits = 30;
 }
 
 message MsgUpgradeResponse {

@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"encoding/json"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/liubaninc/m0/x/wasm/types"
 	"github.com/liubaninc/m0/x/wasm/xmodel"
@@ -57,7 +58,11 @@ func PreExec(ctx sdk.Context, k Keeper, req *types.InvokeRPCRequest) (*types.Inv
 			return nil, err
 		}
 
-		res, err := vmCtx.Invoke(tmpReq.MethodName, tmpReq.Args)
+		var args map[string][]byte
+		if err := json.Unmarshal([]byte(tmpReq.Args), &args); err != nil {
+			return nil, err
+		}
+		res, err := vmCtx.Invoke(tmpReq.MethodName, args)
 		if err != nil {
 			k.Logger(ctx).Error("PreExec Invoke error", "error", err, "contractName", tmpReq.ContractName)
 			vmCtx.Release()

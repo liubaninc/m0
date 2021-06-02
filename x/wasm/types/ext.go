@@ -2,6 +2,7 @@ package types
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	utxotypes "github.com/liubaninc/m0/x/utxo/types"
 	"github.com/liubaninc/m0/x/wasm/xmodel"
@@ -22,7 +23,10 @@ func ParseInputsFromExt(outputsExt []*OutputExt) ([]*utxotypes.Input, error) {
 		if outputExt.Bucket != TransientBucket || outputExt.Key != ContractUtxoInputKey {
 			continue
 		}
-		// TODO chaogaofeng
+		err := json.Unmarshal(outputExt.Value, &inputs)
+		if err != nil {
+			return nil, err
+		}
 		break
 	}
 	return inputs, nil
@@ -35,7 +39,10 @@ func ParseOutputsFromExt(outputsExt []*OutputExt) ([]*utxotypes.Output, error) {
 		if outputExt.Bucket != TransientBucket || outputExt.Key != ContractUtxoOutputKey {
 			continue
 		}
-		// TODO chaogaofeng
+		err := json.Unmarshal(outputExt.Value, &outputs)
+		if err != nil {
+			return nil, err
+		}
 		break
 	}
 	return outputs, nil
@@ -48,7 +55,10 @@ func ParseEventsFromExt(outputsExt []*OutputExt) ([]*xmodel.ContractEvent, error
 		if outputExt.Bucket != TransientBucket || outputExt.Key != ContractEventKey {
 			continue
 		}
-		// TODO chaogaofeng
+		err := json.Unmarshal(outputExt.Value, &events)
+		if err != nil {
+			return nil, err
+		}
 		break
 	}
 	return events, nil

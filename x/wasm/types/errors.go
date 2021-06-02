@@ -8,7 +8,8 @@ import (
 
 // x/wasm module sentinel errors
 var (
-	ErrSample = sdkerrors.Register(ModuleName, 1100, "sample error")
+	ErrPreExec              = sdkerrors.Register(ModuleName, 1101, "a preexec error")
+	ErrRWSet              = sdkerrors.Register(ModuleName, 1102, "a verify error")
 	// this line is used by starport scaffolding # ibc/errors
 
 	ErrUnexpected              = sdkerrors.Register(ModuleName, 1300, "a unexpected error")

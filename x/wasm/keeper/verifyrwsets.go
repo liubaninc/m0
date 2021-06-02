@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/liubaninc/m0/x/wasm/types"
@@ -135,7 +136,11 @@ func VerifyTxRWSets(ctx sdk.Context, k Keeper, msg *types.MsgInvoke) (bool, erro
 			return false, err
 		}
 
-		ctxResponse, ctxErr := vmCtx.Invoke(tmpReq.MethodName, tmpReq.Args)
+		var args map[string][]byte
+		if err := json.Unmarshal([]byte(tmpReq.Args), &args); err != nil {
+			return false, err
+		}
+		ctxResponse, ctxErr := vmCtx.Invoke(tmpReq.MethodName, args)
 		if ctxErr != nil {
 			vmCtx.Release()
 			k.Logger(ctx).Error("verifyTxRWSets Invoke error", "error", ctxErr, "contractName", tmpReq.ContractName)

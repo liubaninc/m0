@@ -1,7 +1,11 @@
 package cli
 
 import (
+	"context"
 	"fmt"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	utxotypes "github.com/liubaninc/m0/x/utxo/types"
 	"github.com/liubaninc/m0/x/wasm/xmodel/contract/kernel"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -36,10 +40,52 @@ func CmdUpgrade() *cobra.Command {
 				return fmt.Errorf("read code file %v, error %v", args[2], err)
 			}
 
-			var inputsExt []*types.InputExt
-			var outputsExt []*types.OutputExt
+			queryClient := types.NewQueryClient(clientCtx)
+			resp, err := queryClient.PreExec(context.Background(), &types.InvokeRPCRequest{
+				Creator: clientCtx.GetFromAddress().String(),
+				Lock: viper.GetInt64(flagLock),
+				Requests: []*types.InvokeRequest{
+					types.NewMsgUpgrade(clientCtx.GetFromAddress().String(), name, code, nil,nil, nil, nil, nil, viper.GetString(flagDesc)).ConvertInvokeRequest(),
+				},
+			})
+			if err != nil {
+				return err
+			}
 
-			msg := types.NewMsgUpgrade(clientCtx.GetFromAddress().String(), name, code, inputsExt, outputsExt, viper.GetString(flagDesc))
+			var inputs []*utxotypes.Input
+			var outputs []*utxotypes.Output
+			neededTotal := sdk.NewCoins()
+			txf := tx.NewFactoryCLI(clientCtx, cmd.Flags())
+			fees := txf.Fees()
+			for _, fee := range fees {
+				outputs = append(outputs, &utxotypes.Output{
+					Amount: fee,
+					ToAddr: authtypes.NewModuleAddress(authtypes.FeeCollectorName).String(),
+				})
+				neededTotal = neededTotal.Add(fee)
+			}
+			if !neededTotal.IsZero() {
+				queryClient := utxotypes.NewQueryClient(clientCtx)
+				params := &utxotypes.QueryInputRequest{
+					Address: clientCtx.GetFromAddress().String(),
+					Amount:  neededTotal.String(),
+					Lock:    viper.GetInt64(flagLock),
+				}
+				res, err := queryClient.Input(context.Background(), params)
+				if err != nil {
+					return err
+				}
+				inputs = append(inputs, res.Inputs...)
+				changeCoins := res.Amount.Sub(neededTotal)
+				for _, changeCoin := range changeCoins {
+					outputs = append(outputs, &utxotypes.Output{
+						ToAddr: clientCtx.GetFromAddress().String(),
+						Amount: changeCoin,
+					})
+				}
+			}
+
+			msg := types.NewMsgUpgrade(clientCtx.GetFromAddress().String(), name, code, resp.Requests[0].ResourceLimits, append(inputs, resp.Inputs...), append(outputs, resp.Outputs...), resp.InputsExt, resp.OutputsExt, viper.GetString(flagDesc))
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}

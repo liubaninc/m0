@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/liubaninc/m0/x/wasm/xmodel"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 
@@ -22,7 +23,7 @@ func (k msgServer) Deploy(goCtx context.Context, msg *types.MsgDeploy) (*types.M
 		OutputsExt: msg.OutputsExt,
 		ContractRequests: []*types.InvokeRequest{msg.ConvertInvokeRequest()},
 	}); err != nil {
-		return nil, err
+		return nil, sdkerrors.Wrapf(types.ErrRWSet, "verify %s", err)
 	} else if !ok {
 		return nil, errors.New("verifyTxRWSets failed")
 	}

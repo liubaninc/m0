@@ -1,8 +1,11 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	utxotypes "github.com/liubaninc/m0/x/utxo/types"
 	"github.com/liubaninc/m0/x/wasm/xmodel/contract/kernel"
 	"github.com/spf13/cobra"
@@ -33,19 +36,86 @@ func CmdInvoke() *cobra.Command {
 				return fmt.Errorf("contract name %v, error %v", args[1], err)
 			}
 			method := args[1]
-			var initArgs map[string][]byte
-			if err := json.Unmarshal([]byte(args[2]), &initArgs); err != nil {
-				return fmt.Errorf("init args, error %v", err)
+			if len(method) == 0 {
+				return fmt.Errorf("contract method empty")
 			}
-			_ = method
+			var methodArgs map[string]string
+			if err := json.Unmarshal([]byte(args[2]), &methodArgs); err != nil {
+				return fmt.Errorf("invoke init args, error %v", err)
+			}
+			mArgs := make(map[string][]byte)
+			for k, v := range methodArgs {
+				mArgs[k] = []byte(v)
+			}
+			mArgsStr, _ := json.Marshal(mArgs)
+			amount := sdk.NewCoins()
+			if amountStr := viper.GetString(flagAmount); len(amountStr) != 0 {
+				coins, err := sdk.ParseCoinsNormalized(amountStr)
+				if err != nil {
+					return fmt.Errorf("invalid amount %v", err)
+				}
+				amount = coins
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+			resp, err := queryClient.PreExec(context.Background(), &types.InvokeRPCRequest{
+				Creator: clientCtx.GetFromAddress().String(),
+				Lock: viper.GetInt64(flagLock),
+				Requests: []*types.InvokeRequest{
+					{
+						Amount: amount,
+						ModuleName:   viper.GetString(flagModule),
+						ContractName: name,
+						MethodName:   method,
+						Args: mArgsStr        ,
+					},
+				},
+			})
+			if err != nil {
+				return err
+			}
 
 			var inputs []*utxotypes.Input
 			var outputs []*utxotypes.Output
-			var inputsExt []*types.InputExt
-			var outputsExt []*types.OutputExt
-			var request []*types.InvokeRequest
+			neededTotal := sdk.NewCoins()
+			for _, coin := range amount {
+				outputs = append(outputs, &utxotypes.Output{
+					Amount: coin,
+					ToAddr: authtypes.NewModuleAddress(name).String(),
+				})
+				neededTotal = neededTotal.Add(coin)
+			}
+			txf := tx.NewFactoryCLI(clientCtx, cmd.Flags())
+			fees := txf.Fees()
+			for _, fee := range fees {
+				outputs = append(outputs, &utxotypes.Output{
+					Amount: fee,
+					ToAddr: authtypes.NewModuleAddress(authtypes.FeeCollectorName).String(),
+				})
+				neededTotal = neededTotal.Add(fee)
+			}
+			if !neededTotal.IsZero() {
+				queryClient := utxotypes.NewQueryClient(clientCtx)
+				params := &utxotypes.QueryInputRequest{
+					Address: clientCtx.GetFromAddress().String(),
+					Amount:  neededTotal.String(),
+					Lock:    viper.GetInt64(flagLock),
+				}
+				res, err := queryClient.Input(context.Background(), params)
+				if err != nil {
+					return err
+				}
+				inputs = append(inputs, res.Inputs...)
+				changeCoins := res.Amount.Sub(neededTotal)
+				for _, changeCoin := range changeCoins {
+					outputs = append(outputs, &utxotypes.Output{
+						ToAddr: clientCtx.GetFromAddress().String(),
+						Amount: changeCoin,
+					})
+				}
+			}
 
-			msg := types.NewMsgInvoke(clientCtx.GetFromAddress().String(), inputs, outputs, inputsExt, outputsExt, request, viper.GetString(flagDesc))
+			msg := types.NewMsgInvoke(clientCtx.GetFromAddress().String(), append(inputs, resp.Inputs...), append(outputs, resp.Outputs...), resp.InputsExt, resp.OutputsExt, resp.Requests, viper.GetString(flagDesc))
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -55,6 +125,8 @@ func CmdInvoke() *cobra.Command {
 
 	cmd.Flags().String(flagDesc, "", "description of msg")
 	cmd.Flags().Int64(flagLock, 60, "will lock inputs for a while. eg. 60s")
+	cmd.Flags().String(flagModule, "wasm", "contract code moudle, wasm")
+	cmd.Flags().String(flagAmount, "", "the amount transfer to contract")
 
 	flags.AddTxFlagsToCmd(cmd)
 
