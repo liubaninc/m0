@@ -87,7 +87,7 @@ endif
 ###                              Documentation                              ###
 ###############################################################################
 
-all: wasm2c build
+all: build wasm2c
 
 BUILD_TARGETS := build install
 
@@ -106,7 +106,7 @@ go.sum: go.mod
 	@echo "--> Ensure dependencies have not been modified"
 	@go mod verify
 
-wasm2c:
+wasm2c: $(BUILDDIR)/
 	@echo "Building wasm2c ..."
 	@make -C x/wasm/xmodel/xvm/compile/wabt -j 4
 	@cp x/wasm/xmodel/xvm/compile/wabt/build/wasm2c build

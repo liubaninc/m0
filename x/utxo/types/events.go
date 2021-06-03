@@ -6,6 +6,7 @@ const (
 
 	AttributeKeyRecipient = "recipient"
 	AttributeKeySender    = "sender"
+	AttributeKeyCreator    = "creator"
 
 	AttributeValueCategory = ModuleName
 )

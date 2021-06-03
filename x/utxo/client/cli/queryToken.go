@@ -38,6 +38,7 @@ func CmdListToken() *cobra.Command {
 	}
 
 	flags.AddQueryFlagsToCmd(cmd)
+	flags.AddPaginationFlagsToCmd(cmd, "list-tokens")
 
 	return cmd
 }

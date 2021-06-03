@@ -19,6 +19,8 @@ import (
 func (k msgServer) Deploy(goCtx context.Context, msg *types.MsgDeploy) (*types.MsgDeployResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	msgIndex := int32(ctx.Context().Value("msg-index").(int))
+
 	txHash := fmt.Sprintf("%X", tmhash.Sum(ctx.TxBytes()))
 	if ok, err := VerifyTxRWSets(ctx, k.Keeper, &types.MsgInvoke{
 		Creator:          msg.Creator,
@@ -31,15 +33,13 @@ func (k msgServer) Deploy(goCtx context.Context, msg *types.MsgDeploy) (*types.M
 		return nil, errors.New("verifyTxRWSets failed")
 	}
 
-	// TODO chaogaofeng
-	msgOffset := int32(0)
 	for offset, outputExt := range msg.OutputsExt {
 		if outputExt.Bucket == types.TransientBucket {
 			continue
 		}
 		k.SetVersionedData(ctx, &xmodel.VersionedData{
 			RefTxid:      []byte(txHash),
-			RefMsgOffset: int32(msgOffset),
+			RefMsgOffset: msgIndex,
 			RefOffset:    int32(offset),
 			PureData: &xmodel.PureData{
 				Bucket: outputExt.Bucket,

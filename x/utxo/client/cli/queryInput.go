@@ -43,6 +43,7 @@ func CmdListInput() *cobra.Command {
 	}
 
 	flags.AddQueryFlagsToCmd(cmd)
+	flags.AddPaginationFlagsToCmd(cmd, "all-inputs")
 
 	return cmd
 }

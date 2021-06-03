@@ -16,7 +16,10 @@ import (
 func (k msgServer) Send(goCtx context.Context, msg *types.MsgSend) (*types.MsgSendResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	msgIndex := int32(ctx.Context().Value("msg-index").(int))
+
 	var attrs []sdk.Attribute
+	attrs = append(attrs, sdk.NewAttribute(types.AttributeKeyCreator, msg.Creator))
 	for index, input := range msg.Inputs {
 		attrs = append(attrs, sdk.NewAttribute(types.AttributeKeySender, input.FromAddr))
 		tinput, found := k.GetInput(ctx, input.Index())
@@ -47,7 +50,7 @@ func (k msgServer) Send(goCtx context.Context, msg *types.MsgSend) (*types.MsgSe
 		attrs = append(attrs, sdk.NewAttribute(types.AttributeKeyRecipient, output.ToAddr))
 		input := types.Input{
 			RefTx:        hash,
-			RefMsg:       0, // TODO chaogaofeng
+			RefMsg:       msgIndex,
 			RefOffset:    int32(index),
 			FromAddr:     output.ToAddr,
 			Amount:       output.Amount,
@@ -57,7 +60,7 @@ func (k msgServer) Send(goCtx context.Context, msg *types.MsgSend) (*types.MsgSe
 
 		// bank
 		addr, _ := sdk.AccAddressFromBech32(output.ToAddr)
-		if !addr.Equals(authtypes.NewModuleAddress(authtypes.FeeCollectorName)) {
+		if addr.Equals(authtypes.NewModuleAddress(authtypes.FeeCollectorName)) {
 			// TODO chaogaofeng
 		} else if err := k.bank.AddCoins(ctx, addr, sdk.NewCoins(output.Amount)); err != nil {
 			return nil, err
@@ -68,7 +71,6 @@ func (k msgServer) Send(goCtx context.Context, msg *types.MsgSend) (*types.MsgSe
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
-			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),
 		),
 		sdk.NewEvent(types.EventTypeTransfer, attrs...),
 	})
