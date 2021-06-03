@@ -2,11 +2,12 @@ package native
 
 import (
 	"encoding/hex"
-	"github.com/liubaninc/m0/x/wasm/xmodel"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sync"
+
+	"github.com/liubaninc/m0/x/wasm/xmodel"
 
 	"github.com/liubaninc/m0/x/wasm/xmodel/contract/bridge"
 )

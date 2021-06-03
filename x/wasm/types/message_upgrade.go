@@ -3,24 +3,26 @@ package types
 import (
 	"encoding/json"
 	"fmt"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
 	utxotypes "github.com/liubaninc/m0/x/utxo/types"
 	"github.com/liubaninc/m0/x/wasm/xmodel"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 var _ sdk.Msg = &MsgUpgrade{}
 
 func NewMsgUpgrade(creator string, contractName string, contractCode []byte, limits []*xmodel.ResourceLimit, inputs []*utxotypes.Input, outputs []*utxotypes.Output, inputsExt []*InputExt, outputsExt []*OutputExt, desc string) *MsgUpgrade {
 	return &MsgUpgrade{
-		Creator:      creator,
-		Desc:         desc,
-		Inputs: inputs,
-		Outputs: outputs,
-		InputsExt:    inputsExt,
-		OutputsExt:   outputsExt,
-		ContractName: contractName,
-		ContractCode: contractCode,
+		Creator:        creator,
+		Desc:           desc,
+		Inputs:         inputs,
+		Outputs:        outputs,
+		InputsExt:      inputsExt,
+		OutputsExt:     outputsExt,
+		ContractName:   contractName,
+		ContractCode:   contractCode,
 		ResourceLimits: limits,
 	}
 }
@@ -143,10 +145,10 @@ func (m *MsgUpgrade) ConvertInvokeRequest() *InvokeRequest {
 		"contract_code": m.ContractCode,
 	})
 	return &InvokeRequest{
-		ModuleName: "kernel",
-		ContractName: "",
-		MethodName: "Upgrade",
-		Args: string(args),
+		ModuleName:     "kernel",
+		ContractName:   "",
+		MethodName:     "Upgrade",
+		Args:           string(args),
 		ResourceLimits: m.ResourceLimits,
 	}
 }

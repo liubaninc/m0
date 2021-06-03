@@ -127,10 +127,10 @@ func (c *contractContext) QueryTx(txid string) (*pb.Transaction, error) {
 	return resp.Tx, nil
 }
 
-func (c *contractContext) QueryBlock(blockid string) (*pb.Block, error) {
+func (c *contractContext) QueryBlock(height int64) (*pb.Block, error) {
 	req := &pb.QueryBlockRequest{
-		Header:  &c.header,
-		Blockid: string(blockid),
+		Header: &c.header,
+		Height: height,
 	}
 	resp := new(pb.QueryBlockResponse)
 	if err := c.bridgeCallFunc(methodQueryBlock, req, resp); err != nil {

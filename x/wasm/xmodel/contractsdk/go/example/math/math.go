@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math/big"
 	"os"
+	"strconv"
 
 	"github.com/liubaninc/m0/x/wasm/xmodel/contractsdk/go/code"
 	"github.com/liubaninc/m0/x/wasm/xmodel/contractsdk/go/driver"
@@ -53,8 +54,8 @@ func (m *math) Invoke(nci code.Context) code.Response {
 		os.Stderr.Write(out)
 	} else if action == "queryblock" {
 		id := string(args["id"])
-		rawid, _ := hex.DecodeString(id)
-		block, err := nci.QueryBlock(string(rawid))
+		height, _ := strconv.ParseInt(id, 10, 64)
+		block, err := nci.QueryBlock(height)
 		if err != nil {
 		}
 		out, _ := json.MarshalIndent(block, "", "  ")

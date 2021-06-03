@@ -3,6 +3,7 @@ package bridge
 import (
 	"errors"
 	"fmt"
+
 	"github.com/liubaninc/m0/x/wasm/xmodel"
 
 	"github.com/golang/protobuf/proto"

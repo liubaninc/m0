@@ -1,8 +1,9 @@
 package keeper
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/liubaninc/m0/x/utxo/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // SetParams sets the auth module's parameters.

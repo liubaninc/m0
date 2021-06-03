@@ -1,11 +1,12 @@
 package xvm
 
 import (
-	"github.com/liubaninc/m0/x/wasm/xmodel"
 	"io/ioutil"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/liubaninc/m0/x/wasm/xmodel"
 
 	"github.com/liubaninc/m0/x/wasm/xmodel/xvm/exec"
 )

@@ -3,10 +3,10 @@ package bridge
 import (
 	"sync"
 
-	"github.com/tendermint/tendermint/libs/log"
 	"github.com/liubaninc/m0/x/wasm/xmodel"
 	"github.com/liubaninc/m0/x/wasm/xmodel/contract"
 	pb "github.com/liubaninc/m0/x/wasm/xmodel/contractsdk/go/pb"
+	"github.com/tendermint/tendermint/libs/log"
 )
 
 // Context 保存了合约执行的内核状态，

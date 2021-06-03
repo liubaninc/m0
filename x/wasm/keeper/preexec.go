@@ -2,10 +2,12 @@ package keeper
 
 import (
 	"encoding/json"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/liubaninc/m0/x/wasm/types"
 	"github.com/liubaninc/m0/x/wasm/xmodel"
 	"github.com/liubaninc/m0/x/wasm/xmodel/contract"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // preExec the contract model uses previous execution to generate RWSets
@@ -18,10 +20,10 @@ func PreExec(ctx sdk.Context, k Keeper, req *types.InvokeRPCRequest) (*types.Inv
 	}
 
 	contextConfig := &contract.ContextConfig{
-		Logger:    k.Logger(ctx),
-		XMCache:   modelCache,
-		XMReader:  xmreader,
-		Initiator: req.Creator,
+		Logger:         k.Logger(ctx),
+		XMCache:        modelCache,
+		XMReader:       xmreader,
+		Initiator:      req.Creator,
 		ContractName:   "",
 		ResourceLimits: contract.MaxLimits,
 		Core:           newContractChainCore(),

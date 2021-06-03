@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"errors"
+
 	utxotypes "github.com/liubaninc/m0/x/utxo/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -93,14 +94,14 @@ func (u *UtxoCache) Transfer(from, to sdk.AccAddress, amount sdk.Coins) error {
 			return err
 		}
 		u.outputCache = append(u.outputCache, &utxotypes.Output{
-			ToAddr:      to.String(),
+			ToAddr:       to.String(),
 			Amount:       coin,
 			FrozenHeight: 0,
 		})
 		// 找零
 		if sub := total.Sub(coin.Amount); sub.IsPositive() {
 			u.outputCache = append(u.outputCache, &utxotypes.Output{
-				ToAddr:      from.String(),
+				ToAddr:       from.String(),
 				Amount:       sdk.NewCoin(coin.Denom, sub),
 				FrozenHeight: 0,
 			})

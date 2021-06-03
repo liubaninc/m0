@@ -1,9 +1,10 @@
 package keeper
 
 import (
+	"github.com/liubaninc/m0/x/utxo/types"
+
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/liubaninc/m0/x/utxo/types"
 )
 
 // SetToken set a specific token in the store from its index

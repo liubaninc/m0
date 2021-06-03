@@ -1,6 +1,6 @@
 syntax = "proto3";
 option optimize_for = LITE_RUNTIME;
-option go_package = "github.com/tq_bc/m0/contractsdk/go/pbrpc";
+option go_package = "github.com/liubaninc/m0/contractsdk/go/pbrpc";
 option java_package = "com.tq_bc.m0.contractpb";
 
 import "contract.proto";

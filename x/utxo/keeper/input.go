@@ -2,10 +2,12 @@ package keeper
 
 import (
 	"fmt"
+
+	"github.com/liubaninc/m0/x/utxo/types"
+
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/liubaninc/m0/x/utxo/types"
 )
 
 // SetInput set a specific input in the store from its index

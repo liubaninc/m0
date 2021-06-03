@@ -3,7 +3,6 @@ package native
 import (
 	"context"
 	"fmt"
-	"github.com/liubaninc/m0/x/wasm/xmodel"
 	"net"
 	"os"
 	"path/filepath"
@@ -11,9 +10,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/tendermint/tendermint/libs/log"
+	"github.com/liubaninc/m0/x/wasm/xmodel"
+
 	pb "github.com/liubaninc/m0/x/wasm/xmodel/contractsdk/go/pb"
 	pbrpc "github.com/liubaninc/m0/x/wasm/xmodel/contractsdk/go/pbrpc"
+	"github.com/tendermint/tendermint/libs/log"
 	"google.golang.org/grpc"
 )
 

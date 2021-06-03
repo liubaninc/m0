@@ -7,9 +7,9 @@ import (
 	"strconv"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/tendermint/tendermint/crypto/tmhash"
 	"github.com/liubaninc/m0/x/wasm/xmodel"
 	"github.com/liubaninc/m0/x/wasm/xmodel/contract"
+	"github.com/tendermint/tendermint/crypto/tmhash"
 )
 
 type contractManager struct {

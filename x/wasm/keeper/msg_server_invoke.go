@@ -5,11 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+
 	"github.com/liubaninc/m0/x/wasm/xmodel"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/liubaninc/m0/x/wasm/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func (k msgServer) Invoke(goCtx context.Context, msg *types.MsgInvoke) (*types.MsgInvokeResponse, error) {
@@ -46,7 +48,7 @@ func (k msgServer) Invoke(goCtx context.Context, msg *types.MsgInvoke) (*types.M
 			sdk.NewAttribute(types.AttributeKeyName, request.ContractName),
 			sdk.NewAttribute(types.AttributeKeyMethod, request.MethodName),
 			sdk.NewAttribute(types.AttributeKeyArg, string(args)),
-			)
+		)
 	}
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(

@@ -4,10 +4,10 @@ import (
 	"context"
 	"encoding/hex"
 
+	sdkpb "github.com/liubaninc/m0/x/wasm/xmodel/contractsdk/go/pb"
 	"github.com/spf13/viper"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
-	sdkpb "github.com/liubaninc/m0/x/wasm/xmodel/contractsdk/go/pb"
 )
 
 type contractChainCore struct {

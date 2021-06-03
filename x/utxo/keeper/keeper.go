@@ -7,10 +7,11 @@ import (
 
 	"github.com/tendermint/tendermint/libs/log"
 
+	"github.com/liubaninc/m0/x/utxo/types"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	"github.com/liubaninc/m0/x/utxo/types"
 )
 
 type (

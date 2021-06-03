@@ -1,9 +1,10 @@
 package utxo
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/liubaninc/m0/x/utxo/keeper"
 	"github.com/liubaninc/m0/x/utxo/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // InitGenesis initializes the capability module's state from a provided genesis

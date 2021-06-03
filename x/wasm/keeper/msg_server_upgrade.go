@@ -4,11 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/liubaninc/m0/x/wasm/xmodel"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/liubaninc/m0/x/wasm/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func (k msgServer) Upgrade(goCtx context.Context, msg *types.MsgUpgrade) (*types.MsgUpgradeResponse, error) {
@@ -16,9 +18,9 @@ func (k msgServer) Upgrade(goCtx context.Context, msg *types.MsgUpgrade) (*types
 
 	txHash := fmt.Sprintf("%X", tmhash.Sum(ctx.TxBytes()))
 	if ok, err := VerifyTxRWSets(ctx, k.Keeper, &types.MsgInvoke{
-		Creator: msg.Creator,
-		InputsExt: msg.InputsExt,
-		OutputsExt: msg.OutputsExt,
+		Creator:          msg.Creator,
+		InputsExt:        msg.InputsExt,
+		OutputsExt:       msg.OutputsExt,
 		ContractRequests: []*types.InvokeRequest{msg.ConvertInvokeRequest()},
 	}); err != nil {
 		return nil, err

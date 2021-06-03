@@ -3,13 +3,15 @@ package keeper
 import (
 	"encoding/json"
 	"errors"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	utxotypes "github.com/liubaninc/m0/x/utxo/types"
 	"github.com/liubaninc/m0/x/wasm/types"
+	"github.com/liubaninc/m0/x/wasm/xmodel"
 	"github.com/syndtr/goleveldb/leveldb/comparer"
 	"github.com/syndtr/goleveldb/leveldb/memdb"
 	"github.com/syndtr/goleveldb/leveldb/util"
-	"github.com/liubaninc/m0/x/wasm/xmodel"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 var _ xmodel.XModel = &XMCache{}

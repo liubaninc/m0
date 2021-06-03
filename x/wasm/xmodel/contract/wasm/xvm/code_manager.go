@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/liubaninc/m0/x/wasm/xmodel"
 	"io/ioutil"
 	"math/rand"
 	"os"
@@ -14,6 +13,8 @@ import (
 	"runtime"
 	"sync"
 	"time"
+
+	"github.com/liubaninc/m0/x/wasm/xmodel"
 
 	"github.com/liubaninc/m0/x/wasm/xmodel/contract/bridge"
 	"github.com/liubaninc/m0/x/wasm/xmodel/xvm/compile"

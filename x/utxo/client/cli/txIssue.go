@@ -3,16 +3,19 @@ package cli
 import (
 	"context"
 	"fmt"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"strconv"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"strconv"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+
+	"github.com/liubaninc/m0/x/utxo/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
-	"github.com/liubaninc/m0/x/utxo/types"
 )
 
 var _ = strconv.Itoa(0)

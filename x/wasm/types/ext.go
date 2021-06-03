@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+
 	utxotypes "github.com/liubaninc/m0/x/utxo/types"
 	"github.com/liubaninc/m0/x/wasm/xmodel"
 )
@@ -63,7 +64,6 @@ func ParseEventsFromExt(outputsExt []*OutputExt) ([]*xmodel.ContractEvent, error
 	}
 	return events, nil
 }
-
 
 const (
 	// DelFlag delete flag
@@ -139,11 +139,11 @@ func GetInputsExt(vds []*xmodel.VersionedData) []*InputExt {
 	inputs := make([]*InputExt, 0, len(vds))
 	for _, vd := range vds {
 		inputs = append(inputs, &InputExt{
-			Bucket:       vd.PureData.Bucket,
-			Key:          string(vd.PureData.Key),
-			RefTx:      string(vd.RefTxid),
-			RefMsg: vd.RefMsgOffset,
-			RefOffset:    vd.RefOffset,
+			Bucket:    vd.PureData.Bucket,
+			Key:       string(vd.PureData.Key),
+			RefTx:     string(vd.RefTxid),
+			RefMsg:    vd.RefMsgOffset,
+			RefOffset: vd.RefOffset,
 		})
 	}
 	return inputs

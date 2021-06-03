@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/binary"
 	"fmt"
+
 	"github.com/liubaninc/m0/x/wasm/xmodel/contract/bridge"
 	"github.com/liubaninc/m0/x/wasm/xmodel/contract/bridge/memrpc"
 	"github.com/liubaninc/m0/x/wasm/xmodel/xvm/exec"
@@ -42,9 +43,9 @@ func (s *syscallResolver) ResolveFunc(module, name string) (interface{}, bool) {
 		return s.goCallMethod, true
 	case "go.github.com/xuperchain/xuperunion/contractsdk/go/driver/wasm.fetchResponse":
 		return s.goFetchResponse, true
-	case "go.github.com/tq_bc/m0/contractsdk/go/driver/wasm.callMethod":
+	case "go.github.com/liubaninc/m0/contractsdk/go/driver/wasm.callMethod":
 		return s.goCallMethod, true
-	case "go.github.com/tq_bc/m0/contractsdk/go/driver/wasm.fetchResponse":
+	case "go.github.com/liubaninc/m0/contractsdk/go/driver/wasm.fetchResponse":
 		return s.goFetchResponse, true
 	case "env._call_method":
 		return s.cCallMethod, true

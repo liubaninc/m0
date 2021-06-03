@@ -3,9 +3,10 @@ package kernel
 import (
 	"errors"
 	"fmt"
+	"regexp"
+
 	"github.com/liubaninc/m0/x/wasm/xmodel/contract"
 	"github.com/liubaninc/m0/x/wasm/xmodel/contract/bridge"
-	"regexp"
 )
 
 const (

@@ -3,6 +3,7 @@ package types
 import (
 	"encoding/hex"
 	"encoding/json"
+
 	"github.com/liubaninc/m0/x/wasm/xmodel"
 	"gopkg.in/yaml.v2"
 )

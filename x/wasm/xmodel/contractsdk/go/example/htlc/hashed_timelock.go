@@ -4,10 +4,11 @@ import (
 	"crypto/sha256"
 	"errors"
 	"fmt"
-	"github.com/liubaninc/m0/x/wasm/xmodel/contractsdk/go/code"
-	"github.com/liubaninc/m0/x/wasm/xmodel/contractsdk/go/driver"
 	"math/big"
 	"strconv"
+
+	"github.com/liubaninc/m0/x/wasm/xmodel/contractsdk/go/code"
+	"github.com/liubaninc/m0/x/wasm/xmodel/contractsdk/go/driver"
 )
 
 type HashedTimelock struct{}
@@ -111,7 +112,8 @@ func (c *HashedTimelock) Refund(ctx code.Context) code.Response {
 	if !ok {
 		return code.Errors("args missing blockid")
 	}
-	block, err := ctx.QueryBlock(string(blockid))
+	height, _ := strconv.ParseInt(string(blockid), 10, 64)
+	block, err := ctx.QueryBlock(height)
 	if err != nil {
 		return code.Errors("find block err:" + err.Error())
 	}

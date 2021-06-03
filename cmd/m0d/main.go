@@ -3,9 +3,10 @@ package main
 import (
 	"os"
 
-	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 	"github.com/liubaninc/m0/app"
 	"github.com/liubaninc/m0/cmd/m0d/cmd"
+
+	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 )
 
 func main() {

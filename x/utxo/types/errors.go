@@ -22,5 +22,5 @@ var (
 
 	ErrInvalidIssuer = sdkerrors.Register(ModuleName, 1200, "the issuer is invalid")
 
-	ErrUnexpected              = sdkerrors.Register(ModuleName, 1300, "a unexpected error")
+	ErrUnexpected = sdkerrors.Register(ModuleName, 1300, "a unexpected error")
 )

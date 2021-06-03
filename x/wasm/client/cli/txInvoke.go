@@ -4,18 +4,21 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"strconv"
+
 	utxotypes "github.com/liubaninc/m0/x/utxo/types"
 	"github.com/liubaninc/m0/x/wasm/xmodel/contract/kernel"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"strconv"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+
+	"github.com/liubaninc/m0/x/wasm/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
-	"github.com/liubaninc/m0/x/wasm/types"
 )
 
 var _ = strconv.Itoa(0)
@@ -60,14 +63,14 @@ func CmdInvoke() *cobra.Command {
 			queryClient := types.NewQueryClient(clientCtx)
 			resp, err := queryClient.PreExec(context.Background(), &types.InvokeRPCRequest{
 				Creator: clientCtx.GetFromAddress().String(),
-				Lock: viper.GetInt64(flagLock),
+				Lock:    viper.GetInt64(flagLock),
 				Requests: []*types.InvokeRequest{
 					{
-						Amount: amount,
+						Amount:       amount,
 						ModuleName:   viper.GetString(flagModule),
 						ContractName: name,
 						MethodName:   method,
-						Args: string(mArgsStr),
+						Args:         string(mArgsStr),
 					},
 				},
 			})

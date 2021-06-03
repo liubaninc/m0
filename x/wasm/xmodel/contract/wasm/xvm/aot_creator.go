@@ -2,11 +2,12 @@ package xvm
 
 import (
 	"fmt"
-	tmlog "github.com/tendermint/tendermint/libs/log"
 	"io/ioutil"
 	"os"
 	osexec "os/exec"
 	"path/filepath"
+
+	tmlog "github.com/tendermint/tendermint/libs/log"
 
 	"github.com/liubaninc/m0/x/wasm/xmodel/contract/bridge"
 	"github.com/liubaninc/m0/x/wasm/xmodel/contract/teevm"

@@ -5,12 +5,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
 	"github.com/liubaninc/m0/x/wasm/xmodel"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
 	"github.com/liubaninc/m0/x/wasm/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func (k msgServer) Deploy(goCtx context.Context, msg *types.MsgDeploy) (*types.MsgDeployResponse, error) {
@@ -18,9 +21,9 @@ func (k msgServer) Deploy(goCtx context.Context, msg *types.MsgDeploy) (*types.M
 
 	txHash := fmt.Sprintf("%X", tmhash.Sum(ctx.TxBytes()))
 	if ok, err := VerifyTxRWSets(ctx, k.Keeper, &types.MsgInvoke{
-		Creator: msg.Creator,
-		InputsExt: msg.InputsExt,
-		OutputsExt: msg.OutputsExt,
+		Creator:          msg.Creator,
+		InputsExt:        msg.InputsExt,
+		OutputsExt:       msg.OutputsExt,
 		ContractRequests: []*types.InvokeRequest{msg.ConvertInvokeRequest()},
 	}); err != nil {
 		return nil, sdkerrors.Wrapf(types.ErrRWSet, "verify %s", err)
@@ -43,7 +46,7 @@ func (k msgServer) Deploy(goCtx context.Context, msg *types.MsgDeploy) (*types.M
 				Key:    []byte(outputExt.Key),
 				Value:  outputExt.Value,
 			},
-			})
+		})
 	}
 
 	var attrs []sdk.Attribute

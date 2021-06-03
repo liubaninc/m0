@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -15,7 +16,7 @@ func (m *Input) ValidateBasic() error {
 	if len(m.FromAddr) == 0 {
 		return sdkerrors.Wrap(ErrUnexpected, "missing address in input")
 	}
-	if len(m.RefTx) == 0  {
+	if len(m.RefTx) == 0 {
 		return sdkerrors.Wrap(ErrUnexpected, "missing ref_tx in input")
 	}
 	if m.RefMsg < 0 {

@@ -3,27 +3,29 @@ package types
 import (
 	"encoding/json"
 	"fmt"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
 	"github.com/gogo/protobuf/proto"
 	utxotypes "github.com/liubaninc/m0/x/utxo/types"
 	"github.com/liubaninc/m0/x/wasm/xmodel"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 var _ sdk.Msg = &MsgDeploy{}
 
 func NewMsgDeploy(creator string, contractName string, contractCode []byte, contractDesc *xmodel.WasmCodeDesc, args map[string][]byte, limits []*xmodel.ResourceLimit, inputs []*utxotypes.Input, outputs []*utxotypes.Output, inputsExt []*InputExt, outputsExt []*OutputExt, desc string) *MsgDeploy {
 	return &MsgDeploy{
-		Creator:      creator,
-		Desc:         desc,
-		Inputs: inputs,
-		Outputs: outputs,
-		InputsExt:    inputsExt,
-		OutputsExt:   outputsExt,
-		ContractName: contractName,
-		ContractCode: contractCode,
-		ContractDesc: contractDesc,
-		Args:         args,
+		Creator:        creator,
+		Desc:           desc,
+		Inputs:         inputs,
+		Outputs:        outputs,
+		InputsExt:      inputsExt,
+		OutputsExt:     outputsExt,
+		ContractName:   contractName,
+		ContractCode:   contractCode,
+		ContractDesc:   contractDesc,
+		Args:           args,
 		ResourceLimits: limits,
 	}
 }
@@ -154,13 +156,13 @@ func (m *MsgDeploy) ConvertInvokeRequest() *InvokeRequest {
 		"contract_name": []byte(m.ContractName),
 		"contract_code": m.ContractCode,
 		"contract_desc": desc,
-		"init_args": initArgs,
+		"init_args":     initArgs,
 	})
 	return &InvokeRequest{
-		ModuleName: "kernel",
-		ContractName: "",
-		MethodName: "Deploy",
-		Args: string(args),
+		ModuleName:     "kernel",
+		ContractName:   "",
+		MethodName:     "Deploy",
+		Args:           string(args),
 		ResourceLimits: m.ResourceLimits,
 	}
 }

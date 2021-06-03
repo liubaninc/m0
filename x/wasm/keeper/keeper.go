@@ -2,7 +2,7 @@ package keeper
 
 import (
 	"fmt"
-	"github.com/cosmos/cosmos-sdk/client/flags"
+
 	utxokeeper "github.com/liubaninc/m0/x/utxo/keeper"
 	"github.com/liubaninc/m0/x/wasm/xmodel/contract"
 	"github.com/liubaninc/m0/x/wasm/xmodel/contract/bridge"
@@ -10,11 +10,14 @@ import (
 	"github.com/liubaninc/m0/x/wasm/xmodel/contract/wasm/xvm"
 	"github.com/spf13/viper"
 
+	"github.com/cosmos/cosmos-sdk/client/flags"
+
 	"github.com/tendermint/tendermint/libs/log"
+
+	"github.com/liubaninc/m0/x/wasm/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/liubaninc/m0/x/wasm/types"
 	// this line is used by starport scaffolding # ibc/keeper/import
 )
 
@@ -25,9 +28,9 @@ type (
 		memKey   sdk.StoreKey
 		// this line is used by starport scaffolding # ibc/keeper/attribute
 
-		utxoKeeper    utxokeeper.Keeper
-		vmMgr *contract.VMManager
-		Ctx   sdk.Context
+		utxoKeeper utxokeeper.Keeper
+		vmMgr      *contract.VMManager
+		Ctx        sdk.Context
 	}
 )
 
@@ -43,8 +46,8 @@ func NewKeeper(
 		storeKey: storeKey,
 		memKey:   memKey,
 		// this line is used by starport scaffolding # ibc/keeper/return
-		utxoKeeper:                 utxoKeeper,
-		vmMgr:              contract.NewVMManager(),
+		utxoKeeper: utxoKeeper,
+		vmMgr:      contract.NewVMManager(),
 	}
 	// 合约虚拟机
 	basedir := viper.GetString(flags.FlagHome)

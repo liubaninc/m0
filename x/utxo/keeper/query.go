@@ -2,10 +2,11 @@ package keeper
 
 import (
 	// this line is used by starport scaffolding # 1
+	"github.com/liubaninc/m0/x/utxo/types"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/liubaninc/m0/x/utxo/types"
 
 	abci "github.com/tendermint/tendermint/abci/types"
 )

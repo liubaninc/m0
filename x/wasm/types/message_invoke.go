@@ -2,10 +2,12 @@ package types
 
 import (
 	"fmt"
+
+	utxotypes "github.com/liubaninc/m0/x/utxo/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	utxotypes "github.com/liubaninc/m0/x/utxo/types"
 )
 
 var _ sdk.Msg = &MsgInvoke{}
