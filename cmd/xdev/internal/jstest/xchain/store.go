@@ -5,11 +5,11 @@ import (
 	"math/rand"
 
 	"github.com/golang/protobuf/proto"
+	wasm "github.com/liubaninc/m0/x/wasm/keeper"
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/syndtr/goleveldb/leveldb/iterator"
 	"github.com/syndtr/goleveldb/leveldb/storage"
 	"github.com/syndtr/goleveldb/leveldb/util"
-	wasm "github.com/liubaninc/m0/x/wasm/keeper"
 )
 
 type mockStore struct {

@@ -2,6 +2,7 @@ package cli
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -58,7 +59,10 @@ func CmdIssue() *cobra.Command {
 			}
 
 			txf := tx.NewFactoryCLI(clientCtx, cmd.Flags())
-			fees := txf.Fees()
+			fees, err := fees(txf)
+			if err != nil {
+				return err
+			}
 			for _, fee := range fees {
 				outputs = append(outputs, &types.Output{
 					Amount: fee,
@@ -101,4 +105,26 @@ func CmdIssue() *cobra.Command {
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd
+}
+
+func fees(txf tx.Factory) (sdk.Coins, error) {
+	fees := txf.Fees()
+	gasPrices := txf.GasPrices()
+	if !gasPrices.IsZero() {
+		if !fees.IsZero() {
+			return nil, errors.New("cannot provide both fees and gas prices")
+		}
+
+		glDec := sdk.NewDec(int64(txf.Gas()))
+
+		// Derive the fees based on the provided gas prices, where
+		// fee = ceil(gasPrice * gasLimit).
+		fees = make(sdk.Coins, len(gasPrices))
+
+		for i, gp := range gasPrices {
+			fee := gp.Amount.Mul(glDec)
+			fees[i] = sdk.NewCoin(gp.Denom, fee.Ceil().RoundInt())
+		}
+	}
+	return fees, nil
 }

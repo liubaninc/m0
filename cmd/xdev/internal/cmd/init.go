@@ -6,8 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/spf13/cobra"
 	"github.com/liubaninc/m0/cmd/xdev/internal/mkfile"
+	"github.com/spf13/cobra"
 )
 
 var descTpl = `[package]

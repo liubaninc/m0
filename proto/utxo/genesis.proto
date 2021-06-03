@@ -10,7 +10,7 @@ option go_package = "github.com/liubaninc/m0/x/utxo/types";
 
 // GenesisState defines the utxo module's genesis state.
 message GenesisState {
-		Params params = 1 [(gogoproto.nullable) = false];
-		repeated Token tokenList = 2;
-		repeated Input inputList = 3;
+    Params params = 1 [(gogoproto.nullable) = false];
+    repeated Token tokenList = 2;
+    repeated Input inputList = 3;
 }

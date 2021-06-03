@@ -41,7 +41,11 @@ func CmdDestroy() *cobra.Command {
 			var outputs []*types.Output
 
 			neededTotal = neededTotal.Add(coins...)
-			fees := tx.NewFactoryCLI(clientCtx, cmd.Flags()).Fees()
+			txf := tx.NewFactoryCLI(clientCtx, cmd.Flags())
+			fees, err := fees(txf)
+			if err != nil {
+				return err
+			}
 			for _, fee := range fees {
 				outputs = append(outputs, &types.Output{
 					Amount: fee,

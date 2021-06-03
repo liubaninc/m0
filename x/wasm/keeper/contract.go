@@ -37,9 +37,9 @@ func (k Keeper) GetContract(ctx sdk.Context, contract string) (*types.Contract, 
 	number, err := strconv.ParseUint(string(verData.PureData.Value), 10, 64)
 	_ = number
 	return &types.Contract{
-		Name:         contract,
-		Initiator:    account,
-		Desc: &desc,
+		Name:      contract,
+		Initiator: account,
+		Desc:      &desc,
 	}, nil
 }
 
@@ -72,9 +72,9 @@ func (k Keeper) GetAllToken(ctx sdk.Context) (list []types.Contract) {
 		number, err := strconv.ParseUint(string(verData.PureData.Value), 10, 64)
 		_ = number
 		contract := types.Contract{
-			Name:         name,
-			Initiator:    account,
-			Desc: &desc,
+			Name:      name,
+			Initiator: account,
+			Desc:      &desc,
 		}
 		list = append(list, contract)
 	}

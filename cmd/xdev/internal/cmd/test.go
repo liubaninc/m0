@@ -4,10 +4,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/spf13/cobra"
-	"github.com/tendermint/tendermint/libs/log"
 	"github.com/liubaninc/m0/cmd/xdev/internal/jstest"
 	"github.com/liubaninc/m0/cmd/xdev/internal/jstest/xchain"
+	"github.com/spf13/cobra"
+	"github.com/tendermint/tendermint/libs/log"
 )
 
 type testCommand struct {

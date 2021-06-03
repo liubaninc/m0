@@ -16,7 +16,7 @@ message Input {
 }
 
 message Output {
-  cosmos.base.v1beta1.Coin amount = 1 [(gogoproto.nullable) = false];
-  string to_addr = 2;
+  string to_addr = 1;
+  cosmos.base.v1beta1.Coin amount = 2 [(gogoproto.nullable) = false];
   int64  frozen_height = 4;
 }

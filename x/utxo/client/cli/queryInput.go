@@ -15,7 +15,7 @@ import (
 func CmdListInput() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list-input [address] [denom]",
-		Short: "query all available inputs of a specific address and denom.",
+		Short: "query all available unspent outputs list of a specific address and denom.",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -50,7 +50,7 @@ func CmdListInput() *cobra.Command {
 func CmdShowInput() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "show-input [address] [amount][,[amount]]",
-		Short: "query for the available inputs of a specific address and specific amount of coins",
+		Short: "query for the available unspent outputs of a specific address and specific amount of coins",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)

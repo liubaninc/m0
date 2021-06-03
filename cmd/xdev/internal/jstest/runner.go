@@ -9,8 +9,8 @@ import (
 	"testing"
 
 	"github.com/ddliu/motto"
-	"github.com/robertkrimen/otto"
 	"github.com/liubaninc/m0/cmd/xdev/internal/jstest/builtins"
+	"github.com/robertkrimen/otto"
 )
 
 // TestCase is the one test case
