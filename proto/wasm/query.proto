@@ -5,6 +5,7 @@ import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 // this line is used by starport scaffolding # 1
 import "wasm/ext.proto";
+import "wasm/contract.proto";
 import "utxo/input.proto";
 import "xmodel/xmodel.proto";
 
@@ -20,9 +21,19 @@ service Query {
       body: "*"
     };
   }
-}
 
-// this line is used by starport scaffolding # 3
+  rpc Contract(QueryGetContractRequest) returns (QueryGetContractResponse) {
+      option (google.api.http).get = "/liubaninc/m0/wasm/contract/{name}";
+  }
+
+  rpc ContractAll(QueryAllContractRequest) returns (QueryAllContractResponse) {
+      option (google.api.http).get = "/liubaninc/m0/wasm/contract";
+  }
+
+  rpc AccountContractAll(QueryGetAccountAllContractRequest) returns (QueryGetAccountAllContractResponse) {
+      option (google.api.http).get = "/liubaninc/m0/wasm/contract/account/{name}";
+  }
+}
 
 message InvokeRPCRequest {
   string creator = 1;
@@ -39,4 +50,31 @@ message InvokeRPCResponse {
   int64 gas_used = 6;
   repeated InvokeRequest requests = 7;
   repeated xmodel.ContractResponse responses = 8;
+}
+
+message QueryGetContractRequest {
+	string name = 1;
+}
+
+message QueryGetContractResponse {
+	Contract contract = 1;
+}
+
+message QueryGetAccountAllContractRequest {
+	string name = 1;
+	cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+message QueryGetAccountAllContractResponse {
+	repeated Contract contract = 1;
+    cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+message QueryAllContractRequest {
+	cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryAllContractResponse {
+	repeated Contract contract = 1;
+	cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
