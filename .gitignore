@@ -3,4 +3,15 @@ vue/dist
 secret.yml
 .idea
 vue/
+
+# Build
+vendor
 build
+docs/_build
+docs/tutorial
+docs/node_modules
+docs/modules
+dist
+tools-stamp
+buf-stamp
+artifactss
