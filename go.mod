@@ -13,6 +13,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/mitchellh/mapstructure v1.3.3
+	github.com/regen-network/cosmos-proto v0.3.1 // indirect
 	github.com/robertkrimen/otto v0.0.0-20200922221731-ef014fd054ac
 	github.com/spf13/cast v1.3.1
 	github.com/spf13/cobra v1.1.3

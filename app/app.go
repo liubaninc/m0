@@ -341,6 +341,7 @@ func New(
 		keys[utxotypes.StoreKey],
 		keys[utxotypes.MemStoreKey],
 		app.GetSubspace(utxotypes.ModuleName),
+		app.AccountKeeper,
 		app.BankKeeper,
 	)
 	utxoModule := utxo.NewAppModule(appCodec, app.utxoKeeper)

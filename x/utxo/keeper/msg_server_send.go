@@ -3,6 +3,7 @@ package keeper
 import (
 	"context"
 	"fmt"
+	"github.com/cosmos/cosmos-sdk/telemetry"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
@@ -19,7 +20,7 @@ func (k msgServer) Send(goCtx context.Context, msg *types.MsgSend) (*types.MsgSe
 	msgIndex := int32(ctx.Context().Value("msg-index").(int))
 
 	var attrs []sdk.Attribute
-	attrs = append(attrs, sdk.NewAttribute(types.AttributeKeyCreator, msg.Creator))
+	totalIn := sdk.NewCoins()
 	for index, input := range msg.Inputs {
 		attrs = append(attrs, sdk.NewAttribute(types.AttributeKeySender, input.FromAddr))
 		tinput, found := k.GetInput(ctx, input.Index())
@@ -37,10 +38,11 @@ func (k msgServer) Send(goCtx context.Context, msg *types.MsgSend) (*types.MsgSe
 		}
 
 		k.RemoveInput(ctx, input.Index())
+		totalIn = totalIn.Add(input.Amount)
 
 		// bank
 		addr, _ := sdk.AccAddressFromBech32(input.FromAddr)
-		if err := k.bank.SubtractCoins(ctx, addr, sdk.NewCoins(input.Amount)); err != nil {
+		if err := k.bankKeeper.SubtractCoins(ctx, addr, sdk.NewCoins(input.Amount)); err != nil {
 			return nil, err
 		}
 	}
@@ -62,15 +64,23 @@ func (k msgServer) Send(goCtx context.Context, msg *types.MsgSend) (*types.MsgSe
 		addr, _ := sdk.AccAddressFromBech32(output.ToAddr)
 		if addr.Equals(authtypes.NewModuleAddress(authtypes.FeeCollectorName)) {
 			// TODO chaogaofeng
-		} else if err := k.bank.AddCoins(ctx, addr, sdk.NewCoins(output.Amount)); err != nil {
+		} else if err := k.bankKeeper.AddCoins(ctx, addr, sdk.NewCoins(output.Amount)); err != nil {
 			return nil, err
 		}
+		acc := k.accountKeeper.GetAccount(ctx, addr)
+		if acc == nil {
+			defer telemetry.IncrCounter(1, "new", "account")
+			k.accountKeeper.SetAccount(ctx, k.accountKeeper.NewAccountWithAddress(ctx, addr))
+		}
 	}
+
+	attrs = append(attrs, sdk.NewAttribute(sdk.AttributeKeyAmount, totalIn.String()))
 
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
+			sdk.NewAttribute(types.AttributeKeyCreator, msg.Creator),
 		),
 		sdk.NewEvent(types.EventTypeTransfer, attrs...),
 	})

@@ -20,7 +20,8 @@ type (
 		storeKey      sdk.StoreKey
 		memKey        sdk.StoreKey
 		paramSubspace paramtypes.Subspace
-		bank          types.BankKeeper
+		accountKeeper types.AccountKeeper
+		bankKeeper    types.BankKeeper
 
 		mutexMem    sync.Mutex             // 内存锁定状态互斥锁
 		lockKeys    map[string]*LockedItem // 内存锁定状态
@@ -33,14 +34,16 @@ func NewKeeper(
 	storeKey,
 	memKey sdk.StoreKey,
 	paramstore paramtypes.Subspace,
-	bank types.BankKeeper,
+	accountKeeper types.AccountKeeper,
+	bankKeeper types.BankKeeper,
 ) *Keeper {
 	return &Keeper{
 		cdc:           cdc,
 		storeKey:      storeKey,
 		memKey:        memKey,
 		paramSubspace: paramstore,
-		bank:          bank,
+		bankKeeper:    bankKeeper,
+		accountKeeper: accountKeeper,
 		lockKeys:      make(map[string]*LockedItem),
 		lockKeyList:   list.New(),
 	}

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/cosmos/cosmos-sdk/telemetry"
+
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/liubaninc/m0/x/utxo/types"
@@ -22,7 +24,6 @@ func (k msgServer) Issue(goCtx context.Context, msg *types.MsgIssue) (*types.Msg
 	totalIn := sdk.NewCoins()
 	totalOut := sdk.NewCoins()
 	var attrs []sdk.Attribute
-	attrs = append(attrs, sdk.NewAttribute(types.AttributeKeyCreator, msg.Creator))
 	for index, input := range msg.Inputs {
 		attrs = append(attrs, sdk.NewAttribute(types.AttributeKeySender, input.FromAddr))
 		tinput, found := k.GetInput(ctx, input.Index())
@@ -44,7 +45,7 @@ func (k msgServer) Issue(goCtx context.Context, msg *types.MsgIssue) (*types.Msg
 
 		// bank
 		addr, _ := sdk.AccAddressFromBech32(input.FromAddr)
-		if err := k.bank.SubtractCoins(ctx, addr, sdk.NewCoins(input.Amount)); err != nil {
+		if err := k.bankKeeper.SubtractCoins(ctx, addr, sdk.NewCoins(input.Amount)); err != nil {
 			return nil, err
 		}
 	}
@@ -67,13 +68,18 @@ func (k msgServer) Issue(goCtx context.Context, msg *types.MsgIssue) (*types.Msg
 		addr, _ := sdk.AccAddressFromBech32(input.FromAddr)
 		if addr.Equals(authtypes.NewModuleAddress(authtypes.FeeCollectorName)) {
 			// TODO chaogaofeng
-		} else if err := k.bank.AddCoins(ctx, addr, sdk.NewCoins(output.Amount)); err != nil {
+		} else if err := k.bankKeeper.AddCoins(ctx, addr, sdk.NewCoins(output.Amount)); err != nil {
 			return nil, err
 		}
+		acc := k.accountKeeper.GetAccount(ctx, addr)
+		if acc == nil {
+			defer telemetry.IncrCounter(1, "new", "account")
+			k.accountKeeper.SetAccount(ctx, k.accountKeeper.NewAccountWithAddress(ctx, addr))
+		}
 	}
-	supply := k.bank.GetSupply(ctx)
+	supply := k.bankKeeper.GetSupply(ctx)
 	supply.Inflate(totalOut)
-	k.bank.SetSupply(ctx, supply)
+	k.bankKeeper.SetSupply(ctx, supply)
 
 	changeCoins := totalOut.Sub(totalIn)
 	for _, coin := range changeCoins {
@@ -94,14 +100,18 @@ func (k msgServer) Issue(goCtx context.Context, msg *types.MsgIssue) (*types.Msg
 				Supply:      coin.Amount.String(),
 				Circulating: coin.Amount.String(),
 			}
+			defer telemetry.IncrCounter(1, "new", "token")
 		}
 		k.SetToken(ctx, token)
 	}
+	attrs = append(attrs, sdk.NewAttribute(sdk.AttributeKeyAmount, totalOut.String()))
+	attrs = append(attrs, sdk.NewAttribute(types.AttributeKeyAmountChanged, changeCoins.String()))
 
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
+			sdk.NewAttribute(types.AttributeKeyCreator, msg.Creator),
 		),
 		sdk.NewEvent(types.EventTypeTransfer, attrs...),
 	})

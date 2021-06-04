@@ -47,9 +47,10 @@ func (k Keeper) Token(c context.Context, req *types.QueryGetTokenRequest) (*type
 	ctx := sdk.UnwrapSDKContext(c)
 
 	val, found := k.GetToken(ctx, req.Name)
-	if !found {
-		return nil, status.Error(codes.Internal, "not found")
-	}
+	_ = found
+	//if !found {
+	//	return nil, status.Error(codes.Internal, "not found")
+	//}
 
 	return &types.QueryGetTokenResponse{Token: &val}, nil
 }

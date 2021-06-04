@@ -6,7 +6,9 @@ const (
 
 	AttributeKeyRecipient = "recipient"
 	AttributeKeySender    = "sender"
-	AttributeKeyCreator    = "creator"
+	AttributeKeyCreator   = "creator"
+
+	AttributeKeyAmountChanged = "changed"
 
 	AttributeValueCategory = ModuleName
 )

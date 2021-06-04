@@ -1,8 +1,9 @@
 package xchain
 
 import (
-	"github.com/liubaninc/m0/x/wasm/xmodel"
 	"math/rand"
+
+	"github.com/liubaninc/m0/x/wasm/xmodel"
 
 	"github.com/golang/protobuf/proto"
 	wasm "github.com/liubaninc/m0/x/wasm/keeper"

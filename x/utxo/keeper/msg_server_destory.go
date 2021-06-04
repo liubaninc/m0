@@ -3,6 +3,7 @@ package keeper
 import (
 	"context"
 	"fmt"
+	"github.com/cosmos/cosmos-sdk/telemetry"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
@@ -23,7 +24,6 @@ func (k msgServer) Destroy(goCtx context.Context, msg *types.MsgDestroy) (*types
 	totalIn := sdk.NewCoins()
 	totalOut := sdk.NewCoins()
 	var attrs []sdk.Attribute
-	attrs = append(attrs, sdk.NewAttribute(types.AttributeKeyCreator, msg.Creator))
 	for index, input := range msg.Inputs {
 		attrs = append(attrs, sdk.NewAttribute(types.AttributeKeySender, input.FromAddr))
 		tinput, found := k.GetInput(ctx, input.Index())
@@ -45,7 +45,7 @@ func (k msgServer) Destroy(goCtx context.Context, msg *types.MsgDestroy) (*types
 
 		// bank
 		addr, _ := sdk.AccAddressFromBech32(input.FromAddr)
-		if err := k.bank.SubtractCoins(ctx, addr, sdk.NewCoins(input.Amount)); err != nil {
+		if err := k.bankKeeper.SubtractCoins(ctx, addr, sdk.NewCoins(input.Amount)); err != nil {
 			return nil, err
 		}
 	}
@@ -69,13 +69,19 @@ func (k msgServer) Destroy(goCtx context.Context, msg *types.MsgDestroy) (*types
 		addr, _ := sdk.AccAddressFromBech32(output.ToAddr)
 		if addr.Equals(authtypes.NewModuleAddress(authtypes.FeeCollectorName)) {
 			// TODO chaogaofeng
-		} else if err := k.bank.AddCoins(ctx, addr, sdk.NewCoins(output.Amount)); err != nil {
+		} else if err := k.bankKeeper.AddCoins(ctx, addr, sdk.NewCoins(output.Amount)); err != nil {
 			return nil, err
+		}
+		acc := k.accountKeeper.GetAccount(ctx, addr)
+		if acc == nil {
+			defer telemetry.IncrCounter(1, "new", "account")
+			k.accountKeeper.SetAccount(ctx, k.accountKeeper.NewAccountWithAddress(ctx, addr))
 		}
 	}
 
 	changeCoins := totalIn.Sub(totalOut)
 	for _, coin := range changeCoins {
+		attrs = append(attrs, sdk.NewAttribute(types.AttributeKeyRecipient, coin.Denom))
 		token, found := k.GetToken(ctx, coin.Denom)
 		if !found {
 			panic("token not found")
@@ -84,14 +90,18 @@ func (k msgServer) Destroy(goCtx context.Context, msg *types.MsgDestroy) (*types
 		token.Circulating = circulating.Sub(coin.Amount).String()
 		k.SetToken(ctx, token)
 	}
-	supply := k.bank.GetSupply(ctx)
+	supply := k.bankKeeper.GetSupply(ctx)
 	supply.Deflate(changeCoins)
-	k.bank.SetSupply(ctx, supply)
+	k.bankKeeper.SetSupply(ctx, supply)
+
+	attrs = append(attrs, sdk.NewAttribute(sdk.AttributeKeyAmount, totalIn.String()))
+	attrs = append(attrs, sdk.NewAttribute(types.AttributeKeyAmountChanged, changeCoins.String()))
 
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
+			sdk.NewAttribute(types.AttributeKeyCreator, msg.Creator),
 		),
 		sdk.NewEvent(types.EventTypeTransfer, attrs...),
 	})

@@ -3,11 +3,12 @@ package xchain
 import (
 	"encoding/json"
 	"errors"
+	"io/ioutil"
+	"os"
+
 	"github.com/liubaninc/m0/x/wasm/xmodel"
 	"github.com/liubaninc/m0/x/wasm/xmodel/contract/native"
 	"github.com/liubaninc/m0/x/wasm/xmodel/contract/wasm/xvm"
-	"io/ioutil"
-	"os"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/liubaninc/m0/x/wasm/xmodel/contract"

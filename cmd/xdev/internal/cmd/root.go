@@ -2,10 +2,11 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/cosmos/cosmos-sdk/server"
 	"io/ioutil"
 	"log"
 	"os"
+
+	"github.com/cosmos/cosmos-sdk/server"
 
 	"github.com/spf13/cobra"
 )
