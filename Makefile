@@ -120,6 +120,10 @@ clean:
 distclean: clean
 	rm -rf vendor/
 
+contractsdk:
+	make -C x/wasm/xmodel/contractsdk/cpp build
+	make -C x/wasm/xmodel/contractsdk/cpp test
+
 ###############################################################################
 ###                                Linting                                  ###
 ###############################################################################
