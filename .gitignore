@@ -15,3 +15,6 @@ dist
 tools-stamp
 buf-stamp
 artifactss
+happy/*.log
+build/m0d
+build/xdev
