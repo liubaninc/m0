@@ -2,10 +2,13 @@ package keeper
 
 import (
 	"fmt"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"strings"
 
 	"github.com/liubaninc/m0/x/utxo/types"
 
 	"github.com/cosmos/cosmos-sdk/store/prefix"
+	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -101,4 +104,134 @@ func (k Keeper) SelectUtxos(ctx sdk.Context, addr sdk.AccAddress, totalNeed sdk.
 		total = total.Add(sdk.NewCoin(coin.Denom, foundTotal))
 	}
 	return
+}
+
+func (k Keeper) Transfer(ctx sdk.Context, hash string, msgOffset int32, creator string, inputs []*types.Input, outputs []*types.Output) error {
+	totalIn := sdk.NewCoins()
+	attrsIn := make([]sdk.Attribute, len(inputs))
+	for index, input := range inputs {
+		tinput, found := k.GetInput(ctx, input.Index())
+		if !found {
+			return sdkerrors.Wrapf(types.ErrUTXONotFound, "index %s in inputs", index)
+		}
+		if !tinput.Amount.Equal(input.Amount) {
+			return sdkerrors.Wrapf(types.ErrUTXONotMismatch, "index %d in inputs, amount expect %s get %s", index, input.Amount, tinput.Amount)
+		}
+		if tinput.FrozenHeight != tinput.FrozenHeight {
+			return sdkerrors.Wrapf(types.ErrUTXONotMismatch, "index %d in inputs, frozen height expect %s get %s", index, input.FrozenHeight, tinput.FrozenHeight)
+		}
+		if input.FrozenHeight == -1 || input.FrozenHeight > ctx.BlockHeight() {
+			return sdkerrors.Wrapf(types.ErrUTXOFrozen, "index %d in inputs, frozen height expect %s get %s", index, input.FrozenHeight, ctx.BlockHeight())
+		}
+
+		attrsIn[index] = sdk.NewAttribute(types.AttributeKeySender, input.FromAddr)
+		totalIn = totalIn.Add(input.Amount)
+		k.RemoveInput(ctx, input.Index())
+		// bank
+		addr, _ := sdk.AccAddressFromBech32(input.FromAddr)
+		if err := k.bankKeeper.SubtractCoins(ctx, addr, sdk.NewCoins(input.Amount)); err != nil {
+			return err
+		}
+	}
+
+	totalOut := sdk.NewCoins()
+	attrsOut := make([]sdk.Attribute, len(outputs))
+	for index, output := range outputs {
+		attrsOut[index] = sdk.NewAttribute(types.AttributeKeyRecipient, output.ToAddr)
+		totalOut = totalOut.Add(output.Amount)
+		k.SetInput(ctx, types.Input{
+			RefTx:        hash,
+			RefMsg:       msgOffset,
+			RefOffset:    int32(index),
+			FromAddr:     output.ToAddr,
+			Amount:       output.Amount,
+			FrozenHeight: output.FrozenHeight,
+		})
+		// bank
+		addr, _ := sdk.AccAddressFromBech32(output.ToAddr)
+		if addr.Equals(authtypes.NewModuleAddress(authtypes.FeeCollectorName)) {
+			// TODO chaogaofeng
+		} else if err := k.bankKeeper.AddCoins(ctx, addr, sdk.NewCoins(output.Amount)); err != nil {
+			return err
+		}
+		acc := k.accountKeeper.GetAccount(ctx, addr)
+		if acc == nil {
+			defer telemetry.IncrCounter(1, "new", "account")
+			k.accountKeeper.SetAccount(ctx, k.accountKeeper.NewAccountWithAddress(ctx, addr))
+		}
+	}
+
+	if totalIn.IsEqual(totalOut) {
+		// send
+		attrs := make([]sdk.Attribute, totalIn.Len())
+		for index, c := range totalIn {
+			attrs[index] = sdk.NewAttribute(types.AttributeKeyDenom, c.Denom)
+		}
+		attrs = append(attrs, sdk.NewAttribute(sdk.AttributeKeyAmount, totalIn.String()))
+		attrsOut = append(attrsOut, attrs...)
+	} else if totalIn.IsAllGTE(totalOut) {
+		// destroy
+		changeCoins := totalIn.Sub(totalOut)
+		for _, coin := range changeCoins {
+			token, found := k.GetToken(ctx, coin.Denom)
+			if !found {
+				panic("token not found")
+			}
+			circulating, _ := sdk.NewIntFromString(token.Circulating)
+			token.Circulating = circulating.Sub(coin.Amount).String()
+			k.SetToken(ctx, token)
+		}
+		supply := k.bankKeeper.GetSupply(ctx)
+		supply.Deflate(changeCoins)
+		k.bankKeeper.SetSupply(ctx, supply)
+
+		attrs := make([]sdk.Attribute, totalIn.Len())
+		for index, c := range totalIn {
+			attrs[index] = sdk.NewAttribute(types.AttributeKeyDenom, c.Denom)
+		}
+		attrs = append(attrs, sdk.NewAttribute(sdk.AttributeKeyAmount, totalIn.String()),
+			sdk.NewAttribute(types.AttributeKeyAmountChanged, changeCoins.String()))
+		attrsOut = append(attrsOut, attrs...)
+	} else {
+		// issue/reissue
+		changeCoins := totalOut.Sub(totalIn)
+		for _, coin := range changeCoins {
+			token, found := k.GetToken(ctx, coin.Denom)
+			if found {
+				if strings.Compare(token.Issuer, creator) != 0 {
+					return sdkerrors.Wrapf(types.ErrInvalidIssuer, "except %s get %s", token.Issuer, creator)
+				}
+				supply, _ := sdk.NewIntFromString(token.Supply)
+				token.Supply = supply.Add(coin.Amount).String()
+				circulating, _ := sdk.NewIntFromString(token.Circulating)
+				token.Circulating = circulating.Add(coin.Amount).String()
+			} else {
+				token = types.Token{
+					Name:        coin.Denom,
+					Issuer:      creator,
+					IssueTx:     hash,
+					Supply:      coin.Amount.String(),
+					Circulating: coin.Amount.String(),
+				}
+				defer telemetry.IncrCounter(1, "new", "token")
+			}
+			k.SetToken(ctx, token)
+		}
+		supply := k.bankKeeper.GetSupply(ctx)
+		supply.Inflate(changeCoins)
+		k.bankKeeper.SetSupply(ctx, supply)
+
+		attrs := make([]sdk.Attribute, totalOut.Len())
+		for index, c := range totalOut {
+			attrs[index] = sdk.NewAttribute(types.AttributeKeyDenom, c.Denom)
+		}
+		attrs = append(attrs, sdk.NewAttribute(sdk.AttributeKeyAmount, totalOut.String()),
+			sdk.NewAttribute(types.AttributeKeyAmountChanged, changeCoins.String()))
+		attrsOut = append(attrsOut, attrs...)
+	}
+
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(types.EventTypeTransfer, append(attrsIn, attrsOut...)...),
+	})
+	return nil
 }

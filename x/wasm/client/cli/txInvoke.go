@@ -42,15 +42,11 @@ func CmdInvoke() *cobra.Command {
 			if len(method) == 0 {
 				return fmt.Errorf("contract method empty")
 			}
-			var methodArgs map[string]string
-			if err := json.Unmarshal([]byte(args[2]), &methodArgs); err != nil {
+			methodArgs, err := convertToArgs(args[2])
+			if err != nil {
 				return fmt.Errorf("invoke init args, error %v", err)
 			}
-			mArgs := make(map[string][]byte)
-			for k, v := range methodArgs {
-				mArgs[k] = []byte(v)
-			}
-			mArgsStr, _ := json.Marshal(mArgs)
+			mArgsStr, _ := json.Marshal(methodArgs)
 			amount := sdk.NewCoins()
 			if amountStr := viper.GetString(flagAmount); len(amountStr) != 0 {
 				coins, err := sdk.ParseCoinsNormalized(amountStr)

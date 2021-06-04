@@ -52,10 +52,11 @@ func CmdDeploy() *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("contract code file %v, error %v", args[2], err)
 			}
-			var initArgs map[string][]byte
-			if err := json.Unmarshal([]byte(args[2]), &initArgs); err != nil {
-				return fmt.Errorf("contract init args, error %v", err)
+			initArgs, err := convertToArgs(args[2])
+			if err != nil {
+				return fmt.Errorf("invoke init args, error %v", err)
 			}
+			initArgsStr, _ := json.Marshal(initArgs)
 			desc := &xmodel.WasmCodeDesc{
 				Runtime:      viper.GetString(flagRuntime),
 				ContractType: viper.GetString(flagModule),
@@ -66,7 +67,7 @@ func CmdDeploy() *cobra.Command {
 				Creator: clientCtx.GetFromAddress().String(),
 				Lock:    viper.GetInt64(flagLock),
 				Requests: []*types.InvokeRequest{
-					types.NewMsgDeploy(clientCtx.GetFromAddress().String(), name, code, desc, initArgs, nil, nil, nil, nil, nil, viper.GetString(flagDesc)).ConvertInvokeRequest(),
+					types.NewMsgDeploy(clientCtx.GetFromAddress().String(), name, code, desc, string(initArgsStr), nil, nil, nil, nil, nil, viper.GetString(flagDesc)).ConvertInvokeRequest(),
 				},
 			})
 			if err != nil {
@@ -106,7 +107,7 @@ func CmdDeploy() *cobra.Command {
 				}
 			}
 
-			msg := types.NewMsgDeploy(clientCtx.GetFromAddress().String(), name, code, desc, initArgs, resp.Requests[0].ResourceLimits, append(inputs, resp.Inputs...), append(outputs, resp.Outputs...), resp.InputsExt, resp.OutputsExt, viper.GetString(flagDesc))
+			msg := types.NewMsgDeploy(clientCtx.GetFromAddress().String(), name, code, desc, string(initArgsStr), resp.Requests[0].ResourceLimits, append(inputs, resp.Inputs...), append(outputs, resp.Outputs...), resp.InputsExt, resp.OutputsExt, viper.GetString(flagDesc))
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}

@@ -14,7 +14,7 @@ import (
 
 var _ sdk.Msg = &MsgDeploy{}
 
-func NewMsgDeploy(creator string, contractName string, contractCode []byte, contractDesc *xmodel.WasmCodeDesc, args map[string][]byte, limits []*xmodel.ResourceLimit, inputs []*utxotypes.Input, outputs []*utxotypes.Output, inputsExt []*InputExt, outputsExt []*OutputExt, desc string) *MsgDeploy {
+func NewMsgDeploy(creator string, contractName string, contractCode []byte, contractDesc *xmodel.WasmCodeDesc, args string, limits []*xmodel.ResourceLimit, inputs []*utxotypes.Input, outputs []*utxotypes.Output, inputsExt []*InputExt, outputsExt []*OutputExt, desc string) *MsgDeploy {
 	return &MsgDeploy{
 		Creator:        creator,
 		Desc:           desc,
@@ -148,15 +148,11 @@ func (m *MsgDeploy) ConvertInvokeRequest() *InvokeRequest {
 	if err != nil {
 		panic(err)
 	}
-	initArgs, err := json.Marshal(m.Args)
-	if err != nil {
-		panic(err)
-	}
 	args, _ := json.Marshal(map[string][]byte{
 		"contract_name": []byte(m.ContractName),
 		"contract_code": m.ContractCode,
 		"contract_desc": desc,
-		"init_args":     initArgs,
+		"init_args":     []byte(m.Args),
 	})
 	return &InvokeRequest{
 		ModuleName:     "kernel",

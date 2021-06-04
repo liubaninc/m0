@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/liubaninc/m0/x/wasm/types"
 	"github.com/liubaninc/m0/x/wasm/xmodel"
 
@@ -57,4 +58,45 @@ func (k Keeper) IterVersioned(ctx sdk.Context, bucket string, startKey []byte, e
 	}
 	rawEndKey := types.MakeRawKey(bucket, endKey)
 	return store.Iterator(append([]byte(types.ExtUtxoTablePrefix), rawStartKey...), append([]byte(types.ExtUtxoTablePrefix), rawEndKey...))
+}
+
+func (k Keeper) RWSet(ctx sdk.Context, hash string, msgOffset int32, creator string, inputsExt []*types.InputExt, outputsExt []*types.OutputExt, contractRequests []*types.InvokeRequest) error {
+	if ok, err := VerifyTxRWSets(ctx, k, &types.MsgInvoke{
+		Creator:          creator,
+		InputsExt:        inputsExt,
+		OutputsExt:       outputsExt,
+		ContractRequests: contractRequests,
+	}); err != nil {
+		return sdkerrors.Wrapf(types.ErrRWSet, "verifyTxRWSets failed %s", err)
+	} else if !ok {
+		return sdkerrors.Wrapf(types.ErrRWSet, "verifyTxRWSets failed")
+	}
+	for offset, outputExt := range outputsExt {
+		if outputExt.Bucket == types.TransientBucket {
+			continue
+		}
+		k.SetVersionedData(ctx, &xmodel.VersionedData{
+			RefTxid:      []byte(hash),
+			RefMsgOffset: msgOffset,
+			RefOffset:    int32(offset),
+			PureData: &xmodel.PureData{
+				Bucket: outputExt.Bucket,
+				Key:    []byte(outputExt.Key),
+				Value:  outputExt.Value,
+			},
+		})
+	}
+	contractEvents, err := types.ParseEventsFromExt(outputsExt)
+	if err != nil {
+		return sdkerrors.Wrapf(types.ErrRWSet, "verifyTxRWSets failed %s", err)
+	}
+	for _, event := range contractEvents {
+		ctx.EventManager().EmitEvent(
+			sdk.NewEvent(
+				event.Contract,
+				sdk.NewAttribute(event.Name, string(event.Body)),
+			),
+		)
+	}
+	return nil
 }

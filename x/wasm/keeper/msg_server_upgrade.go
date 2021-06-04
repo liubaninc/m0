@@ -2,10 +2,8 @@ package keeper
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
-	"github.com/liubaninc/m0/x/wasm/xmodel"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 
 	"github.com/liubaninc/m0/x/wasm/types"
@@ -16,47 +14,21 @@ import (
 func (k msgServer) Upgrade(goCtx context.Context, msg *types.MsgUpgrade) (*types.MsgUpgradeResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	msgIndex := int32(ctx.Context().Value("msg-index").(int))
-
+	msgOffset := int32(ctx.Context().Value("msg-index").(int))
 	txHash := fmt.Sprintf("%X", tmhash.Sum(ctx.TxBytes()))
-	if ok, err := VerifyTxRWSets(ctx, k.Keeper, &types.MsgInvoke{
-		Creator:          msg.Creator,
-		InputsExt:        msg.InputsExt,
-		OutputsExt:       msg.OutputsExt,
-		ContractRequests: []*types.InvokeRequest{msg.ConvertInvokeRequest()},
-	}); err != nil {
+	if err := k.utxoKeeper.Transfer(ctx, txHash, msgOffset, msg.Creator, msg.Inputs, msg.Outputs); err != nil {
 		return nil, err
-	} else if !ok {
-		return nil, errors.New("verifyTxRWSets failed")
 	}
-
-	for offset, outputExt := range msg.OutputsExt {
-		if outputExt.Bucket == types.TransientBucket {
-			continue
-		}
-		k.SetVersionedData(ctx, &xmodel.VersionedData{
-			RefTxid:      []byte(txHash),
-			RefMsgOffset: msgIndex,
-			RefOffset:    int32(offset),
-			PureData: &xmodel.PureData{
-				Bucket: outputExt.Bucket,
-				Key:    []byte(outputExt.Key),
-				Value:  outputExt.Value,
-			},
-		})
+	if err := k.RWSet(ctx, txHash, msgOffset, msg.Creator, msg.InputsExt, msg.OutputsExt, []*types.InvokeRequest{msg.ConvertInvokeRequest()}); err != nil {
+		return nil, err
 	}
-
-	var attrs []sdk.Attribute
-	attrs = append(attrs,
-		sdk.NewAttribute(types.AttributeKeyName, msg.ContractName),
-	)
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
-			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),
+			sdk.NewAttribute(types.AttributeKeyCreator, msg.Creator),
 		),
-		sdk.NewEvent(types.EventTypeUpgradeContract, attrs...),
+		sdk.NewEvent(types.EventTypeContract, sdk.NewAttribute(types.AttributeKeyName, msg.ContractName)),
 	})
 	return &types.MsgUpgradeResponse{}, nil
 }

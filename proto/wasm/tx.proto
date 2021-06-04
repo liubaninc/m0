@@ -25,7 +25,7 @@ message MsgDeploy {
   string contract_name = 24;
   bytes contract_code = 25;
   xmodel.WasmCodeDesc contract_desc = 26;
-  map<string, bytes> args = 28;
+  string args = 28;
   repeated xmodel.ResourceLimit resource_limits = 30;
 }
 

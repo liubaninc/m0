@@ -2,6 +2,8 @@ package cli
 
 import (
 	"context"
+	"fmt"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/spf13/viper"
 
@@ -19,6 +21,13 @@ func CmdListInput() *cobra.Command {
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
+
+			if _, err := sdk.AccAddressFromBech32(args[0]); err != nil {
+				return fmt.Errorf("invalid address %s (%s)", args[0], err)
+			}
+			if  err := sdk.ValidateDenom(args[1]); err != nil {
+				return fmt.Errorf("invalid denom %s (%s)", args[1], err)
+			}
 
 			pageReq, err := client.ReadPageRequest(cmd.Flags())
 			if err != nil {
@@ -55,6 +64,13 @@ func CmdShowInput() *cobra.Command {
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
+
+			if _, err := sdk.AccAddressFromBech32(args[0]); err != nil {
+				return fmt.Errorf("invalid address %s (%s)", args[0], err)
+			}
+			if _, err := sdk.ParseCoinsNormalized(args[1]); err != nil {
+				return fmt.Errorf("invalid amount %s (%s)", args[1], err)
+			}
 
 			queryClient := types.NewQueryClient(clientCtx)
 

@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -9,7 +10,7 @@ import (
 
 func (m *Input) Index() string {
 	addr, _ := sdk.AccAddressFromBech32(m.FromAddr)
-	return fmt.Sprintf("%X_%s_%s_%d_%d", addr.Bytes(), m.Amount.Denom, m.RefTx, m.RefMsg, m.RefOffset)
+	return fmt.Sprintf("%X_%s_%s_%d_%d", addr.Bytes(), m.Amount.Denom, strings.ToUpper(m.RefTx), m.RefMsg, m.RefOffset)
 }
 
 func (m *Input) ValidateBasic() error {

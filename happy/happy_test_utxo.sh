@@ -1,4 +1,4 @@
-#!/usr/bin/env shs
+#!/usr/bin/env bash
 
 logfile=$(dirname $0)/happy_test_utxo.log
 echo "" > $logfile

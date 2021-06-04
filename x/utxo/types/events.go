@@ -4,11 +4,11 @@ package types
 const (
 	EventTypeTransfer = "transfer"
 
-	AttributeKeyRecipient = "recipient"
-	AttributeKeySender    = "sender"
-	AttributeKeyCreator   = "creator"
-
+	AttributeKeyCreator       = "creator"
+	AttributeKeyRecipient     = "recipient"
+	AttributeKeySender        = "sender"
 	AttributeKeyAmountChanged = "changed"
+	AttributeKeyDenom         = "denom"
 
 	AttributeValueCategory = ModuleName
 )
