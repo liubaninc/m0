@@ -195,6 +195,7 @@ func (k Keeper) Transfer(ctx sdk.Context, hash string, msgOffset int32, creator 
 	} else {
 		// issue/reissue
 		changeCoins := totalOut.Sub(totalIn)
+		defer telemetry.IncrCounter(float32(changeCoins.Len()), "new", "token")
 		for _, coin := range changeCoins {
 			token, found := k.GetToken(ctx, coin.Denom)
 			if found {
@@ -213,7 +214,6 @@ func (k Keeper) Transfer(ctx sdk.Context, hash string, msgOffset int32, creator 
 					Supply:      coin.Amount.String(),
 					Circulating: coin.Amount.String(),
 				}
-				defer telemetry.IncrCounter(1, "new", "token")
 			}
 			k.SetToken(ctx, token)
 		}
