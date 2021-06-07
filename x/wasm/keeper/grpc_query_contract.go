@@ -2,6 +2,8 @@ package keeper
 
 import (
 	"context"
+	"strconv"
+
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/gogo/protobuf/proto"
@@ -11,7 +13,6 @@ import (
 	"github.com/liubaninc/m0/x/wasm/xmodel/contract/kernel"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"strconv"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -34,7 +35,7 @@ func (k Keeper) ContractAll(c context.Context, req *types.QueryAllContractReques
 			panic(err)
 		}
 		account := string(verData.PureData.Value)
-		name := string(key[len(keyPrefix):])
+		name := string(key)
 
 		verData, err = k.GetLastVersionedData(ctx, "contract", bridge.ContractCodeDescKey(name))
 		if err != nil {
@@ -51,9 +52,9 @@ func (k Keeper) ContractAll(c context.Context, req *types.QueryAllContractReques
 		number, err := strconv.ParseUint(string(verData.PureData.Value), 10, 64)
 		_ = number
 		items = append(items, &types.Contract{
-			Name:         name,
-			Initiator:    account,
-			Desc: &desc,
+			Name:      name,
+			Initiator: account,
+			Desc:      &desc,
 		})
 		return nil
 	})
@@ -78,7 +79,7 @@ func (k Keeper) AccountContractAll(c context.Context, req *types.QueryGetAccount
 
 	var items []*types.Contract
 	store := ctx.KVStore(k.storeKey)
-	keyPrefix :=append([]byte(types.ExtUtxoTablePrefix), types.MakeRawKey(kernel.Account2ContractBucket, []byte(req.Name+kernel.Account2ContractSeparator))...)
+	keyPrefix := append([]byte(types.ExtUtxoTablePrefix), types.MakeRawKey(kernel.Account2ContractBucket, []byte(req.Name+kernel.Account2ContractSeparator))...)
 	tokenStore := prefix.NewStore(store, types.KeyPrefix(string(keyPrefix)))
 
 	pageRes, err := query.Paginate(tokenStore, req.Pagination, func(key []byte, value []byte) error {
@@ -87,7 +88,7 @@ func (k Keeper) AccountContractAll(c context.Context, req *types.QueryGetAccount
 			panic(err)
 		}
 		account := string(verData.PureData.Value)
-		name := string(key[len(keyPrefix):])
+		name := string(key)
 
 		verData, err = k.GetLastVersionedData(ctx, "contract", bridge.ContractCodeDescKey(name))
 		if err != nil {
@@ -104,9 +105,9 @@ func (k Keeper) AccountContractAll(c context.Context, req *types.QueryGetAccount
 		number, err := strconv.ParseUint(string(verData.PureData.Value), 10, 64)
 		_ = number
 		items = append(items, &types.Contract{
-			Name:         name,
-			Initiator:    account,
-			Desc: &desc,
+			Name:      name,
+			Initiator: account,
+			Desc:      &desc,
 		})
 		return nil
 	})
