@@ -136,6 +136,7 @@ func (k Keeper) Transfer(ctx sdk.Context, hash string, msgOffset int32, creator 
 
 	totalOut := sdk.NewCoins()
 	attrsOut := make([]sdk.Attribute, len(outputs))
+	nNewAccount := 0
 	for index, output := range outputs {
 		attrsOut[index] = sdk.NewAttribute(types.AttributeKeyRecipient, output.ToAddr)
 		totalOut = totalOut.Add(output.Amount)
@@ -156,9 +157,13 @@ func (k Keeper) Transfer(ctx sdk.Context, hash string, msgOffset int32, creator 
 		}
 		acc := k.accountKeeper.GetAccount(ctx, addr)
 		if acc == nil {
-			defer telemetry.IncrCounter(1, "new", "account")
+			nNewAccount++
 			k.accountKeeper.SetAccount(ctx, k.accountKeeper.NewAccountWithAddress(ctx, addr))
 		}
+	}
+
+	if nNewAccount > 0 {
+		defer telemetry.IncrCounter(float32(nNewAccount), "new", "account")
 	}
 
 	if totalIn.IsEqual(totalOut) {
