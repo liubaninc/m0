@@ -130,7 +130,8 @@ func (k Keeper) Contract(c context.Context, req *types.QueryGetContractRequest) 
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	if val == nil {
-		return nil, status.Error(codes.InvalidArgument, "not found")
+		// return nil, status.Error(codes.InvalidArgument, "not found")
+		return &types.QueryGetContractResponse{Contract: nil}, nil
 	}
 
 	return &types.QueryGetContractResponse{Contract: val}, nil
