@@ -13,13 +13,6 @@ import (
 	"github.com/cosmos/go-bip39"
 	"github.com/spf13/viper"
 
-	"github.com/spf13/cobra"
-	tmconfig "github.com/tendermint/tendermint/config"
-	tmos "github.com/tendermint/tendermint/libs/os"
-	tmrand "github.com/tendermint/tendermint/libs/rand"
-	"github.com/tendermint/tendermint/types"
-	tmtime "github.com/tendermint/tendermint/types/time"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -35,6 +28,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/spf13/cobra"
+	tmconfig "github.com/tendermint/tendermint/config"
+	tmos "github.com/tendermint/tendermint/libs/os"
+	tmrand "github.com/tendermint/tendermint/libs/rand"
+	"github.com/tendermint/tendermint/types"
 )
 
 var (
@@ -82,7 +80,7 @@ Example:
 				chainID = "chain-" + tmrand.NewRand().Str(6)
 			}
 			var genesisTime time.Time
-			if genesisTimeValue := viper.GetInt64(flagGenesisTime); genesisTimeValue == 0 {
+			if genesisTimeValue := viper.GetInt64(flagGenesisTime); genesisTimeValue != 0 {
 				genesisTime = time.Unix(genesisTimeValue, 0)
 			} else {
 				genesisTime = time.Now()
@@ -216,7 +214,8 @@ func InitTestnet(
 			return err
 		}
 
-		addr, secret, err := server.GenerateSaveCoinKey(kb, nodeDirName, true, algo)
+		secret := validators[i]
+		addr, err := SaveCoinKey(kb, nodeDirName, secret,true, algo)
 		if err != nil {
 			_ = os.RemoveAll(outputDir)
 			return err
@@ -358,7 +357,7 @@ func collectGenFiles(
 ) error {
 
 	var appState json.RawMessage
-	genTime := tmtime.Now()
+	//genTime := tmtime.Now()
 
 	for i := 0; i < numValidators; i++ {
 		nodeDirName := fmt.Sprintf("%s%d", nodeDirPrefix, i)
@@ -389,7 +388,7 @@ func collectGenFiles(
 		genFile := nodeConfig.GenesisFile()
 
 		// overwrite each validator's genesis file to have a canonical genesis time
-		if err := genutil.ExportGenesisFileWithTime(genFile, chainID, nil, appState, genTime); err != nil {
+		if err := genutil.ExportGenesisFileWithTime(genFile, chainID, nil, appState, genDoc.GenesisTime); err != nil {
 			return err
 		}
 	}
