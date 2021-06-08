@@ -3,6 +3,7 @@ package cli
 import (
 	"context"
 	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/liubaninc/m0/x/utxo/types"
@@ -53,7 +54,7 @@ func CmdShowToken() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 
-			if  err := sdk.ValidateDenom(args[0]); err != nil {
+			if err := sdk.ValidateDenom(args[0]); err != nil {
 				return fmt.Errorf("invalid token %s (%s)", args[0], err)
 			}
 

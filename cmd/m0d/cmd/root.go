@@ -2,11 +2,12 @@ package cmd
 
 import (
 	"errors"
-	"github.com/spf13/viper"
 	"io"
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/spf13/viper"
 
 	"github.com/liubaninc/m0/app/params"
 
@@ -202,7 +203,7 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 		panic(err)
 	}
 
-	go func (duration time.Duration) {
+	go func(duration time.Duration) {
 		if viper.GetBool("instrumentation.prometheus") {
 			namespace := viper.GetString("instrumentation.namespace")
 			chainID := viper.GetString("chain-id")
@@ -215,7 +216,7 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 					p, _ := process.NewProcess(int32(pid))
 					cpuUsage, _ := p.CPUPercent()    // cpu使用率
 					memUsage, _ := p.MemoryPercent() // mem使用率
-					diskUsage, _ := disk.Usage(viper.GetString(flags.FlagHome))
+					diskUsage, _ := disk.Usage(cast.ToString(appOpts.Get(flags.FlagHome)))
 					metrics.CPUUsage.Set(cpuUsage)
 					metrics.MemUsage.Set(float64(memUsage))
 					metrics.DiskUsage.Set(float64(diskUsage.Used / diskUsage.Total))

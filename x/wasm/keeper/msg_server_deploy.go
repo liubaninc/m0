@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
 	"github.com/cosmos/cosmos-sdk/telemetry"
 
 	"github.com/tendermint/tendermint/crypto/tmhash"

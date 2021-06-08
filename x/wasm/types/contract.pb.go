@@ -5,12 +5,13 @@ package types
 
 import (
 	fmt "fmt"
-	_ "github.com/gogo/protobuf/gogoproto"
-	proto "github.com/gogo/protobuf/proto"
-	xmodel "github.com/liubaninc/m0/x/wasm/xmodel"
 	io "io"
 	math "math"
 	math_bits "math/bits"
+
+	_ "github.com/gogo/protobuf/gogoproto"
+	proto "github.com/gogo/protobuf/proto"
+	xmodel "github.com/liubaninc/m0/x/wasm/xmodel"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.

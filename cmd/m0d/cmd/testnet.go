@@ -13,6 +13,12 @@ import (
 	"github.com/cosmos/go-bip39"
 	"github.com/spf13/viper"
 
+	"github.com/spf13/cobra"
+	tmconfig "github.com/tendermint/tendermint/config"
+	tmos "github.com/tendermint/tendermint/libs/os"
+	tmrand "github.com/tendermint/tendermint/libs/rand"
+	"github.com/tendermint/tendermint/types"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -28,11 +34,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/spf13/cobra"
-	tmconfig "github.com/tendermint/tendermint/config"
-	tmos "github.com/tendermint/tendermint/libs/os"
-	tmrand "github.com/tendermint/tendermint/libs/rand"
-	"github.com/tendermint/tendermint/types"
 )
 
 var (
@@ -215,7 +216,7 @@ func InitTestnet(
 		}
 
 		secret := validators[i]
-		addr, err := server.SaveCoinKey(kb, nodeDirName, secret,true, algo)
+		addr, err := server.SaveCoinKey(kb, nodeDirName, secret, true, algo)
 		if err != nil {
 			_ = os.RemoveAll(outputDir)
 			return err

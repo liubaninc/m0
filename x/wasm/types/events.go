@@ -1,12 +1,12 @@
 package types
 
 const (
-	EventTypeContract  = "contract"
+	EventTypeContract = "contract"
 
-	AttributeKeyCreator   = "creator"
-	AttributeKeyName   = "name"
-	AttributeKeyMethod = "method"
-	AttributeKeyArg    = "arg"
+	AttributeKeyCreator = "creator"
+	AttributeKeyName    = "name"
+	AttributeKeyMethod  = "method"
+	AttributeKeyArg     = "arg"
 
 	AttributeValueCategory = ModuleName
 )

@@ -3,19 +3,21 @@ package cli
 import (
 	"context"
 	"fmt"
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/liubaninc/m0/x/wasm/types"
 	"github.com/liubaninc/m0/x/wasm/xmodel/contract/kernel"
 	"github.com/spf13/cobra"
+
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func CmdListContract() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list-contract [[address]]",
 		Short: "list all contract",
-		Args:  cobra.RangeArgs(0,1),
+		Args:  cobra.RangeArgs(0, 1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 
@@ -32,7 +34,7 @@ func CmdListContract() *cobra.Command {
 				}
 
 				params := &types.QueryGetAccountAllContractRequest{
-					Name: args[0],
+					Name:       args[0],
 					Pagination: pageReq,
 				}
 
