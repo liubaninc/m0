@@ -36,7 +36,9 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
+
 	// this line is used by starport scaffolding # stargate/root/import
+	m0 "github.com/liubaninc/m0/app"
 )
 
 var ChainID string
@@ -90,6 +92,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		genutilcli.ValidateGenesisCmd(app.ModuleBasics),
 		AddGenesisAccountCmd(app.DefaultNodeHome),
 		tmcli.NewCompletionCmd(rootCmd, true),
+		testnetCmd(m0.ModuleBasics, banktypes.GenesisBalancesIterator{}),
 		debug.Cmd(),
 		// this line is used by starport scaffolding # stargate/root/commands
 	)

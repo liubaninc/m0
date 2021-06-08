@@ -5,6 +5,7 @@ go 1.15
 require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/cosmos/cosmos-sdk v0.42.5
+	github.com/cosmos/go-bip39 v1.0.0
 	github.com/ddliu/motto v0.3.1
 	github.com/docker/go-units v0.4.0
 	github.com/fsouza/go-dockerclient v1.7.2
