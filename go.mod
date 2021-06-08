@@ -4,17 +4,22 @@ go 1.15
 
 require (
 	github.com/BurntSushi/toml v0.3.1
+	github.com/StackExchange/wmi v0.0.0-20210224194228-fe8f1750fd46 // indirect
 	github.com/cosmos/cosmos-sdk v0.42.5
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/ddliu/motto v0.3.1
 	github.com/docker/go-units v0.4.0
 	github.com/fsouza/go-dockerclient v1.7.2
+	github.com/go-kit/kit v0.10.0
+	github.com/go-ole/go-ole v1.2.5 // indirect
 	github.com/gogo/protobuf v1.3.3
 	github.com/golang/protobuf v1.5.2
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/mitchellh/mapstructure v1.3.3
+	github.com/prometheus/client_golang v1.10.0
 	github.com/robertkrimen/otto v0.0.0-20200922221731-ef014fd054ac
+	github.com/shirou/gopsutil v3.21.5+incompatible
 	github.com/spf13/cast v1.3.1
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/pflag v1.0.5
@@ -22,6 +27,7 @@ require (
 	github.com/syndtr/goleveldb v1.0.1-0.20200815110645-5c35d600f0ca
 	github.com/tendermint/tendermint v0.34.10
 	github.com/tendermint/tm-db v0.6.4
+	github.com/tklauser/go-sysconf v0.3.6 // indirect
 	go.opencensus.io v0.22.6 // indirect
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
 	google.golang.org/genproto v0.0.0-20210426193834-eac7f76ac494
