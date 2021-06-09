@@ -22,7 +22,11 @@ func New(rpcURI string, block bool) (*Client, error) {
 	}
 
 	encodingConfig := app.MakeEncodingConfig()
-	clientCtx := client.Context{}.WithNodeURI(rpcURI).WithClient(node).WithBroadcastMode(mode).WithJSONMarshaler(encodingConfig.Marshaler)
+	clientCtx := client.Context{}.WithNodeURI(rpcURI).
+		WithClient(node).
+		WithBroadcastMode(mode).
+		WithJSONMarshaler(encodingConfig.Marshaler).
+		WithTxConfig(encodingConfig.TxConfig)
 	return &Client{
 		ctx: clientCtx,
 	}, nil
