@@ -1,10 +1,16 @@
 package sdk
 
 import (
+	"bytes"
 	"context"
-	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/types/tx/signing"
+	"fmt"
 	"os"
+
+	"github.com/cosmos/cosmos-sdk/client/flags"
+	kmultisig "github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	"github.com/cosmos/cosmos-sdk/crypto/types/multisig"
+	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/liubaninc/m0/app"
@@ -69,6 +75,130 @@ func New(rpcURI string, kr keyring.Keyring) (Client, error) {
 	return c, nil
 }
 
+func (c *Client) GenerateTx(from string, fees string, memo string, timeoutHeight uint64, msgs ...sdk.Msg) (client.TxBuilder, error) {
+	var info keyring.Info
+	if addr, err := sdk.AccAddressFromBech32(from); err == nil {
+		info, err = c.Keyring.KeyByAddress(addr)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		info, err = c.Keyring.Key(from)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	clientCtx := c.Context.
+		WithFromName(info.GetName()).
+		WithFromAddress(info.GetAddress())
+
+	txf, err := tx.PrepareFactory(clientCtx, c.factory())
+	if err != nil {
+		return nil, err
+	}
+	txf = txf.WithFees(fees).
+		WithMemo(memo).
+		WithTimeoutHeight(timeoutHeight)
+
+	_, adjusted, err := tx.CalculateGas(clientCtx.QueryWithData, txf, msgs...)
+	if err != nil {
+		return nil, err
+	}
+
+	txf = txf.WithGas(adjusted)
+
+	txBuilder, err := tx.BuildUnsignedTx(txf, msgs...)
+	if err != nil {
+		return nil, err
+	}
+	return txBuilder, nil
+}
+
+func (c *Client) SignTx(from string, multiSigAddrStr string, txBuilder client.TxBuilder) error {
+	var info keyring.Info
+	if addr, err := sdk.AccAddressFromBech32(from); err == nil {
+		info, err = c.Keyring.KeyByAddress(addr)
+		if err != nil {
+			return err
+		}
+	} else {
+		info, err = c.Keyring.Key(from)
+		if err != nil {
+			return err
+		}
+	}
+	clientCtx := c.Context.
+		WithFromName(info.GetName()).
+		WithFromAddress(info.GetAddress())
+
+	if len(multiSigAddrStr) > 0 {
+		addr, err := sdk.AccAddressFromBech32(multiSigAddrStr)
+		if err != nil {
+			return fmt.Errorf("invalid multiSigAddrStr %v (%v)", multiSigAddrStr, err)
+		}
+		clientCtx = clientCtx.WithFromAddress(addr)
+	}
+
+	found := false
+	signers := txBuilder.GetTx().GetSigners()
+	for _, s := range signers {
+		if bytes.Equal(clientCtx.FromAddress, s.Bytes()) {
+			found = true
+			break
+		}
+	}
+	if !found {
+		return fmt.Errorf("invalid signer: %s(%s)", clientCtx.FromName, clientCtx.FromAddress.String())
+	}
+
+	txf, err := tx.PrepareFactory(clientCtx, c.factory())
+	if err != nil {
+		return err
+	}
+
+	err = tx.Sign(txf, clientCtx.GetFromName(), txBuilder, true)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *Client) MultiSignTx(txBuilder client.TxBuilder, multisigPubKey cryptotypes.PubKey, signatures ...[]signingtypes.SignatureV2) error {
+	multisigPub := multisigPubKey.(*kmultisig.LegacyAminoPubKey)
+	multisigSig := multisig.NewMultisig(len(multisigPub.PubKeys))
+
+	sequence := uint64(0)
+	for _, sigs := range signatures {
+		for _, sig := range sigs {
+			sequence = sig.Sequence
+			if err := multisig.AddSignatureV2(multisigSig, sig, multisigPub.GetPubKeys()); err != nil {
+				return err
+			}
+		}
+	}
+
+	sigV2 := signingtypes.SignatureV2{
+		PubKey:   multisigPub,
+		Data:     multisigSig,
+		Sequence: sequence,
+	}
+
+	err := txBuilder.SetSignatures(sigV2)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *Client) BroadcastTx(tx sdk.Tx) (*sdk.TxResponse, error) {
+	txBytes, err := c.TxConfig.TxEncoder()(tx)
+	if err != nil {
+		return nil, err
+	}
+	return c.Context.BroadcastTx(txBytes)
+}
 
 func (c *Client) GenerateAndBroadcastTx(from string, fees string, memo string, timeoutHeight uint64, msgs ...sdk.Msg) (*sdk.TxResponse, error) {
 	var info keyring.Info
@@ -108,6 +238,18 @@ func (c *Client) GenerateAndBroadcastTx(from string, fees string, memo string, t
 		return nil, err
 	}
 
+	found := false
+	signers := txBuilder.GetTx().GetSigners()
+	for _, s := range signers {
+		if bytes.Equal(clientCtx.FromAddress, s.Bytes()) {
+			found = true
+			break
+		}
+	}
+	if !found {
+		return nil, fmt.Errorf("invalid signer: %s(%s)", clientCtx.FromName, clientCtx.FromAddress.String())
+	}
+
 	err = tx.Sign(txf, clientCtx.GetFromName(), txBuilder, true)
 	if err != nil {
 		return nil, err
@@ -121,14 +263,13 @@ func (c *Client) GenerateAndBroadcastTx(from string, fees string, memo string, t
 	return clientCtx.BroadcastTx(txBytes)
 }
 
-
 func (c *Client) factory() tx.Factory {
-	signMode := signing.SignMode_SIGN_MODE_UNSPECIFIED
+	signMode := signingtypes.SignMode_SIGN_MODE_UNSPECIFIED
 	switch c.SignModeStr {
 	case flags.SignModeDirect:
-		signMode = signing.SignMode_SIGN_MODE_DIRECT
+		signMode = signingtypes.SignMode_SIGN_MODE_DIRECT
 	case flags.SignModeLegacyAminoJSON:
-		signMode = signing.SignMode_SIGN_MODE_LEGACY_AMINO_JSON
+		signMode = signingtypes.SignMode_SIGN_MODE_LEGACY_AMINO_JSON
 	}
 	txf := tx.Factory{}.
 		WithKeybase(c.Keyring).
@@ -140,7 +281,6 @@ func (c *Client) factory() tx.Factory {
 		WithGasAdjustment(1.5)
 	return txf
 }
-
 
 func init() {
 	app.SetConfig()

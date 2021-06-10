@@ -28,3 +28,27 @@ func TestGenerateAndBroadcastTx(t *testing.T) {
 	}
 	t.Log("GenerateAndBroadcastTx", string(testClient.JSONMarshaler.MustMarshalJSON(res)))
 }
+
+func TestGenerateAndBroadcastTx2(t *testing.T) {
+	msg, err := testClient.IssueMsg(address, address, "1000m0t", "test", "")
+	if err != nil {
+		t.Fatal("TestGenerateAndBroadcastTx2", "msg", err)
+	}
+	tx, err := testClient.GenerateTx(address, "", "ss", 0, msg)
+	if err != nil {
+		t.Fatal("TestGenerateAndBroadcastTx2", "GenerateTx", err)
+	}
+
+	if err := testClient.SignTx(address, "",  tx);err != nil {
+		t.Fatal("TestGenerateAndBroadcastTx2", "SignTx", err)
+	}
+
+	res, err := testClient.BroadcastTx(tx.GetTx())
+	if err != nil {
+		t.Fatal("TestGenerateAndBroadcastTx2", "BroadcastTx", err)
+	}
+	if res.Code != 0 {
+		t.Fatal("TestGenerateAndBroadcastTx2", "tx", err)
+	}
+	t.Log("TestGenerateAndBroadcastTx2", string(testClient.JSONMarshaler.MustMarshalJSON(res)))
+}

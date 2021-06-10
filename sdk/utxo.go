@@ -47,7 +47,7 @@ func (c *Client) GetInput(address, amounts string, lock int64) (*utxotypes.Query
 	queryClient := utxotypes.NewQueryClient(c)
 	res, err := queryClient.Input(context.Background(), &utxotypes.QueryInputRequest{
 		Address: address,
-		Amount:  amounts,
+		Amounts:  amounts,
 		Lock:    lock,
 	})
 	return res, err
