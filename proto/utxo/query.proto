@@ -20,7 +20,7 @@ service Query {
 	}
 
 	rpc Input(QueryInputRequest) returns (QueryInputResponse) {
-		option (google.api.http).get = "/liubaninc/m0/utxo/input/{address}/{amount}";
+		option (google.api.http).get = "/liubaninc/m0/utxo/input/{address}/{amounts}";
 	}
 
 	rpc InputAll(QueryAllInputRequest) returns (QueryAllInputResponse) {
@@ -47,7 +47,7 @@ message QueryAllTokenResponse {
 
 message QueryInputRequest {
 	string address = 1;
-	string amount = 2;
+	string amounts = 2;
 	int64 lock = 3;
 }
 

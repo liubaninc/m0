@@ -63,7 +63,7 @@ func (k Keeper) Input(c context.Context, req *types.QueryInputRequest) (*types.Q
 		return nil, status.Error(codes.InvalidArgument, "invalid address")
 	}
 
-	amount, err := sdk.ParseCoinsNormalized(req.Amount)
+	amount, err := sdk.ParseCoinsNormalized(req.Amounts)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid amount")
 	}

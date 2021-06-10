@@ -1,9 +1,10 @@
 #!/usr/bin/env sh
 
 set -e
+mnemonic="key erupt service six thing spy noise heart giggle year oil fuel rival drop goat deal moral require knee pact bind brain word nuclear"
 rm -rf ~/.m0
 m0d init happys --chain-id=happy
-m0d keys add alice
+echo "$mnemonic" | m0d keys add alice --recover
 m0d add-genesis-account $(m0d keys show alice -a) 100000000stake
 m0d gentx alice 100000000stake --chain-id=happy
 m0d collect-gentxs

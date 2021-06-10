@@ -33,7 +33,7 @@ func CmdDestroy() *cobra.Command {
 
 			coins, err := sdk.ParseCoinsNormalized(args[0])
 			if err != nil {
-				return fmt.Errorf("invalid coins %s (%s)", args[0], err)
+				return fmt.Errorf("invalid amount %s (%s)", args[0], err)
 			}
 
 			neededTotal := sdk.NewCoins()
@@ -57,7 +57,7 @@ func CmdDestroy() *cobra.Command {
 				queryClient := types.NewQueryClient(clientCtx)
 				params := &types.QueryInputRequest{
 					Address: clientCtx.GetFromAddress().String(),
-					Amount:  neededTotal.String(),
+					Amounts:  neededTotal.String(),
 					Lock:    viper.GetInt64(flagLock),
 				}
 				res, err := queryClient.Input(context.Background(), params)

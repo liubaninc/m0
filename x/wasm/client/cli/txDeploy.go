@@ -90,7 +90,7 @@ func CmdDeploy() *cobra.Command {
 				queryClient := utxotypes.NewQueryClient(clientCtx)
 				params := &utxotypes.QueryInputRequest{
 					Address: clientCtx.GetFromAddress().String(),
-					Amount:  neededTotal.String(),
+					Amounts:  neededTotal.String(),
 					Lock:    viper.GetInt64(flagLock),
 				}
 				res, err := queryClient.Input(context.Background(), params)

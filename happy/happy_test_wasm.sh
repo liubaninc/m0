@@ -11,7 +11,7 @@ m0d keys add iuser
 issue alice $(m0d keys show wuser -a) 10000 wuser
 issue alice $(m0d keys show iuser -a) 10000 wuser
 
-codefile=$(dirname $0)/counter.wasm
+codefile=$(dirname $0)/../x/wasm/xmodel/contractsdk/cpp/build/counter.wasm
 
 deploy wuser happyc "$codefile" "{\"creator\": \"someone\"}"
 

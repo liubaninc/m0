@@ -49,15 +49,15 @@ func CmdQueryContract() *cobra.Command {
 
 			name := args[0]
 			if err := kernel.ValidContractName(name); err != nil {
-				return err
+				return fmt.Errorf("invalid contract name %v (%v)", name, err)
 			}
 			method := args[1]
 			if len(method) == 0 {
-				return fmt.Errorf("contract method empty")
+				return fmt.Errorf("invalid method (empty)")
 			}
 			methodArgs, err := convertToArgs(args[2])
 			if err != nil {
-				return fmt.Errorf("invoke init args, error %v", err)
+				return fmt.Errorf("invalid args, error %v", err)
 			}
 			mArgsStr, _ := json.Marshal(methodArgs)
 

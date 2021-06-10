@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/telemetry"
 
@@ -18,6 +19,10 @@ func (k msgServer) Deploy(goCtx context.Context, msg *types.MsgDeploy) (*types.M
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	msgOffset := int32(ctx.Context().Value("msg-index").(int))
 	txHash := fmt.Sprintf("%X", tmhash.Sum(ctx.TxBytes()))
+	t := time.Now()
+	defer func() {
+		k.Logger(ctx).Debug("handler", "route", msg.Route(), "msg", msg.Type(), "hash", txHash, "index", msgOffset, "elapsed", time.Now().Sub(t).String())
+	}()
 	if err := k.utxoKeeper.Transfer(ctx, txHash, msgOffset, msg.Creator, msg.Inputs, msg.Outputs); err != nil {
 		return nil, err
 	}

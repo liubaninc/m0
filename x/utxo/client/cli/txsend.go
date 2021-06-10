@@ -41,9 +41,12 @@ func CmdSend() *cobra.Command {
 
 			for index, arg := range args {
 				if index%2 == 0 {
+					if _, err := sdk.AccAddressFromBech32(arg); err != nil {
+						return fmt.Errorf("invalid address %s (%s)", arg, err)
+					}
 					amount, err := sdk.ParseCoinNormalized(args[index+1])
 					if err != nil {
-						return fmt.Errorf("invalid coin %s (%s)", args[index+1], err)
+						return fmt.Errorf("invalid amount %s (%s)", args[index+1], err)
 					}
 					outputs = append(outputs, &types.Output{
 						ToAddr: arg,
@@ -69,7 +72,7 @@ func CmdSend() *cobra.Command {
 				queryClient := types.NewQueryClient(clientCtx)
 				params := &types.QueryInputRequest{
 					Address: clientCtx.GetFromAddress().String(),
-					Amount:  neededTotal.String(),
+					Amounts:  neededTotal.String(),
 					Lock:    viper.GetInt64(flagLock),
 				}
 				res, err := queryClient.Input(context.Background(), params)

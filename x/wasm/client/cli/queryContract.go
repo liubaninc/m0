@@ -74,7 +74,7 @@ func CmdShowContract() *cobra.Command {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 
 			if err := kernel.ValidContractName(args[0]); err != nil {
-				return err
+				return fmt.Errorf("invalid contract name %v (%v)", args[0], err)
 			}
 
 			queryClient := types.NewQueryClient(clientCtx)

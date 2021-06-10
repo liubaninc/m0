@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/liubaninc/m0/x/wasm/types"
 	"github.com/liubaninc/m0/x/wasm/xmodel"
@@ -12,7 +13,10 @@ import (
 
 // preExec the contract model uses previous execution to generate RWSets
 func PreExec(ctx sdk.Context, k Keeper, req *types.InvokeRPCRequest) (*types.InvokeRPCResponse, error) {
-	// init modelCache
+	t := time.Now()
+	defer func() {
+		k.Logger(ctx).Error("PreExec", "elapsed", time.Now().Sub(t).String())
+	}()
 	xmreader := NewXMReader(ctx, k)
 	modelCache, err := NewXModelCache(xmreader, NewUtxoReader(ctx, k))
 	if err != nil {

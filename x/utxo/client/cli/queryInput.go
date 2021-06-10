@@ -77,7 +77,7 @@ func CmdShowInput() *cobra.Command {
 
 			params := &types.QueryInputRequest{
 				Address: args[0],
-				Amount:  args[1],
+				Amounts:  args[1],
 				Lock:    viper.GetInt64(flagLock),
 			}
 
