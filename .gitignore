@@ -16,6 +16,6 @@ tools-stamp
 buf-stamp
 artifactss
 happy/*.log
-x/wasm/xmodel/xvm/compile/wabt/build/
-x/wasm/xmodel/contractsdk/cpp/build/
 build/
+x/wasm/xmodel/contractsdk/cpp/build/
+x/wasm/xmodel/xvm/compile/wabt/build/
