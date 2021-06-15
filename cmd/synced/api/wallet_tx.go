@@ -3,12 +3,14 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/cosmos/cosmos-sdk/x/auth/signing"
-	utxotypes "github.com/liubaninc/m0/x/utxo/types"
-	wasmtypes "github.com/liubaninc/m0/x/wasm/types"
 	"io/ioutil"
 	"net/http"
 	"strings"
+
+	utxotypes "github.com/liubaninc/m0/x/utxo/types"
+	wasmtypes "github.com/liubaninc/m0/x/wasm/types"
+
+	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 
 	"github.com/liubaninc/m0/cmd/synced/syncer"
 	"github.com/tendermint/tendermint/crypto/tmhash"
@@ -16,6 +18,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/liubaninc/m0/cmd/synced/model"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -91,10 +94,10 @@ func (api *API) getUtxoResponse(c *gin.Context, tp string, request *UTXORequest)
 		// 多签地址 仅仅构建交易
 		if len(acct.Related) > 0 {
 			kb := api.getKeyBase(c)
-			if err := kb.ImportPrivKey(acct.Related, acct.PrivateKey, request.Password);err != nil {
+			if err := kb.ImportPrivKey(acct.Related, acct.PrivateKey, request.Password); err != nil {
 				return nil, err
 			}
-			if err := api.client.SignTx(acct.Related,acct.Address, tx); err != nil {
+			if err := api.client.SignTx(acct.Related, acct.Address, tx, true); err != nil {
 				return nil, err
 			}
 		}
@@ -116,7 +119,7 @@ func (api *API) getUtxoResponse(c *gin.Context, tp string, request *UTXORequest)
 		if err := kb.ImportPrivKey(acct.Name, acct.PrivateKey, request.Password); err != nil {
 			return nil, err
 		}
-		if err := api.client.SignTx(acct.Name, "", tx); err != nil {
+		if err := api.client.SignTx(acct.Name, "", tx, true); err != nil {
 			return nil, err
 		}
 
@@ -351,33 +354,42 @@ func (api *API) Sign(c *gin.Context) {
 		c.JSON(http.StatusOK, response)
 		return
 	}
-	_ = tx
+	txBuilder, err := api.client.TxConfig.WrapTxBuilder(tx)
+	if err != nil {
+		response.Code = ExecuteCode
+		response.Msg = ERROR_TX
+		response.Detail = err.Error()
+		api.logger.Error(c.Request.URL.Path, "tx", mtx.Raw, "error", response.Detail)
+		c.JSON(http.StatusOK, response)
+		return
+	}
 
-	//multiAddress := acct.Address
-	//multiPublic := acct.PublicKey
-	//if len(acct.Related) > 0 {
-	//	kb := api.getKeyBase(c)
-	//	err := kb.ImportPrivKey(acct.Related, acct.PrivateKey, request.Password)
-	//	if err != nil {
-	//		response.Code = ExecuteCode
-	//		response.Msg = ERROR_PASSWORD
-	//		response.Detail = err.Error()
-	//		api.logger.Error(c.Request.URL.Path, "user", api.userID(c), "account", acct.Related, "error", response.Detail)
-	//		c.JSON(http.StatusOK, response)
-	//		return
-	//	}
-	//	err = api.client.SignTx(acct.Related, multiAddress, &tx)
-	//	if err != nil {
-	//		response.Code = ExecuteCode
-	//		response.Msg = ERROR_SIGN
-	//		response.Detail = err.Error()
-	//		api.logger.Error(c.Request.URL.Path, "error", response.Detail)
-	//		c.JSON(http.StatusOK, response)
-	//		return
-	//	}
-	//	msdk.AppendSignatures(&tx, signature)
-	//}
-	//
+	multiAddress := acct.Address
+	multiPublic := acct.PublicKey
+	if len(acct.Related) > 0 {
+		kb := api.getKeyBase(c)
+		err := kb.ImportPrivKey(acct.Related, acct.PrivateKey, request.Password)
+		if err != nil {
+			response.Code = ExecuteCode
+			response.Msg = ERROR_PASSWORD
+			response.Detail = err.Error()
+			api.logger.Error(c.Request.URL.Path, "user", api.userID(c), "account", acct.Related, "error", response.Detail)
+			c.JSON(http.StatusOK, response)
+			return
+		}
+		err = api.client.SignTx(acct.Related, multiAddress, txBuilder, false)
+		if err != nil {
+			response.Code = ExecuteCode
+			response.Msg = ERROR_SIGN
+			response.Detail = err.Error()
+			api.logger.Error(c.Request.URL.Path, "error", response.Detail)
+			c.JSON(http.StatusOK, response)
+			return
+		}
+	}
+
+	_ = multiPublic
+
 	//var multiSigPub multisig.PubKeyMultisigThreshold
 	//if len(multiAddress) > 0 {
 	//	if len(multiPublic) > 0 {
@@ -486,7 +498,7 @@ func (api *API) Sign(c *gin.Context) {
 	//	// resp.Tx = string(api.client.Codec.MustMarshalJSON(tx))
 	//	resp.Hash = fmt.Sprintf("%X", tmhash.Sum(api.client.Codec.MustMarshalBinaryLengthPrefixed(tx)))
 	//}
-	//if err := api.processTx(&tx, request.Commit); err != nil {
+	//if err := api.processTx(txBuilder.GetTx(), request.Commit); err != nil {
 	//	panic(err)
 	//}
 	//response.Data = resp

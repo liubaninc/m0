@@ -5,8 +5,13 @@ import (
 	"encoding/hex"
 	"fmt"
 	"net/http"
+	"os"
 	"sort"
 	"strings"
+
+	"github.com/spf13/viper"
+
+	"github.com/cosmos/cosmos-sdk/client/flags"
 
 	"github.com/cosmos/cosmos-sdk/crypto"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
@@ -16,10 +21,11 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 
 	"github.com/bartekn/go-bip39"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/liubaninc/m0/cmd/synced/model"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 var (
@@ -64,13 +70,12 @@ func (api *API) userName(c *gin.Context) string {
 }
 
 func (api *API) getKeyBase(c *gin.Context) keyring.Keyring {
-	//userName := api.userName(c)
-	//kr, err := keyring.New(userName, keyring.BackendMemory, viper.GetString(flags.FlagHome), os.Stdin)
-	//if err != nil {
-	//	panic(err)
-	//}
-	//return kr
-	return api.client.Keyring
+	userName := api.userName(c)
+	kr, err := keyring.New(userName, keyring.BackendMemory, viper.GetString(flags.FlagHome), os.Stdin)
+	if err != nil {
+		panic(err)
+	}
+	return kr
 }
 
 func toAccount(acct *model.Account) *AccountResponse {
@@ -189,7 +194,7 @@ func (api *API) AccountCreate(c *gin.Context) {
 		}
 		var priv cryptotypes.PrivKey
 		switch keyAlgo {
-		case hd.Secp256k1:
+		case &hd.Secp256k1:
 			if len(privateKeyBytes) != secp256k1.PrivKeySize {
 				response.Code = ExecuteCode
 				response.Msg = ERROR_PRIVKEY
@@ -201,20 +206,10 @@ func (api *API) AccountCreate(c *gin.Context) {
 			var key secp256k1.PrivKey
 			copy(key.Key[:], privateKeyBytes)
 			priv = &key
-		case hd.Secp256k1:
 			// TODO
 		}
 		privateKeyArmor := crypto.EncryptArmorPrivKey(priv, request.Password, string(keyAlgo.Name()))
 		if err := kb.ImportPrivKey(request.Name, privateKeyArmor, request.Password); err != nil {
-			response.Code = ExecuteCode
-			response.Msg = ERROR_DB
-			response.Detail = err.Error()
-			api.logger.Error(c.Request.URL.Path, "error", response.Detail)
-			c.JSON(http.StatusOK, response)
-			return
-		}
-		info, err = kb.Key(request.Name)
-		if err != nil {
 			response.Code = ExecuteCode
 			response.Msg = ERROR_DB
 			response.Detail = err.Error()
@@ -249,7 +244,7 @@ func (api *API) AccountCreate(c *gin.Context) {
 		Address:    info.GetAddress().String(),
 		Mnemonic:   request.Mnemonic,
 		PrivateKey: privateKeyArmor,
-		PublicKey:  hex.EncodeToString(api.client.JSONMarshaler.MustMarshalJSON(info.GetPubKey())),
+		PublicKey:  hex.EncodeToString(api.client.LegacyAmino.MustMarshalBinaryBare(info.GetPubKey())),
 		Info:       string(keyAlgo.Name()),
 		UserID:     api.userID(c),
 	}
@@ -340,6 +335,19 @@ func (api *API) AccountCreateMultiSig(c *gin.Context) {
 		return
 	}
 
+	var related model.Account
+	if result := api.db.Where(&model.Account{
+		UserID: api.userID(c),
+		Name:   request.Related,
+	}).Find(&related); result.RowsAffected == 0 {
+		response.Code = ExecuteCode
+		response.Msg = ERROR_ACCT_NO
+		response.Detail = fmt.Sprintf("account %s not existed", request.Related)
+		api.logger.Error(c.Request.URL.Path, "error", response.Detail)
+		c.JSON(http.StatusOK, response)
+		return
+	}
+
 	var pks []cryptotypes.PubKey
 	for _, sig := range request.MultiSig {
 		pubKeyBytes, err := hex.DecodeString(sig)
@@ -352,7 +360,7 @@ func (api *API) AccountCreateMultiSig(c *gin.Context) {
 			return
 		}
 		var pk cryptotypes.PubKey
-		if err := api.client.JSONMarshaler.UnmarshalJSON(pubKeyBytes, pk); err != nil {
+		if err := api.client.LegacyAmino.Amino.UnmarshalBinaryBare(pubKeyBytes, &pk); err != nil {
 			response.Code = RequestCode
 			response.Msg = ERROR_PUBKEY
 			response.Detail = fmt.Sprintf("pub %s error %s", sig, err)
@@ -408,6 +416,7 @@ func (api *API) AccountCreateMultiSig(c *gin.Context) {
 
 	if len(pks) > 1 {
 		acct.Related = request.Related
+		acct.PrivateKey = related.PrivateKey
 		acct.MultiSig = strings.Join(request.MultiSig, ",")
 		acct.Threshold = request.Threshold
 	}

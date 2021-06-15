@@ -123,7 +123,7 @@ func (c *Client) GenerateTx(from string, fees string, memo string, timeoutHeight
 	return txBuilder, nil
 }
 
-func (c *Client) SignTx(from string, multiSigAddrStr string, txBuilder client.TxBuilder) error {
+func (c *Client) SignTx(from string, multiSigAddrStr string, txBuilder client.TxBuilder, overwriteSig bool) error {
 	var info keyring.Info
 	if addr, err := sdk.AccAddressFromBech32(from); err == nil {
 		info, err = c.Keyring.KeyByAddress(addr)
@@ -165,7 +165,7 @@ func (c *Client) SignTx(from string, multiSigAddrStr string, txBuilder client.Tx
 		return err
 	}
 
-	err = tx.Sign(txf, clientCtx.GetFromName(), txBuilder, true)
+	err = tx.Sign(txf, clientCtx.GetFromName(), txBuilder, overwriteSig)
 	if err != nil {
 		return err
 	}

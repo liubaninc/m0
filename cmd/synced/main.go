@@ -1,8 +1,6 @@
 package main
 
 import (
-	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"os"
 
 	"github.com/liubaninc/m0/cmd/synced/api"
@@ -67,8 +65,7 @@ func newStartCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			logger := log.NewTMLogger(log.NewSyncWriter(os.Stdout))
 
-			kr, _ := keyring.New("m0", keyring.BackendMemory, viper.GetString(flags.FlagHome), os.Stdin)
-			client := msdk.MustNew(viper.GetString(flagRPCHost), kr)
+			client := msdk.MustNew(viper.GetString(flagRPCHost), nil)
 			model := model.New(viper.GetString(flagDBHost), viper.GetInt(flagDBPort), viper.GetString(flagDBUser), viper.GetString(flagDBPassword), viper.GetString(flagDBName), logger)
 			syncer.New(model.DB, client, logger).Run()
 			api.New(model.DB, client, logger).Run(viper.GetInt(flagPort))
