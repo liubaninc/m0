@@ -406,7 +406,7 @@ func (api *API) AccountCreateMultiSig(c *gin.Context) {
 	acct := &model.Account{
 		Name:      request.Name,
 		Address:   info.GetAddress().String(),
-		PublicKey: hex.EncodeToString(info.GetPubKey().Bytes()),
+		PublicKey: hex.EncodeToString(api.client.LegacyAmino.MustMarshalBinaryBare(info.GetPubKey())),
 		UserID:    api.userID(c),
 	}
 

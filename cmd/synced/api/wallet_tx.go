@@ -1,8 +1,10 @@
 package api
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -14,6 +16,7 @@ import (
 
 	"github.com/liubaninc/m0/cmd/synced/syncer"
 	"github.com/tendermint/tendermint/crypto/tmhash"
+	"github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
 	"github.com/tendermint/tendermint/types/time"
 
 	"github.com/gin-gonic/gin"
@@ -388,120 +391,110 @@ func (api *API) Sign(c *gin.Context) {
 		}
 	}
 
-	_ = multiPublic
+	var multiSigPub *multisig.LegacyAminoPubKey
+	if len(multiAddress) > 0 {
+		if len(multiPublic) > 0 {
+			publicKeyBytes, err := hex.DecodeString(multiPublic)
+			if err != nil {
+				response.Code = ExecuteCode
+				response.Msg = ERROR_PUBKEY
+				response.Detail = err.Error()
+				api.logger.Error(c.Request.URL.Path, "pub", multiPublic, "error", response.Detail)
+				c.JSON(http.StatusOK, response)
+				return
+			}
+			if err := api.client.LegacyAmino.UnmarshalBinaryBare(publicKeyBytes, &multiSigPub);err != nil {
+				response.Code = ExecuteCode
+				response.Msg = ERROR_PUBKEY
+				response.Detail = err.Error()
+				api.logger.Error(c.Request.URL.Path, "pub", multiPublic, "error", response.Detail)
+				c.JSON(http.StatusOK, response)
+				return
+			}
+		} else {
+			res, err := api.client.GetAccount(multiAddress)
+			if err != nil {
+				response.Code = ExecuteCode
+				response.Msg = err.Error()
+				response.Detail = "not multi public address"
+				api.logger.Error(c.Request.URL.Path, "address", multiAddress, "error", response.Detail)
+				c.JSON(http.StatusOK, response)
+				return
+			}
+			_ = res
+			var acct authtypes.AccountI
+			pub, ok := acct.GetPubKey().(*multisig.LegacyAminoPubKey)
+			if !ok {
+				response.Code = ExecuteCode
+				response.Msg = ERROR_PUBKEY
+				response.Detail = "not multi public address"
+				api.logger.Error(c.Request.URL.Path, "address", multiAddress, "error", response.Detail)
+				c.JSON(http.StatusOK, response)
+				return
+			}
+			multiSigPub = pub
+		}
+	}
 
-	//var multiSigPub multisig.PubKeyMultisigThreshold
-	//if len(multiAddress) > 0 {
-	//	if len(multiPublic) > 0 {
-	//		publicKeyBytes, err := hex.DecodeString(multiPublic)
-	//		if err != nil {
-	//			response.Code = ExecuteCode
-	//			response.Msg = ERROR_PUBKEY
-	//			response.Detail = err.Error()
-	//			api.logger.Error(c.Request.URL.Path, "pub", multiPublic, "error", response.Detail)
-	//			c.JSON(http.StatusOK, response)
-	//			return
-	//		}
-	//		pubKey, err := tmamino.PubKeyFromBytes(publicKeyBytes)
-	//		if err != nil {
-	//			response.Code = ExecuteCode
-	//			response.Msg = ERROR_PUBKEY
-	//			response.Detail = err.Error()
-	//			api.logger.Error(c.Request.URL.Path, "pub", multiPublic, "error", response.Detail)
-	//			c.JSON(http.StatusOK, response)
-	//			return
-	//		}
-	//		pub, ok := pubKey.(multisig.PubKeyMultisigThreshold)
-	//		if !ok {
-	//			response.Code = ExecuteCode
-	//			response.Msg = ERROR_PUBKEY
-	//			response.Detail = "not multi public key"
-	//			api.logger.Error(c.Request.URL.Path, "pub", multiPublic, "error", response.Detail)
-	//			c.JSON(http.StatusOK, response)
-	//			return
-	//		}
-	//		multiSigPub = pub
-	//	} else {
-	//		_, multiAccount, err := api.client.GetAccount(multiAddress, 0)
-	//		if err != nil {
-	//			response.Code = ExecuteCode
-	//			response.Msg = err.Error()
-	//			response.Detail = "not multi public address"
-	//			api.logger.Error(c.Request.URL.Path, "address", multiAddress, "error", response.Detail)
-	//			c.JSON(http.StatusOK, response)
-	//			return
-	//		}
-	//		pub, ok := multiAccount.GetPubKey().(multisig.PubKeyMultisigThreshold)
-	//		if !ok {
-	//			response.Code = ExecuteCode
-	//			response.Msg = ERROR_PUBKEY
-	//			response.Detail = "not multi public address"
-	//			api.logger.Error(c.Request.URL.Path, "address", multiAddress, "error", response.Detail)
-	//			c.JSON(http.StatusOK, response)
-	//			return
-	//		}
-	//		multiSigPub = pub
-	//	}
-	//}
-	//
-	//var resp TxResponse
-	//if request.Commit {
-	//	signatures := tx.Signatures
-	//	if len(multiAddress) > 0 {
-	//		signature, err := msdk.MultiSignTx(multiSigPub, tx.Signatures...)
-	//		if err != nil {
-	//			response.Code = ExecuteCode
-	//			response.Msg = ERROR_SIGN
-	//			response.Detail = err.Error()
-	//			api.logger.Error(c.Request.URL.Path, "error", response.Detail)
-	//			c.JSON(http.StatusOK, response)
-	//			return
-	//		}
-	//		tx.Signatures = []authtypes.StdSignature{signature}
-	//	}
-	//	// 广播交易
-	//	result, err := api.client.BroadcastTxSync(&tx)
-	//	api.logger.Info("broadcast", "tx", string(api.client.Codec.MustMarshalJSON(tx)))
-	//	if err != nil {
-	//		response.Code = ExecuteCode
-	//		response.Msg = err.Error()
-	//		response.Detail = err.Error()
-	//		api.logger.Error(c.Request.URL.Path, "error", response.Detail)
-	//		c.JSON(http.StatusOK, response)
-	//		return
-	//	}
-	//	if result.Code != 0 {
-	//		response.Code = ExecuteCode
-	//		response.Msg = result.Log
-	//		response.Detail = result.Log
-	//		api.logger.Error(c.Request.URL.Path, "error", response.Detail)
-	//		c.JSON(http.StatusOK, response)
-	//		return
-	//	}
-	//	resp.Hash = result.Hash.String()
-	//	tx.Signatures = signatures
-	//	resp.Hash = fmt.Sprintf("%X", tmhash.Sum(api.client.Codec.MustMarshalBinaryLengthPrefixed(tx)))
-	//} else {
-	//	if len(multiAddress) > 0 {
-	//		resp.MultiAddress = multiAddress
-	//		resp.MultiPublic = multiPublic
-	//		resp.Threshold = int(multiSigPub.K)
-	//	}
-	//	resp.Signatures = []string{}
-	//	for _, signature := range tx.Signatures {
-	//		addr, err := sdk.AccAddressFromHex(signature.Address().String())
-	//		if err != nil {
-	//			panic(err)
-	//		}
-	//		resp.Signatures = append(resp.Signatures, addr.String())
-	//	}
-	//	// resp.Tx = string(api.client.Codec.MustMarshalJSON(tx))
-	//	resp.Hash = fmt.Sprintf("%X", tmhash.Sum(api.client.Codec.MustMarshalBinaryLengthPrefixed(tx)))
-	//}
-	//if err := api.processTx(txBuilder.GetTx(), request.Commit); err != nil {
-	//	panic(err)
-	//}
-	//response.Data = resp
+	var resp TxResponse
+	if request.Commit {
+		signatures, _ := txBuilder.GetTx().GetSignaturesV2()
+		if len(multiAddress) > 0 {
+			if err := api.client.MultiSignTx(txBuilder, multiSigPub, signatures); err != nil {
+				response.Code = ExecuteCode
+				response.Msg = ERROR_SIGN
+				response.Detail = err.Error()
+				api.logger.Error(c.Request.URL.Path, "error", response.Detail)
+				c.JSON(http.StatusOK, response)
+				return
+			}
+		}
+		// 广播交易
+		result, err := api.client.BroadcastTx(txBuilder.GetTx())
+		//api.logger.Info("broadcast", "tx", string(api.client.JSONMarshaler.MustMarshalJSON(txBuilder.GetTx())))
+		if err != nil {
+			response.Code = ExecuteCode
+			response.Msg = err.Error()
+			response.Detail = err.Error()
+			api.logger.Error(c.Request.URL.Path, "error", response.Detail)
+			c.JSON(http.StatusOK, response)
+			return
+		}
+		if result.Code != 0 {
+			response.Code = ExecuteCode
+			response.Msg = result.RawLog
+			response.Detail = result.RawLog
+			api.logger.Error(c.Request.URL.Path, "error", response.Detail)
+			c.JSON(http.StatusOK, response)
+			return
+		}
+		resp.Hash = result.TxHash
+		//tx.Signatures = signatures
+		bts, _ := api.client.TxConfig.TxEncoder()(tx)
+		resp.Hash = fmt.Sprintf("%X", tmhash.Sum(bts))
+	} else {
+		if len(multiAddress) > 0 {
+			resp.MultiAddress = multiAddress
+			resp.MultiPublic = multiPublic
+			resp.Threshold = int(multiSigPub.Threshold)
+		}
+		resp.Signatures = []string{}
+		signatures, _ := txBuilder.GetTx().GetSignaturesV2()
+		for _, signature := range signatures {
+			addr, err := sdk.AccAddressFromHex(signature.PubKey.Address().String())
+			if err != nil {
+				panic(err)
+			}
+			resp.Signatures = append(resp.Signatures, addr.String())
+		}
+		// resp.Tx = string(api.client.Codec.MustMarshalJSON(tx))
+		bts, _ := api.client.TxConfig.TxEncoder()(tx)
+		resp.Hash = fmt.Sprintf("%X", tmhash.Sum(bts))
+	}
+	if err := api.processTx(txBuilder.GetTx(), request.Commit); err != nil {
+		panic(err)
+	}
+	response.Data = resp
 	c.JSON(http.StatusOK, response)
 }
 
