@@ -147,8 +147,10 @@ contractsdk:
 	make -C x/wasm/xmodel/contractsdk/cpp test
 
 start: build
-	cd vue/wallet && npm install && npm run serve &
-	cd vue/browser && npm install && npm run serve &
+	cd vue/wallet && npm install
+	cd vue/wallet && npm run serve &
+	cd vue/browser && npm install
+	cd vue/browser && npm run serve &
 	#cd build && ./m0d start --pruning nothing --grpc.address 0.0.0.0:9090
 
 
