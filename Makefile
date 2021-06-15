@@ -114,6 +114,21 @@ wasm2c: $(BUILDDIR)/
 wasm2cclean:
 	@make -C xmodel/xvm/compile/wabt clean
 
+images/docker-%:
+	@echo "Building Docker image tq_bc/$*"
+	docker build --force-rm -f images/$*/Dockerfile \
+		--build-arg GO_VER=$(GO_VER) \
+		--build-arg ALPINE_VER=$(ALPINE_VER) \
+		--build-arg GO_TAGS=${GO_TAGS} \
+		-t liubaninc/$* \
+		.
+
+GO_VER = 1.14.1
+ALPINE_VER ?= 3.11
+GO_TAGS ?=
+
+m0-image: images/docker-m0d
+
 clean:
 	rm -rf $(BUILDDIR)/
 
