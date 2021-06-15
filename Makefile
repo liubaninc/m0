@@ -114,7 +114,7 @@ wasm2c: $(BUILDDIR)/
 wasm2cclean:
 	@make -C xmodel/xvm/compile/wabt clean
 
-images/docker-%:
+images/build-%:
 	@echo "Building Docker image tq_bc/$*"
 	docker build --force-rm -f images/$*/Dockerfile \
 		--build-arg GO_VER=$(GO_VER) \
@@ -123,13 +123,20 @@ images/docker-%:
 		-t liubaninc/$* \
 		.
 
-GO_VER = 1.14.1
-ALPINE_VER ?= 3.11
+images/clean-%:
+	-@for image in "$$(docker images --quiet --filter=reference='tq_bc/$*')"; do \
+		[ -z "$$image" ] || docker rmi -f $$image; \
+	done
+
+GO_VER = 1.16
+ALPINE_VER ?= 3.13
 GO_TAGS ?=
 
-m0-image: images/docker-m0d
+m0d-image: images/build-m0d
 
-clean:
+m0d-image-clean: images/clean-m0d
+
+clean: distclean
 	rm -rf $(BUILDDIR)/
 
 distclean: clean
@@ -138,6 +145,12 @@ distclean: clean
 contractsdk:
 	make -C x/wasm/xmodel/contractsdk/cpp build
 	make -C x/wasm/xmodel/contractsdk/cpp test
+
+start: build
+	cd vue/wallet && npm install && npm run serve &
+	cd vue/browser && npm install && npm run serve &
+	cd build && ./m0d start --pruning nothing --grpc.address 0.0.0.0:9090
+
 
 ###############################################################################
 ###                                Linting                                  ###
