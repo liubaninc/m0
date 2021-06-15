@@ -57,7 +57,7 @@ func CmdDestroy() *cobra.Command {
 				queryClient := types.NewQueryClient(clientCtx)
 				params := &types.QueryInputRequest{
 					Address: clientCtx.GetFromAddress().String(),
-					Amounts:  neededTotal.String(),
+					Amounts: neededTotal.String(),
 					Lock:    viper.GetInt64(flagLock),
 				}
 				res, err := queryClient.Input(context.Background(), params)

@@ -1,0 +1,877 @@
+basePath: /api
+definitions:
+  api.AccountExportRequest:
+    properties:
+      name:
+        description: 账户名
+        type: string
+      password:
+        description: 账户密码
+        type: string
+    required:
+    - name
+    - password
+    type: object
+  api.AccountImportRequest:
+    properties:
+      algo:
+        type: string
+      mnemonic:
+        description: 助记词
+        type: string
+      name:
+        description: 账户名
+        type: string
+      password:
+        description: 账户密码
+        type: string
+      private_key:
+        description: 私钥 hex/base64
+        type: string
+      private_key_armor:
+        description: 私钥 hex/base64
+        type: string
+    required:
+    - algo
+    - name
+    - password
+    type: object
+  api.ClaimRequest:
+    properties:
+      commit:
+        description: 是否提交到节点
+        type: boolean
+      file:
+        description: 存证文件
+        type: string
+      info:
+        description: 存证信息
+        type: string
+      memo:
+        description: 存证备注
+        type: string
+      name:
+        description: 存证名
+        type: string
+      password:
+        description: 账户密码
+        type: string
+    required:
+    - name
+    type: object
+  api.MultiAccountImportRequest:
+    properties:
+      multi_sig:
+        description: 多签公钥列表
+        items:
+          type: string
+        type: array
+      name:
+        description: 账户名
+        type: string
+      related:
+        description: 关联秘钥的账户名
+        type: string
+      sort:
+        description: 多签公钥是否排序
+        type: boolean
+      threshold:
+        description: 公钥列表
+        type: integer
+    required:
+    - multi_sig
+    - name
+    - related
+    - threshold
+    type: object
+  api.Receiver:
+    properties:
+      amount:
+        description: 接收金额及币种
+        type: string
+      to:
+        description: 接收地址 burn 为空， mint、transfer 不能为空
+        type: string
+    type: object
+  api.Response:
+    properties:
+      code:
+        type: integer
+      data:
+        type: object
+      detail:
+        type: string
+      msg:
+        type: string
+    type: object
+  api.SignRequest:
+    properties:
+      commit:
+        description: 是否提交到节点
+        type: boolean
+      hash:
+        description: Tx           string `json:"tx"`               // 交易
+        type: string
+      name:
+        description: |-
+          Address      string `json:"address"`          // 签名地址
+          MultiAddress string `json:"multi_address"`    // 多钱地址
+          MultiPublic  string `json:"multi_public_key"` // 多钱地址公钥
+        type: string
+      password:
+        description: 账户密码
+        type: string
+    required:
+    - hash
+    - name
+    - password
+    type: object
+  api.UTXORequest:
+    properties:
+      commit:
+        description: 是否提交到节点
+        type: boolean
+      desc:
+        description: 消息描述
+        type: string
+      fees:
+        description: 手续费
+        items:
+          type: string
+        type: array
+      from:
+        description: 发送方
+        type: string
+      memo:
+        description: 交易描述
+        type: string
+      password:
+        description: 账户密码
+        type: string
+      tos:
+        description: 接收列表
+        items:
+          $ref: '#/definitions/api.Receiver'
+        type: array
+    required:
+    - from
+    - password
+    type: object
+  api.UserLoginRequest:
+    properties:
+      captcha:
+        description: 验证码
+        type: string
+      captchaId:
+        description: 验证码图形文件
+        type: string
+      exp_duration:
+        type: integer
+      name:
+        description: 用户名
+        type: string
+      password:
+        description: 用户密码
+        type: string
+    required:
+    - captcha
+    - captchaId
+    - name
+    - password
+    type: object
+  api.UserRegisterRequest:
+    properties:
+      captcha:
+        description: 验证码
+        type: string
+      captchaId:
+        description: 验证码图形文件
+        type: string
+      email:
+        description: 用户邮件
+        type: string
+      mobile:
+        description: 用户手机
+        type: string
+      name:
+        description: 用户名
+        type: string
+      nick:
+        description: 用户昵称
+        type: string
+      password:
+        description: 用户密码
+        type: string
+    required:
+    - captcha
+    - captchaId
+    - name
+    - password
+    type: object
+host: 8.131.229.225:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample server synced server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Swagger Example API
+  version: "1.0"
+paths:
+  /account/create:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 钱包账户信息
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/api.AccountImportRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 新建钱包账户
+      tags:
+      - account
+  /account/create_multisig:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 钱包账户信息
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/api.MultiAccountImportRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 新建钱包账户
+      tags:
+      - account
+  /account/export:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 导出钱包账户信息
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/api.AccountExportRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 显示钱包账户
+      tags:
+      - account
+  /account/mnemonic:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 生成助记词
+      tags:
+      - account
+  /accounts:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 钱包账户列表
+      tags:
+      - account
+  /accounts/{name}:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 账户名
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 钱包账户
+      tags:
+      - account
+  /addresses/{name}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 地址
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: 资产名, 过滤该资产
+        in: query
+        name: coin
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      summary: 地址详情
+      tags:
+      - address
+  /addresses/{name}/assets:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 地址
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      summary: 地址下资产余额列表
+      tags:
+      - address
+  /addresses/{name}/transactions:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 地址
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: 资产名,  过滤该资产
+        in: query
+        name: coin
+        type: string
+      - description: 交易类型,  过滤该类型
+        in: query
+        name: type
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      summary: 历史交易详情
+      tags:
+      - address
+  /assets/{name}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 资产名
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      summary: 资产详情
+      tags:
+      - asset
+  /captcha:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: 生成验证码
+      tags:
+      - user
+  /captcha/{captchaId}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 验证码ID
+        in: path
+        name: captchaId
+        required: true
+        type: string
+      - description: 重新生成验证码
+        in: query
+        name: reload
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: 获取验证码
+      tags:
+      - user
+  /claims/{account}:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 账户名
+        in: path
+        name: account
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 存证列表
+      tags:
+      - claim
+  /claims/{account}/get:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 账户名
+        in: path
+        name: account
+        required: true
+        type: string
+      - description: 存证名
+        in: formData
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 存证详情
+      tags:
+      - claim
+  /claims/{account}/tx:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 账户名
+        in: path
+        name: account
+        required: true
+        type: string
+      - description: 请求信息
+        in: body
+        name: tx
+        required: true
+        schema:
+          $ref: '#/definitions/api.ClaimRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 存证上链
+      tags:
+      - claim
+  /claims/{account}/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: 账户名
+        in: path
+        name: account
+        required: true
+        type: string
+      - description: file
+        in: formData
+        name: verify
+        type: boolean
+      - description: file
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 上传存证文件
+      tags:
+      - claim
+  /claims/{account}/verify:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 账户名
+        in: path
+        name: account
+        required: true
+        type: string
+      - description: 存证名
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: 验证文件MD5
+        in: formData
+        name: md5
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 存证验证
+      tags:
+      - claim
+  /claims/download/{user}/{account}/{name}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用户名
+        in: path
+        name: user
+        required: true
+        type: string
+      - description: 账户名
+        in: path
+        name: account
+        required: true
+        type: string
+      - description: 文件名
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 下载存证文件
+      tags:
+      - claim
+  /download/{hash}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求信息
+        in: path
+        name: hash
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 下载交易
+      tags:
+      - tx
+  /transactions/{hash}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 交易Hash
+        in: path
+        name: hash
+        required: true
+        type: string
+      - description: 地址, 显示该地址的资产数量变化
+        in: query
+        name: address
+        type: string
+      - description: 资产名, 显示该地址的该资产数量变化
+        in: query
+        name: coin
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      summary: 交易详情
+      tags:
+      - transaction
+  /tx/burn:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求信息
+        in: body
+        name: tx
+        required: true
+        schema:
+          $ref: '#/definitions/api.UTXORequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 销毁资产
+      tags:
+      - tx
+  /tx/mint:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求信息
+        in: body
+        name: tx
+        required: true
+        schema:
+          $ref: '#/definitions/api.UTXORequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 发行/增发资产
+      tags:
+      - tx
+  /tx/sign:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求信息
+        in: body
+        name: tx
+        required: true
+        schema:
+          $ref: '#/definitions/api.SignRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 签名
+      tags:
+      - tx
+  /tx/transfer:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求信息
+        in: body
+        name: tx
+        required: true
+        schema:
+          $ref: '#/definitions/api.UTXORequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 转移资产
+      tags:
+      - tx
+  /tx/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: file
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 上传交易
+      tags:
+      - tx
+  /user/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 登陆信息
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/api.UserLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      summary: 用户登陆
+      tags:
+      - user
+  /user/logout:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 用户退出
+      tags:
+      - user
+  /user/register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用户信息
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/api.UserRegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      summary: 注册新用户
+      tags:
+      - user
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

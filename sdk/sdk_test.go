@@ -1,21 +1,22 @@
 package sdk
 
 import (
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"os"
 	"testing"
+
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 var (
-	kr, _  = keyring.New(sdk.KeyringServiceName(), keyring.BackendTest, "~/.m0", os.Stdin)
+	kr, _      = keyring.New(sdk.KeyringServiceName(), keyring.BackendTest, "~/.m0", os.Stdin)
 	testClient = MustNew("http://localhost:26657", kr)
 	mnemonic   = "key erupt service six thing spy noise heart giggle year oil fuel rival drop goat deal moral require knee pact bind brain word nuclear"
-	address = "mc19dzfuxxv8vjeajjq475ahgrl0meudwexdmrnye"
+	address    = "mc19dzfuxxv8vjeajjq475ahgrl0meudwexdmrnye"
 )
 
 func TestGenerateAndBroadcastTx(t *testing.T) {
-	msg, err := testClient.IssueMsg(address, address, "1000m0t", "test", "")
+	msg, err := testClient.IssueMsg(address, []string{address}, []string{"1000m0t"}, "test", "")
 	if err != nil {
 		t.Fatal("GenerateAndBroadcastTx", "msg", err)
 	}
@@ -30,7 +31,7 @@ func TestGenerateAndBroadcastTx(t *testing.T) {
 }
 
 func TestGenerateAndBroadcastTx2(t *testing.T) {
-	msg, err := testClient.IssueMsg(address, address, "1000m0t", "test", "")
+	msg, err := testClient.IssueMsg(address, []string{address}, []string{"1000m0t"}, "test", "")
 	if err != nil {
 		t.Fatal("TestGenerateAndBroadcastTx2", "msg", err)
 	}
@@ -39,7 +40,7 @@ func TestGenerateAndBroadcastTx2(t *testing.T) {
 		t.Fatal("TestGenerateAndBroadcastTx2", "GenerateTx", err)
 	}
 
-	if err := testClient.SignTx(address, "",  tx);err != nil {
+	if err := testClient.SignTx(address, "", tx); err != nil {
 		t.Fatal("TestGenerateAndBroadcastTx2", "SignTx", err)
 	}
 

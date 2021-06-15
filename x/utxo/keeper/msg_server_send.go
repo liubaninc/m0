@@ -17,7 +17,7 @@ func (k msgServer) Send(goCtx context.Context, msg *types.MsgSend) (*types.MsgSe
 	hash := fmt.Sprintf("%X", tmhash.Sum(ctx.TxBytes()))
 	t := time.Now()
 	defer func() {
-		k.Logger(ctx).Debug("handler", "route",  msg.Route(), "msg", msg.Type(),  "hash", hash, "index", msgOffset, "elapsed", time.Now().Sub(t).String())
+		k.Logger(ctx).Debug("handler", "route", msg.Route(), "msg", msg.Type(), "hash", hash, "index", msgOffset, "elapsed", time.Now().Sub(t).String())
 	}()
 	if err := k.Transfer(ctx, hash, msgOffset, msg.Creator, msg.Inputs, msg.Outputs); err != nil {
 		return nil, err

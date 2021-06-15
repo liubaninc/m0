@@ -12,8 +12,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/types/multisig"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 
-	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/liubaninc/m0/app"
+
+	"github.com/cosmos/cosmos-sdk/client/tx"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -28,8 +29,15 @@ type Client struct {
 }
 
 func (c Client) WithLock(lock int64) Client {
-	c.locked = lock
-	return c
+	tc := c
+	tc.locked = lock
+	return tc
+}
+
+func (c Client) WithHeight(height int64) Client {
+	tc := c
+	tc.Context = tc.Context.WithHeight(height)
+	return tc
 }
 
 func MustNew(rpcURI string, kr keyring.Keyring) Client {

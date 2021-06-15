@@ -21,7 +21,7 @@ func TestUpgrade(t *testing.T) {
 }
 
 func TestInvoke(t *testing.T) {
-	res, err := testClient.BroadcastInvokeTx(address, "ccc", "increase",  "{\"key\":\"someone\"}", "", "test", "", "")
+	res, err := testClient.BroadcastInvokeTx(address, "ccc", "increase", "{\"key\":\"someone\"}", "", "test", "", "")
 	if err != nil {
 		t.Fatal("invoke", "tx", err)
 	}

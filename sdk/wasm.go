@@ -61,7 +61,7 @@ func (c *Client) GetAccountContracts(address string, key []byte, offset uint64, 
 	return res, err
 }
 
-func (c *Client) Query(name string, method string, arg string) (*xmodel.ContractResponse, error)  {
+func (c *Client) Query(name string, method string, arg string) (*xmodel.ContractResponse, error) {
 	if err := kernel.ValidContractName(name); err != nil {
 		return nil, fmt.Errorf("invalid name %v (%v)", name, err)
 	}
@@ -318,14 +318,14 @@ func convertToArgs(args string) (map[string][]byte, error) {
 	return args2, nil
 }
 
-func (c *Client) BroadcastDeployTx(from string, name string, codeFile string, args string, desc string, fees string, memo string) (*sdk.TxResponse, error)  {
+func (c *Client) BroadcastDeployTx(from string, name string, codeFile string, args string, desc string, fees string, memo string) (*sdk.TxResponse, error) {
 	msg, err := c.DeployMsg(from, name, codeFile, args, desc, fees)
 	if err != nil {
 		return nil, err
 	}
 	return c.GenerateAndBroadcastTx(from, fees, memo, 0, msg)
 }
-func (c *Client) BroadcastUpgradeTx(from string, name string, codeFile string, desc string, fees string, memo string) (*sdk.TxResponse, error)  {
+func (c *Client) BroadcastUpgradeTx(from string, name string, codeFile string, desc string, fees string, memo string) (*sdk.TxResponse, error) {
 	msg, err := c.UpgradeMsg(from, name, codeFile, desc, fees)
 	if err != nil {
 		return nil, err

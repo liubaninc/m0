@@ -47,7 +47,7 @@ func (c *Client) GetInput(address, amounts string, lock int64) (*utxotypes.Query
 	queryClient := utxotypes.NewQueryClient(c)
 	res, err := queryClient.Input(context.Background(), &utxotypes.QueryInputRequest{
 		Address: address,
-		Amounts:  amounts,
+		Amounts: amounts,
 		Lock:    lock,
 	})
 	return res, err
@@ -75,18 +75,13 @@ func (c *Client) GetInputs(address, denom string, key []byte, offset uint64, lim
 	return res, err
 }
 
-func (c *Client) IssueMsg(from string, to string, amounts string, desc string, fees string) (sdk.Msg, error) {
+func (c *Client) IssueMsg(from string, tos []string, amounts []string, desc string, fees string) (sdk.Msg, error) {
 	if _, err := sdk.AccAddressFromBech32(from); err != nil {
 		return nil, fmt.Errorf("invalid from %s (%s)", from, err)
 	}
-	if _, err := sdk.AccAddressFromBech32(to); err != nil {
-		return nil, fmt.Errorf("invalid to %s (%s)", to, err)
+	if len(tos) != len(amounts) {
+		return nil, fmt.Errorf("mismatch len tos %d (amounts %d)", len(tos), len(amounts))
 	}
-	amountCoins, err := sdk.ParseCoinsNormalized(amounts)
-	if err != nil {
-		return nil, fmt.Errorf("invalid amounts %s (%s)", amounts, err)
-	}
-
 	feeCoins, err := sdk.ParseCoinsNormalized(fees)
 	if err != nil {
 		return nil, fmt.Errorf("invalid fees %s (%s)", fees, err)
@@ -94,12 +89,22 @@ func (c *Client) IssueMsg(from string, to string, amounts string, desc string, f
 
 	neededTotal := sdk.NewCoins()
 	var outputs []*utxotypes.Output
-	for _, amount := range amountCoins {
-		outputs = append(outputs, &utxotypes.Output{
-			ToAddr: to,
-			Amount: amount,
-		})
+	for index, to := range tos {
+		if _, err := sdk.AccAddressFromBech32(to); err != nil {
+			return nil, fmt.Errorf("invalid to %s (%s)", to, err)
+		}
+		amountCoins, err := sdk.ParseCoinsNormalized(amounts[index])
+		if err != nil {
+			return nil, fmt.Errorf("invalid amounts %s (%s)", amounts[index], err)
+		}
+		for _, amount := range amountCoins {
+			outputs = append(outputs, &utxotypes.Output{
+				ToAddr: to,
+				Amount: amount,
+			})
+		}
 	}
+
 	for _, fee := range feeCoins {
 		outputs = append(outputs, &utxotypes.Output{
 			ToAddr: authtypes.NewModuleAddress(authtypes.FeeCollectorName).String(),
@@ -169,18 +174,13 @@ func (c *Client) DestroyMsg(from string, amounts string, desc string, fees strin
 	return utxotypes.NewMsgDestroy(from, inputs, outputs, desc), nil
 }
 
-func (c *Client) SendMsg(from string, to string, amounts string, desc string, fees string) (sdk.Msg, error) {
+func (c *Client) SendMsg(from string, tos []string, amounts []string, desc string, fees string) (sdk.Msg, error) {
 	if _, err := sdk.AccAddressFromBech32(from); err != nil {
 		return nil, fmt.Errorf("invalid from %s (%s)", from, err)
 	}
-	if _, err := sdk.AccAddressFromBech32(to); err != nil {
-		return nil, fmt.Errorf("invalid to %s (%s)", to, err)
+	if len(tos) != len(amounts) {
+		return nil, fmt.Errorf("mismatch len tos %d (amounts %d)", len(tos), len(amounts))
 	}
-	amountCoins, err := sdk.ParseCoinsNormalized(amounts)
-	if err != nil {
-		return nil, fmt.Errorf("invalid amounts %s (%s)", amounts, err)
-	}
-
 	feeCoins, err := sdk.ParseCoinsNormalized(fees)
 	if err != nil {
 		return nil, fmt.Errorf("invalid fees %s (%s)", fees, err)
@@ -188,13 +188,23 @@ func (c *Client) SendMsg(from string, to string, amounts string, desc string, fe
 
 	neededTotal := sdk.NewCoins()
 	var outputs []*utxotypes.Output
-	for _, amount := range amountCoins {
-		outputs = append(outputs, &utxotypes.Output{
-			ToAddr: to,
-			Amount: amount,
-		})
-		neededTotal.Add(amount)
+	for index, to := range tos {
+		if _, err := sdk.AccAddressFromBech32(to); err != nil {
+			return nil, fmt.Errorf("invalid to %s (%s)", to, err)
+		}
+		amountCoins, err := sdk.ParseCoinsNormalized(amounts[index])
+		if err != nil {
+			return nil, fmt.Errorf("invalid amounts %s (%s)", amounts[index], err)
+		}
+		for _, amount := range amountCoins {
+			outputs = append(outputs, &utxotypes.Output{
+				ToAddr: to,
+				Amount: amount,
+			})
+			neededTotal.Add(amount)
+		}
 	}
+
 	for _, fee := range feeCoins {
 		outputs = append(outputs, &utxotypes.Output{
 			ToAddr: authtypes.NewModuleAddress(authtypes.FeeCollectorName).String(),
@@ -220,22 +230,22 @@ func (c *Client) SendMsg(from string, to string, amounts string, desc string, fe
 	return utxotypes.NewMsgIssue(from, inputs, outputs, desc), nil
 }
 
-func (c *Client) BroadcastIssueTx(from string, to string, amounts string, desc string, fees string, memo string) (*sdk.TxResponse, error)  {
-	msg, err := c.IssueMsg(from, to, amounts, desc, fees)
+func (c *Client) BroadcastIssueTx(from string, tos []string, amounts []string, desc string, fees string, memo string) (*sdk.TxResponse, error) {
+	msg, err := c.IssueMsg(from, tos, amounts, desc, fees)
 	if err != nil {
 		return nil, err
 	}
 	return c.GenerateAndBroadcastTx(from, fees, memo, 0, msg)
 }
-func (c *Client) BroadcastDestroyTx(from string, amounts string, desc string, fees string, memo string) (*sdk.TxResponse, error)  {
+func (c *Client) BroadcastDestroyTx(from string, amounts string, desc string, fees string, memo string) (*sdk.TxResponse, error) {
 	msg, err := c.DestroyMsg(from, amounts, desc, fees)
 	if err != nil {
 		return nil, err
 	}
 	return c.GenerateAndBroadcastTx(from, fees, memo, 0, msg)
 }
-func (c *Client) BroadcastSendTx(from string, to string, amounts string, desc string, fees string, memo string) (*sdk.TxResponse, error) {
-	msg, err := c.SendMsg(from, to, amounts, desc, fees)
+func (c *Client) BroadcastSendTx(from string, tos []string, amounts []string, desc string, fees string, memo string) (*sdk.TxResponse, error) {
+	msg, err := c.SendMsg(from, tos, amounts, desc, fees)
 	if err != nil {
 		return nil, err
 	}
