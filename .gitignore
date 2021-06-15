@@ -1,8 +1,9 @@
-vue/node_modules
-vue/dist
+vue/wallet/node_modules
+vue/wallet/dist
+vue/browser/node_modules
+vue/browser/dist
 secret.yml
 .idea
-vue/
 
 # Build
 vendor

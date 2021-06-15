@@ -1,0 +1,240 @@
+<template>
+  <div class="wallet">
+    <div class="wallet-warpper">
+      <el-breadcrumb separator="/" class="wallet-breadcrumb">
+        <el-breadcrumb-item :to="{ path: '/assets' }"
+          >资产管理</el-breadcrumb-item
+        >
+        <el-breadcrumb-item class="breadcrumb-cur-page"
+          >{{ trxInfo.type }}
+        </el-breadcrumb-item>
+      </el-breadcrumb>
+      <div class="cm-module-bg wallet-create-main">
+        <div class="wallet-ct-success">
+          <img
+            src="../../../assets/images/wallet/success_icon.png"
+            alt=""
+            srcset=""
+          />
+          {{ trxInfo.type }}操作已提交
+        </div>
+        <div class="wallet-form wallet-form-mesg">
+          <div class="wallet-form-title wallet-form-success">
+            <img
+              src="../../../assets/images/wallet/wallet_info_icon.png"
+              alt=""
+              srcset=""
+            />
+            资产信息
+          </div>
+          <div class="wallet-form-info">
+            <div class="form-info-row">
+              <div class="info-row-name">交易ID</div>
+              <div class="cm-text-overflow info-row-hash">
+                {{ trxInfo.hash }}
+              </div>
+            </div>
+            <div class="form-info-row">
+              <div class="info-row-name">资产名称</div>
+              <div class="cm-text-overflow info-row-address">
+                {{ trxInfo.coins && trxInfo.coins[0].denom }}
+              </div>
+            </div>
+            <div class="form-info-row">
+              <div class="info-row-name">{{ trxInfo.type }}量</div>
+              <div class="cm-text-overflow info-row-address">
+                {{ trxInfo.coins && trxInfo.coins[0].amount }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="wallet-btns wl-success-btn back-asset-list">
+          <a
+            href="javascript:;"
+            class="cm-btn-295px cm-btn-border009F72"
+            @click="$router.push('/assets')"
+            >返回资产列表</a
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+import { queryTrxDetail } from "@/server/transaction";
+export default {
+  data() {
+    return {
+      trxInfo: {},
+    };
+  },
+  created() {
+    let { hash, address, coin } = this.$route.query;
+    if (hash) {
+      this.getTrxInfo(hash, address, coin);
+    }
+  },
+  methods: {
+    async getTrxInfo(hash, address, coin) {
+      let trxInfo = await queryTrxDetail({
+        hash,
+        address,
+        coin,
+      });
+      if (trxInfo) {
+        this.trxInfo = trxInfo;
+      }
+    },
+  },
+};
+</script>
+<style>
+.wallet {
+  background-color: #1b2c42;
+  /* min-height: 100vh; */
+}
+.wallet-warpper {
+  /* width: 80%; */
+  margin: 0 auto;
+  color: #fff;
+}
+.wallet-create-main {
+  padding: 40px 0 118px;
+  border-radius: 5px;
+}
+/**steps start */
+.wallet-steps {
+  width: 40%;
+  margin: 0 auto;
+}
+.wallet-steps .el-steps .is-process {
+  color: #fff !important;
+}
+.wallet-steps .el-step__icon-inner {
+  display: none;
+}
+/* .wallet-steps .el-step__icon {
+  border: 0;
+  width: 13px;
+  height: 13px;
+  background: #768ca8;
+} */
+.wallet-steps .el-step.is-horizontal .el-step__line {
+  top: 50%;
+  transform: translate(0, -50%);
+  background: #768ca8;
+}
+.wallet-steps .is-process .is-text {
+  background: #fff;
+}
+/**end steps */
+.wallet-form {
+  width: 70%;
+  margin: 0 auto;
+  padding: 0 0 60px;
+}
+
+.wallet-form-info {
+  background: #fff;
+  border-radius: 5px;
+  padding: 30px 20px;
+}
+.form-info-row {
+  display: flex;
+  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 14px;
+  color: #1a2c42;
+  margin: 0 0 20px;
+  align-items: center;
+}
+.info-row-address {
+  width: 40%;
+  line-height: 20px;
+}
+.form-info-row:last-child {
+  margin-bottom: 0;
+}
+.info-copy-btn {
+  width: 20px;
+  height: 20px;
+  display: block;
+  /* background: url("../../../assets/images/wallet/copy_icon.png"); */
+  background-size: 100%;
+  background-repeat: no-repeat;
+  margin-left: 20px;
+  color: #22ac95;
+}
+
+.wallet-form-mesg {
+  padding-bottom: 30px;
+}
+
+.info-row-name {
+  width: 100px;
+  font-family: "PingFangSC-Medium", "PingFang SC Medium", "PingFang SC",
+    sans-serif;
+  font-weight: 500;
+  font-style: normal;
+  font-size: 14px;
+  color: #1a2c42;
+}
+
+.wallet-btn-default {
+  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 14px;
+  color: #cccccc;
+  border-radius: 5px;
+  border: 1px solid rgba(118, 140, 168, 1);
+}
+.wallet-btn-cur {
+  border-color: #62f7d4;
+  color: #62f7d4;
+}
+
+.wallet-ct-success {
+  text-align: center;
+  font-family: "PingFangSC-Medium", "PingFang SC Medium", "PingFang SC",
+    sans-serif;
+  font-weight: 500;
+  font-style: normal;
+  font-size: 18px;
+  color: #ffffff;
+  margin: 24px 0 40px;
+}
+.wallet-form-success {
+  display: flex;
+  align-items: center;
+  margin: 0 0 10px;
+}
+.wallet-form-success img {
+  width: 22px;
+  height: 22px;
+  margin-right: 10px;
+}
+.wallet-ct-success img {
+  width: 40px;
+  height: 40px;
+  display: block;
+  margin: 0 auto 12px;
+}
+.wallet-btns {
+  display: flex;
+  justify-content: space-between;
+  width: 70%;
+  margin: 0 auto;
+}
+.wl-success-btn {
+  padding: 0;
+}
+
+.back-asset-list {
+  justify-content: center;
+}
+.info-row-hash {
+  width: 90%;
+}
+</style>

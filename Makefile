@@ -149,7 +149,7 @@ contractsdk:
 start: build
 	cd vue/wallet && npm install && npm run serve &
 	cd vue/browser && npm install && npm run serve &
-	cd build && ./m0d start --pruning nothing --grpc.address 0.0.0.0:9090
+	#cd build && ./m0d start --pruning nothing --grpc.address 0.0.0.0:9090
 
 
 ###############################################################################

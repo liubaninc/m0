@@ -1,0 +1,27 @@
+$content-width: 1200px;
+$mAuto:0 auto;
+
+
+//新颜色
+$bgColor: #213654;
+$btnBg:#203555;
+
+// 颜色
+$color-333:#333;
+$color-666:#666;
+$color-999:#999;
+$blue: #4a7ac9;
+$red:#f83d46;
+
+
+
+
+// 固定宽度 居中
+@mixin defaultWidth {
+  width:$content-width;
+  margin:0 auto;
+}
+
+@mixin pointer {
+  cursor:pointer;
+}
