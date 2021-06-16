@@ -4,19 +4,20 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"io/ioutil"
 	"net/http"
 	"strings"
+
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	utxotypes "github.com/liubaninc/m0/x/utxo/types"
 	wasmtypes "github.com/liubaninc/m0/x/wasm/types"
 
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 
+	"github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
 	"github.com/liubaninc/m0/cmd/synced/syncer"
 	"github.com/tendermint/tendermint/crypto/tmhash"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
 	"github.com/tendermint/tendermint/types/time"
 
 	"github.com/gin-gonic/gin"
@@ -25,17 +26,19 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func (req *UTXORequest) ValidateBasic(self_check bool) error {
+func (req *UTXORequest) ValidateBasic(self_check bool, destroy bool) error {
 	if _, err := sdk.AccAddressFromBech32(req.From); err != nil {
 		return fmt.Errorf("发送方 %s %s", req.From, ERROR_ADDRESS)
 	}
 	for _, receiver := range req.Receivers {
-		if _, err := sdk.AccAddressFromBech32(receiver.To); err != nil {
-			return fmt.Errorf("接收方 %s %s", receiver.To, ERROR_ADDRESS)
-		}
+		if !destroy {
+			if _, err := sdk.AccAddressFromBech32(receiver.To); err != nil {
+				return fmt.Errorf("接收方 %s %s", receiver.To, ERROR_ADDRESS)
+			}
 
-		if self_check && strings.Compare(req.From, receiver.To) == 0 {
-			return fmt.Errorf("接收方 %s %s", receiver.To, ERROR_ADDRESS_SELF)
+			if self_check && strings.Compare(req.From, receiver.To) == 0 {
+				return fmt.Errorf("接收方 %s %s", receiver.To, ERROR_ADDRESS_SELF)
+			}
 		}
 
 		if _, err := sdk.ParseCoinsNormalized(receiver.Amount); err != nil {
@@ -75,7 +78,7 @@ func (api *API) getUtxoResponse(c *gin.Context, tp string, request *UTXORequest)
 	case "mint":
 		msg, err = api.client.IssueMsg(request.From, tos, amounts, request.Desc, fee)
 	case "burn":
-		msg, err = api.client.IssueMsg(request.From, nil, amounts, request.Desc, fee)
+		msg, err = api.client.DestroyMsg(request.From, strings.Join(amounts, ","), request.Desc, fee)
 	case "transfer":
 		msg, err = api.client.SendMsg(request.From, tos, amounts, request.Desc, fee)
 	default:
@@ -100,7 +103,8 @@ func (api *API) getUtxoResponse(c *gin.Context, tp string, request *UTXORequest)
 			if err := kb.ImportPrivKey(acct.Related, acct.PrivateKey, request.Password); err != nil {
 				return nil, err
 			}
-			if err := api.client.SignTx(acct.Related, acct.Address, tx, true); err != nil {
+			client := api.client.WithKeyring(kb)
+			if err := client.SignTx(acct.Related, acct.Address, tx, true); err != nil {
 				return nil, err
 			}
 		}
@@ -122,7 +126,8 @@ func (api *API) getUtxoResponse(c *gin.Context, tp string, request *UTXORequest)
 		if err := kb.ImportPrivKey(acct.Name, acct.PrivateKey, request.Password); err != nil {
 			return nil, err
 		}
-		if err := api.client.SignTx(acct.Name, "", tx, true); err != nil {
+		client := api.client.WithKeyring(kb)
+		if err := client.SignTx(acct.Name, "", tx, true); err != nil {
 			return nil, err
 		}
 
@@ -173,7 +178,7 @@ func (api *API) Mint(c *gin.Context) {
 		return
 	}
 
-	if err := request.ValidateBasic(false); err != nil {
+	if err := request.ValidateBasic(false, false); err != nil {
 		response.Code = RequestCode
 		response.Msg = ERROR_REQ
 		response.Detail = err.Error()
@@ -224,7 +229,7 @@ func (api *API) Burn(c *gin.Context) {
 		return
 	}
 
-	if err := request.ValidateBasic(false); err != nil {
+	if err := request.ValidateBasic(false, true); err != nil {
 		response.Code = RequestCode
 		response.Msg = ERROR_REQ
 		response.Detail = err.Error()
@@ -275,7 +280,7 @@ func (api *API) Transfer(c *gin.Context) {
 		return
 	}
 
-	if err := request.ValidateBasic(true); err != nil {
+	if err := request.ValidateBasic(true, false); err != nil {
 		response.Code = ExecuteCode
 		response.Msg = err.Error()
 		response.Detail = err.Error()
@@ -380,7 +385,8 @@ func (api *API) Sign(c *gin.Context) {
 			c.JSON(http.StatusOK, response)
 			return
 		}
-		err = api.client.SignTx(acct.Related, multiAddress, txBuilder, false)
+		client := api.client.WithKeyring(kb)
+		err = client.SignTx(acct.Related, multiAddress, txBuilder, false)
 		if err != nil {
 			response.Code = ExecuteCode
 			response.Msg = ERROR_SIGN
@@ -403,7 +409,7 @@ func (api *API) Sign(c *gin.Context) {
 				c.JSON(http.StatusOK, response)
 				return
 			}
-			if err := api.client.LegacyAmino.UnmarshalBinaryBare(publicKeyBytes, &multiSigPub);err != nil {
+			if err := api.client.LegacyAmino.UnmarshalBinaryBare(publicKeyBytes, &multiSigPub); err != nil {
 				response.Code = ExecuteCode
 				response.Msg = ERROR_PUBKEY
 				response.Detail = err.Error()

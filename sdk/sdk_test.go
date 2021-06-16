@@ -40,7 +40,7 @@ func TestGenerateAndBroadcastTx2(t *testing.T) {
 		t.Fatal("TestGenerateAndBroadcastTx2", "GenerateTx", err)
 	}
 
-	if err := testClient.SignTx(address, "", tx); err != nil {
+	if err := testClient.SignTx(address, "", tx, true); err != nil {
 		t.Fatal("TestGenerateAndBroadcastTx2", "SignTx", err)
 	}
 

@@ -11,7 +11,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 )
 
-func (c *Client) GetToken(denom string) (*utxotypes.QueryGetTokenResponse, error) {
+func (c Client) GetToken(denom string) (*utxotypes.QueryGetTokenResponse, error) {
 	if err := sdk.ValidateDenom(denom); err != nil {
 		return nil, fmt.Errorf("invalid token %s (%s)", denom, err)
 	}
@@ -23,7 +23,7 @@ func (c *Client) GetToken(denom string) (*utxotypes.QueryGetTokenResponse, error
 	return res, err
 }
 
-func (c *Client) GetTokens(key []byte, offset uint64, limit uint64, countTotal bool) (*utxotypes.QueryAllTokenResponse, error) {
+func (c Client) GetTokens(key []byte, offset uint64, limit uint64, countTotal bool) (*utxotypes.QueryAllTokenResponse, error) {
 	queryClient := utxotypes.NewQueryClient(c)
 	res, err := queryClient.TokenAll(context.Background(), &utxotypes.QueryAllTokenRequest{
 		Pagination: &query.PageRequest{
@@ -36,7 +36,7 @@ func (c *Client) GetTokens(key []byte, offset uint64, limit uint64, countTotal b
 	return res, err
 }
 
-func (c *Client) GetInput(address, amounts string, lock int64) (*utxotypes.QueryInputResponse, error) {
+func (c Client) GetInput(address, amounts string, lock int64) (*utxotypes.QueryInputResponse, error) {
 	if _, err := sdk.AccAddressFromBech32(address); err != nil {
 		return nil, fmt.Errorf("invalid address %s (%s)", address, err)
 	}
@@ -53,7 +53,7 @@ func (c *Client) GetInput(address, amounts string, lock int64) (*utxotypes.Query
 	return res, err
 }
 
-func (c *Client) GetInputs(address, denom string, key []byte, offset uint64, limit uint64, countTotal bool) (*utxotypes.QueryAllInputResponse, error) {
+func (c Client) GetInputs(address, denom string, key []byte, offset uint64, limit uint64, countTotal bool) (*utxotypes.QueryAllInputResponse, error) {
 	if _, err := sdk.AccAddressFromBech32(address); err != nil {
 		return nil, fmt.Errorf("invalid address %s (%s)", address, err)
 	}
@@ -75,7 +75,7 @@ func (c *Client) GetInputs(address, denom string, key []byte, offset uint64, lim
 	return res, err
 }
 
-func (c *Client) IssueMsg(from string, tos []string, amounts []string, desc string, fees string) (sdk.Msg, error) {
+func (c Client) IssueMsg(from string, tos []string, amounts []string, desc string, fees string) (sdk.Msg, error) {
 	if _, err := sdk.AccAddressFromBech32(from); err != nil {
 		return nil, fmt.Errorf("invalid from %s (%s)", from, err)
 	}
@@ -110,7 +110,7 @@ func (c *Client) IssueMsg(from string, tos []string, amounts []string, desc stri
 			ToAddr: authtypes.NewModuleAddress(authtypes.FeeCollectorName).String(),
 			Amount: fee,
 		})
-		neededTotal.Add(fee)
+		neededTotal = neededTotal.Add(fee)
 	}
 
 	var inputs []*utxotypes.Input
@@ -131,7 +131,7 @@ func (c *Client) IssueMsg(from string, tos []string, amounts []string, desc stri
 	return utxotypes.NewMsgIssue(from, inputs, outputs, desc), nil
 }
 
-func (c *Client) DestroyMsg(from string, amounts string, desc string, fees string) (sdk.Msg, error) {
+func (c Client) DestroyMsg(from string, amounts string, desc string, fees string) (sdk.Msg, error) {
 	if _, err := sdk.AccAddressFromBech32(from); err != nil {
 		return nil, fmt.Errorf("invalid from %s (%s)", from, err)
 	}
@@ -153,7 +153,7 @@ func (c *Client) DestroyMsg(from string, amounts string, desc string, fees strin
 			ToAddr: authtypes.NewModuleAddress(authtypes.FeeCollectorName).String(),
 			Amount: fee,
 		})
-		neededTotal.Add(fee)
+		neededTotal = neededTotal.Add(fee)
 	}
 
 	var inputs []*utxotypes.Input
@@ -174,7 +174,7 @@ func (c *Client) DestroyMsg(from string, amounts string, desc string, fees strin
 	return utxotypes.NewMsgDestroy(from, inputs, outputs, desc), nil
 }
 
-func (c *Client) SendMsg(from string, tos []string, amounts []string, desc string, fees string) (sdk.Msg, error) {
+func (c Client) SendMsg(from string, tos []string, amounts []string, desc string, fees string) (sdk.Msg, error) {
 	if _, err := sdk.AccAddressFromBech32(from); err != nil {
 		return nil, fmt.Errorf("invalid from %s (%s)", from, err)
 	}
@@ -201,7 +201,7 @@ func (c *Client) SendMsg(from string, tos []string, amounts []string, desc strin
 				ToAddr: to,
 				Amount: amount,
 			})
-			neededTotal.Add(amount)
+			neededTotal = neededTotal.Add(amount)
 		}
 	}
 
@@ -210,7 +210,7 @@ func (c *Client) SendMsg(from string, tos []string, amounts []string, desc strin
 			ToAddr: authtypes.NewModuleAddress(authtypes.FeeCollectorName).String(),
 			Amount: fee,
 		})
-		neededTotal.Add(fee)
+		neededTotal = neededTotal.Add(fee)
 	}
 
 	var inputs []*utxotypes.Input
@@ -227,24 +227,24 @@ func (c *Client) SendMsg(from string, tos []string, amounts []string, desc strin
 			Amount: coin,
 		})
 	}
-	return utxotypes.NewMsgIssue(from, inputs, outputs, desc), nil
+	return utxotypes.NewMsgSend(from, inputs, outputs, desc), nil
 }
 
-func (c *Client) BroadcastIssueTx(from string, tos []string, amounts []string, desc string, fees string, memo string) (*sdk.TxResponse, error) {
+func (c Client) BroadcastIssueTx(from string, tos []string, amounts []string, desc string, fees string, memo string) (*sdk.TxResponse, error) {
 	msg, err := c.IssueMsg(from, tos, amounts, desc, fees)
 	if err != nil {
 		return nil, err
 	}
 	return c.GenerateAndBroadcastTx(from, fees, memo, 0, msg)
 }
-func (c *Client) BroadcastDestroyTx(from string, amounts string, desc string, fees string, memo string) (*sdk.TxResponse, error) {
+func (c Client) BroadcastDestroyTx(from string, amounts string, desc string, fees string, memo string) (*sdk.TxResponse, error) {
 	msg, err := c.DestroyMsg(from, amounts, desc, fees)
 	if err != nil {
 		return nil, err
 	}
 	return c.GenerateAndBroadcastTx(from, fees, memo, 0, msg)
 }
-func (c *Client) BroadcastSendTx(from string, tos []string, amounts []string, desc string, fees string, memo string) (*sdk.TxResponse, error) {
+func (c Client) BroadcastSendTx(from string, tos []string, amounts []string, desc string, fees string, memo string) (*sdk.TxResponse, error) {
 	msg, err := c.SendMsg(from, tos, amounts, desc, fees)
 	if err != nil {
 		return nil, err

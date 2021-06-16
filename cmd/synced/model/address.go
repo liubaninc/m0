@@ -8,7 +8,7 @@ import (
 
 type Address struct {
 	ID            uint      `json:"-" gorm:"primarykey" `
-	Name          string    `json:"name" gorm:"unique"`
+	Name          string    `json:"name"`
 	Address       string    `json:"address" gorm:"unique"`
 	AccountNumber uint64    `json:"account_number"`
 	Sequence      uint64    `json:"sequence"`

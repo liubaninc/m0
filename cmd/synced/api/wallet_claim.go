@@ -531,12 +531,15 @@ func (api *API) Faucet(address string) error {
 		return nil
 	}
 
-	result, err := api.client.BroadcastSendTx("faucet", []string{address}, []string{"100m0token"}, "faucet send", "faucet", "")
+	result, err := api.client.BroadcastSendTx(info.GetAddress().String(), []string{address}, []string{"100m0token"}, "faucet send", "", "")
 	if err != nil {
 		return err
 	}
 
-	api.logger.Info(info.GetAddress().String(), "tx", string(api.client.JSONMarshaler.MustMarshalJSON(result)))
+	if result.Code != 0 {
+		return fmt.Errorf("%v", result.RawLog)
+	}
+
 	return nil
 }
 

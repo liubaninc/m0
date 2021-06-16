@@ -1,6 +1,10 @@
 package main
 
 import (
+	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/crypto/hd"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"os"
 
 	"github.com/liubaninc/m0/cmd/synced/api"
@@ -56,6 +60,9 @@ const (
 	flagDBUser     = "db-user"
 	flagDBPassword = "db-pass"
 	flagPort       = "port"
+	flagFaucetAccount = "faucet-account"
+	flagFaucetCoin = "faucet-amount"
+
 )
 
 func newStartCommand() *cobra.Command {
@@ -65,7 +72,16 @@ func newStartCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			logger := log.NewTMLogger(log.NewSyncWriter(os.Stdout))
 
-			client := msdk.MustNew(viper.GetString(flagRPCHost), nil)
+
+			//Keyring.Key("faucet")
+			kr, err := keyring.New("m0", keyring.BackendMemory, viper.GetString(flags.FlagHome), os.Stdin)
+			if err != nil {
+				panic(err)
+			}
+			if _, err := kr.NewAccount("faucet", viper.GetString(flagFaucetAccount), keyring.DefaultBIP39Passphrase, sdk.GetConfig().GetFullFundraiserPath(), hd.Secp256k1);err != nil {
+				panic(err)
+			}
+			client := msdk.MustNew(viper.GetString(flagRPCHost), kr)
 			model := model.New(viper.GetString(flagDBHost), viper.GetInt(flagDBPort), viper.GetString(flagDBUser), viper.GetString(flagDBPassword), viper.GetString(flagDBName), logger)
 			syncer.New(model.DB, client, logger).Run()
 			api.New(model.DB, client, logger).Run(viper.GetInt(flagPort))
@@ -79,5 +95,8 @@ func newStartCommand() *cobra.Command {
 	cmd.Flags().String(flagDBPassword, "root", "database password")
 	cmd.Flags().String(flagDBName, "m0", "database name")
 	cmd.Flags().Int(flagPort, 8080, "listen port")
+	cmd.Flags().String(flagFaucetAccount, "key erupt service six thing spy noise heart giggle year oil fuel rival drop goat deal moral require knee pact bind brain word nuclear",
+		"faucet account mnemonic")
+	cmd.Flags().String(flagFaucetCoin, "10m0token", "faucet amount")
 	return cmd
 }

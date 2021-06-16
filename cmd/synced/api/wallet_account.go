@@ -9,6 +9,8 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/cosmos/cosmos-sdk/crypto/keys/sm2"
+
 	"github.com/spf13/viper"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -135,7 +137,7 @@ func (api *API) AccountCreate(c *gin.Context) {
 
 	kb := api.getKeyBase(c)
 	signingAlgoList, _ := kb.SupportedAlgorithms()
-	keyAlgo, err := keyring.NewSigningAlgoFromString(strings.ToLower(request.Algo), signingAlgoList)
+	signingAlgo, err := keyring.NewSigningAlgoFromString(strings.ToLower(request.Algo), signingAlgoList)
 	if err != nil {
 		response.Code = RequestCode
 		response.Msg = ERROR_ALGO
@@ -155,7 +157,7 @@ func (api *API) AccountCreate(c *gin.Context) {
 			c.JSON(http.StatusOK, response)
 			return
 		}
-		info, err = kb.NewAccount(request.Name, request.Mnemonic, bip39Password, sdk.GetConfig().GetFullFundraiserPath(), keyAlgo)
+		info, err = kb.NewAccount(request.Name, request.Mnemonic, bip39Password, sdk.GetConfig().GetFullFundraiserPath(), signingAlgo)
 		if err != nil {
 			response.Code = ExecuteCode
 			response.Msg = ERROR_DB
@@ -192,23 +194,27 @@ func (api *API) AccountCreate(c *gin.Context) {
 			c.JSON(http.StatusOK, response)
 			return
 		}
-		var priv cryptotypes.PrivKey
-		switch keyAlgo {
-		case &hd.Secp256k1:
+		switch signingAlgo {
+		case hd.Secp256k1:
 			if len(privateKeyBytes) != secp256k1.PrivKeySize {
 				response.Code = ExecuteCode
 				response.Msg = ERROR_PRIVKEY
-				response.Detail = fmt.Sprintf("invalid size for %s's PubKey Got %d expected %d", keyAlgo, len(privateKeyBytes), secp256k1.PrivKeySize)
+				response.Detail = fmt.Sprintf("invalid size for %s's PubKey Got %d expected %d", request.Algo, len(privateKeyBytes), secp256k1.PrivKeySize)
 				api.logger.Error(c.Request.URL.Path, "error", response.Detail)
 				c.JSON(http.StatusOK, response)
 				return
 			}
-			var key secp256k1.PrivKey
-			copy(key.Key[:], privateKeyBytes)
-			priv = &key
-			// TODO
+		case hd.SM2:
+			if len(privateKeyBytes) != sm2.PrivKeySize {
+				response.Code = ExecuteCode
+				response.Msg = ERROR_PRIVKEY
+				response.Detail = fmt.Sprintf("invalid size for %s's PubKey Got %d expected %d", request.Algo, len(privateKeyBytes), sm2.PrivKeySize)
+				api.logger.Error(c.Request.URL.Path, "error", response.Detail)
+				c.JSON(http.StatusOK, response)
+				return
+			}
 		}
-		privateKeyArmor := crypto.EncryptArmorPrivKey(priv, request.Password, string(keyAlgo.Name()))
+		privateKeyArmor := crypto.EncryptArmorPrivKey(signingAlgo.Generate()(privateKeyBytes), request.Password, string(signingAlgo.Name()))
 		if err := kb.ImportPrivKey(request.Name, privateKeyArmor, request.Password); err != nil {
 			response.Code = ExecuteCode
 			response.Msg = ERROR_DB
@@ -227,7 +233,7 @@ func (api *API) AccountCreate(c *gin.Context) {
 			return
 		}
 	} else {
-		info, request.Mnemonic, err = kb.NewMnemonic(request.Name, keyring.English, keyring.DefaultBIP39Passphrase, keyAlgo)
+		info, request.Mnemonic, err = kb.NewMnemonic(request.Name, keyring.English, sdk.GetConfig().GetFullFundraiserPath(), signingAlgo)
 		if err != nil {
 			response.Code = ExecuteCode
 			response.Msg = ERROR_DB
@@ -239,13 +245,31 @@ func (api *API) AccountCreate(c *gin.Context) {
 	}
 
 	privateKeyArmor, err := kb.ExportPrivKeyArmor(request.Name, request.Password)
+	if err != nil {
+		response.Code = ExecuteCode
+		response.Msg = ERROR_DB
+		response.Detail = err.Error()
+		api.logger.Error(c.Request.URL.Path, "error", response.Detail)
+		c.JSON(http.StatusOK, response)
+		return
+	}
+	privateKey, _, err := crypto.UnarmorDecryptPrivKey(privateKeyArmor, request.Password)
+	if err != nil {
+		response.Code = ExecuteCode
+		response.Msg = ERROR_DB
+		response.Detail = err.Error()
+		api.logger.Error(c.Request.URL.Path, "error", response.Detail)
+		c.JSON(http.StatusOK, response)
+		return
+	}
+
 	acct := &model.Account{
 		Name:       request.Name,
 		Address:    info.GetAddress().String(),
 		Mnemonic:   request.Mnemonic,
 		PrivateKey: privateKeyArmor,
 		PublicKey:  hex.EncodeToString(api.client.LegacyAmino.MustMarshalBinaryBare(info.GetPubKey())),
-		Info:       string(keyAlgo.Name()),
+		Info:       string(signingAlgo.Name()),
 		UserID:     api.userID(c),
 	}
 
@@ -262,15 +286,6 @@ func (api *API) AccountCreate(c *gin.Context) {
 		return
 	}
 
-	privateKey, _, err := crypto.UnarmorDecryptPrivKey(account.PrivateKey, request.Password)
-	if err != nil {
-		response.Code = ExecuteCode
-		response.Msg = ERROR_DB
-		response.Detail = err.Error()
-		api.logger.Error(c.Request.URL.Path, "error", response.Detail)
-		c.JSON(http.StatusOK, response)
-		return
-	}
 	response.Data = &AccountExportResponse{
 		AccountResponse: toAccount(acct),
 		Mnemonic:        request.Mnemonic,

@@ -40,6 +40,12 @@ func (c Client) WithHeight(height int64) Client {
 	return tc
 }
 
+func (c Client) WithKeyring(kr keyring.Keyring) Client {
+	tc := c
+	tc.Context = tc.Context.WithKeyring(kr)
+	return tc
+}
+
 func MustNew(rpcURI string, kr keyring.Keyring) Client {
 	client, err := New(rpcURI, kr)
 	if err != nil {
@@ -83,23 +89,25 @@ func New(rpcURI string, kr keyring.Keyring) (Client, error) {
 	return c, nil
 }
 
-func (c *Client) GenerateTx(from string, fees string, memo string, timeoutHeight uint64, msgs ...sdk.Msg) (client.TxBuilder, error) {
-	var info keyring.Info
+func (c Client) GenerateTx(from string, fees string, memo string, timeoutHeight uint64, msgs ...sdk.Msg) (client.TxBuilder, error) {
+	var fromAddress sdk.AccAddress
 	if addr, err := sdk.AccAddressFromBech32(from); err == nil {
-		info, err = c.Keyring.KeyByAddress(addr)
-		if err != nil {
-			return nil, err
-		}
+		//info, err := c.Keyring.KeyByAddress(addr)
+		//if err != nil {
+		//	return nil, err
+		//}
+		fromAddress = addr
 	} else {
-		info, err = c.Keyring.Key(from)
+		info, err := c.Keyring.Key(from)
 		if err != nil {
 			return nil, err
 		}
+		fromAddress = info.GetAddress()
 	}
 
 	clientCtx := c.Context.
-		WithFromName(info.GetName()).
-		WithFromAddress(info.GetAddress())
+		// WithFromName(info.GetName()).
+		WithFromAddress(fromAddress)
 
 	txf, err := tx.PrepareFactory(clientCtx, c.factory())
 	if err != nil {
@@ -123,7 +131,7 @@ func (c *Client) GenerateTx(from string, fees string, memo string, timeoutHeight
 	return txBuilder, nil
 }
 
-func (c *Client) SignTx(from string, multiSigAddrStr string, txBuilder client.TxBuilder, overwriteSig bool) error {
+func (c Client) SignTx(from string, multiSigAddrStr string, txBuilder client.TxBuilder, overwriteSig bool) error {
 	var info keyring.Info
 	if addr, err := sdk.AccAddressFromBech32(from); err == nil {
 		info, err = c.Keyring.KeyByAddress(addr)
@@ -173,7 +181,7 @@ func (c *Client) SignTx(from string, multiSigAddrStr string, txBuilder client.Tx
 	return nil
 }
 
-func (c *Client) MultiSignTx(txBuilder client.TxBuilder, multisigPubKey cryptotypes.PubKey, signatures ...[]signingtypes.SignatureV2) error {
+func (c Client) MultiSignTx(txBuilder client.TxBuilder, multisigPubKey cryptotypes.PubKey, signatures ...[]signingtypes.SignatureV2) error {
 	multisigPub := multisigPubKey.(*kmultisig.LegacyAminoPubKey)
 	multisigSig := multisig.NewMultisig(len(multisigPub.PubKeys))
 
@@ -200,7 +208,7 @@ func (c *Client) MultiSignTx(txBuilder client.TxBuilder, multisigPubKey cryptoty
 	return nil
 }
 
-func (c *Client) BroadcastTx(tx sdk.Tx) (*sdk.TxResponse, error) {
+func (c Client) BroadcastTx(tx sdk.Tx) (*sdk.TxResponse, error) {
 	txBytes, err := c.TxConfig.TxEncoder()(tx)
 	if err != nil {
 		return nil, err
@@ -208,7 +216,7 @@ func (c *Client) BroadcastTx(tx sdk.Tx) (*sdk.TxResponse, error) {
 	return c.Context.BroadcastTx(txBytes)
 }
 
-func (c *Client) GenerateAndBroadcastTx(from string, fees string, memo string, timeoutHeight uint64, msgs ...sdk.Msg) (*sdk.TxResponse, error) {
+func (c Client) GenerateAndBroadcastTx(from string, fees string, memo string, timeoutHeight uint64, msgs ...sdk.Msg) (*sdk.TxResponse, error) {
 	var info keyring.Info
 	if addr, err := sdk.AccAddressFromBech32(from); err == nil {
 		info, err = c.Keyring.KeyByAddress(addr)
@@ -271,7 +279,7 @@ func (c *Client) GenerateAndBroadcastTx(from string, fees string, memo string, t
 	return clientCtx.BroadcastTx(txBytes)
 }
 
-func (c *Client) factory() tx.Factory {
+func (c Client) factory() tx.Factory {
 	signMode := signingtypes.SignMode_SIGN_MODE_UNSPECIFIED
 	switch c.SignModeStr {
 	case flags.SignModeDirect:

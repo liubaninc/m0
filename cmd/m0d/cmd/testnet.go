@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	utxotypes "github.com/liubaninc/m0/x/utxo/types"
 	"net"
 	"os"
 	"path/filepath"
@@ -46,6 +47,9 @@ var (
 	flagGenesisTime = "genesis-time"
 	flagValidator   = "node-validator-key"
 	flagIP          = "node-ip"
+
+	flagReservedAccount   = "reserved-account-mnemonic"
+	flagReservedCoin      = "reserved-coin"
 )
 
 // get cmd to initialize all files for tendermint testnet and application
@@ -111,10 +115,23 @@ Example:
 				return fmt.Errorf("node ip,  number get %d, except %d", n, numValidators)
 			}
 
+			reservedAccount := viper.GetString(flagReservedAccount)
+			if len(reservedAccount) == 0 {
+				seed, _ := bip39.NewEntropy(256)
+				reservedAccount, _ = bip39.NewMnemonic(seed)
+			} else if !bip39.IsMnemonicValid(reservedAccount) {
+				return fmt.Errorf("invalid reserved mnemonic %v", reservedAccount)
+			}
+			reservedCoin, err := sdk.ParseCoinNormalized(viper.GetString(flagReservedCoin))
+			if err != nil {
+				return fmt.Errorf("invalid reserved amount %v", viper.GetString(flagReservedCoin))
+			}
+			_ = reservedCoin
+
 			return InitTestnet(
 				clientCtx, cmd, config, mbm, genBalIterator, outputDir, chainID, minGasPrices,
 				nodeDirPrefix, nodeDaemonHome, keyringBackend, algo, numValidators,
-				validators, ips, genesisTime,
+				validators, ips, genesisTime, reservedAccount, reservedCoin,
 			)
 		},
 	}
@@ -132,6 +149,11 @@ Example:
 	cmd.Flags().Int(flagGenesisTime, 0, "override genesis UNIX time instead of using a random UNIX time")
 	cmd.Flags().String(flagValidator, "", "Comma-delimited node validator key,  if left blank will be randomly created")
 	cmd.Flags().String(flagIP, "", "Comma-delimited node ip address, if left blank will be randomly created 127.0.0.1:26656")
+
+	cmd.Flags().String(flagReservedAccount, "key erupt service six thing spy noise heart giggle year oil fuel rival drop goat deal moral require knee pact bind brain word nuclear",
+		"Reserved account mnemonic")
+	cmd.Flags().String(flagReservedCoin, "100000000000m0token",
+		"Reserved coin")
 
 	return cmd
 }
@@ -156,6 +178,9 @@ func InitTestnet(
 	validators []string,
 	ips []string,
 	genesisTime time.Time,
+	reservedAccount string,
+	reservedCoin sdk.Coin,
+
 ) error {
 	nodeIDs := make([]string, numValidators)
 	valPubKeys := make([]cryptotypes.PubKey, numValidators)
@@ -234,10 +259,10 @@ func InitTestnet(
 			return err
 		}
 
-		accTokens := sdk.TokensFromConsensusPower(1000)
+		// accTokens := sdk.TokensFromConsensusPower(1000)
 		accStakingTokens := sdk.TokensFromConsensusPower(500)
 		coins := sdk.Coins{
-			sdk.NewCoin(fmt.Sprintf("%stoken", nodeDirName), accTokens),
+			// sdk.NewCoin(fmt.Sprintf("%stoken", nodeDirName), accTokens),
 			sdk.NewCoin(sdk.DefaultBondDenom, accStakingTokens),
 		}
 
@@ -286,6 +311,72 @@ func InitTestnet(
 
 		srvconfig.WriteConfigFile(filepath.Join(nodeDir, "config/app.toml"), simappConfig)
 	}
+
+	// reverted
+	{
+		kb, err := keyring.New(sdk.KeyringServiceName(), keyring.BackendMemory, "", nil)
+		if err != nil {
+			return err
+		}
+		keyringAlgos, _ := kb.SupportedAlgorithms()
+		algo, err := keyring.NewSigningAlgoFromString(algoStr, keyringAlgos)
+		if err != nil {
+			return err
+		}
+		addr, err := server.SaveCoinKey(kb, "reserved", reservedAccount, true, algo)
+		if err != nil {
+			return err
+		}
+
+		info := map[string]string{
+			"secret": reservedAccount,
+			"address": addr.String(),
+		}
+		cliPrint, err := json.Marshal(info)
+		if err != nil {
+			return err
+		}
+		// save private key seed words
+		if err := writeFile(fmt.Sprintf("%v.json", "reserved"), outputDir, cliPrint); err != nil {
+			return err
+		}
+
+		genBalances = append(genBalances, banktypes.Balance{Address: addr.String(), Coins: sdk.NewCoins()})
+		genAccounts = append(genAccounts, authtypes.NewBaseAccount(addr, nil, 0, 0))
+
+		msg := utxotypes.NewMsgIssue(addr.String(), []*utxotypes.Input{}, []*utxotypes.Output{
+			{
+				ToAddr: addr.String(),
+				Amount: reservedCoin,
+			},
+
+		}, "reserved")
+		txBuilder := clientCtx.TxConfig.NewTxBuilder()
+		if err := txBuilder.SetMsgs(msg); err != nil {
+			return err
+		}
+
+		txFactory := tx.Factory{}
+		txFactory = txFactory.
+			WithChainID(chainID).
+			WithMemo("testnet").
+			WithKeybase(kb).
+			WithTxConfig(clientCtx.TxConfig)
+
+		if err := tx.Sign(txFactory, "reserved", txBuilder, true); err != nil {
+			return err
+		}
+
+		txBz, err := clientCtx.TxConfig.TxJSONEncoder()(txBuilder.GetTx())
+		if err != nil {
+			return err
+		}
+
+		if err := writeFile(fmt.Sprintf("%v.json", "reserved"), filepath.Join(outputDir, "gentxs"), txBz); err != nil {
+			return err
+		}
+	}
+
 
 	if err := initGenFiles(clientCtx, mbm, chainID, genAccounts, genBalances, genFiles, numValidators, genesisTime); err != nil {
 		return err

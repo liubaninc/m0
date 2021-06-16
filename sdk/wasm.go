@@ -18,7 +18,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/query"
 )
 
-func (c *Client) GetContract(name string) (*wasmtypes.QueryGetContractResponse, error) {
+func (c Client) GetContract(name string) (*wasmtypes.QueryGetContractResponse, error) {
 	if err := kernel.ValidContractName(name); err != nil {
 		return nil, fmt.Errorf("invalid contract name %v (%v)", name, err)
 	}
@@ -30,7 +30,7 @@ func (c *Client) GetContract(name string) (*wasmtypes.QueryGetContractResponse, 
 	return res, err
 }
 
-func (c *Client) GetContracts(key []byte, offset uint64, limit uint64, countTotal bool) (*wasmtypes.QueryAllContractResponse, error) {
+func (c Client) GetContracts(key []byte, offset uint64, limit uint64, countTotal bool) (*wasmtypes.QueryAllContractResponse, error) {
 	queryClient := wasmtypes.NewQueryClient(c)
 	res, err := queryClient.ContractAll(context.Background(), &wasmtypes.QueryAllContractRequest{
 		Pagination: &query.PageRequest{
@@ -43,7 +43,7 @@ func (c *Client) GetContracts(key []byte, offset uint64, limit uint64, countTota
 	return res, err
 }
 
-func (c *Client) GetAccountContracts(address string, key []byte, offset uint64, limit uint64, countTotal bool) (*wasmtypes.QueryGetAccountAllContractResponse, error) {
+func (c Client) GetAccountContracts(address string, key []byte, offset uint64, limit uint64, countTotal bool) (*wasmtypes.QueryGetAccountAllContractResponse, error) {
 	if _, err := sdk.AccAddressFromBech32(address); err != nil {
 		return nil, fmt.Errorf("invalid address %s (%s)", address, err)
 	}
@@ -61,7 +61,7 @@ func (c *Client) GetAccountContracts(address string, key []byte, offset uint64, 
 	return res, err
 }
 
-func (c *Client) Query(name string, method string, arg string) (*xmodel.ContractResponse, error) {
+func (c Client) Query(name string, method string, arg string) (*xmodel.ContractResponse, error) {
 	if err := kernel.ValidContractName(name); err != nil {
 		return nil, fmt.Errorf("invalid name %v (%v)", name, err)
 	}
@@ -91,7 +91,7 @@ func (c *Client) Query(name string, method string, arg string) (*xmodel.Contract
 	return res.Responses[0], nil
 }
 
-func (c *Client) DeployMsg(from string, name string, codeFile string, args string, desc string, fees string) (sdk.Msg, error) {
+func (c Client) DeployMsg(from string, name string, codeFile string, args string, desc string, fees string) (sdk.Msg, error) {
 	if _, err := sdk.AccAddressFromBech32(from); err != nil {
 		return nil, fmt.Errorf("invalid from %s (%s)", from, err)
 	}
@@ -162,7 +162,7 @@ func (c *Client) DeployMsg(from string, name string, codeFile string, args strin
 	return msg, nil
 }
 
-func (c *Client) UpgradeMsg(from string, name string, codeFile string, desc string, fees string) (sdk.Msg, error) {
+func (c Client) UpgradeMsg(from string, name string, codeFile string, desc string, fees string) (sdk.Msg, error) {
 	if _, err := sdk.AccAddressFromBech32(from); err != nil {
 		return nil, fmt.Errorf("invalid from %s (%s)", from, err)
 	}
@@ -223,7 +223,7 @@ func (c *Client) UpgradeMsg(from string, name string, codeFile string, desc stri
 	return msg, nil
 }
 
-func (c *Client) InvokeMsg(from string, name string, method string, args string, desc string, fees string, amounts string) (sdk.Msg, error) {
+func (c Client) InvokeMsg(from string, name string, method string, args string, desc string, fees string, amounts string) (sdk.Msg, error) {
 	if _, err := sdk.AccAddressFromBech32(from); err != nil {
 		return nil, fmt.Errorf("invalid from %s (%s)", from, err)
 	}
@@ -318,21 +318,21 @@ func convertToArgs(args string) (map[string][]byte, error) {
 	return args2, nil
 }
 
-func (c *Client) BroadcastDeployTx(from string, name string, codeFile string, args string, desc string, fees string, memo string) (*sdk.TxResponse, error) {
+func (c Client) BroadcastDeployTx(from string, name string, codeFile string, args string, desc string, fees string, memo string) (*sdk.TxResponse, error) {
 	msg, err := c.DeployMsg(from, name, codeFile, args, desc, fees)
 	if err != nil {
 		return nil, err
 	}
 	return c.GenerateAndBroadcastTx(from, fees, memo, 0, msg)
 }
-func (c *Client) BroadcastUpgradeTx(from string, name string, codeFile string, desc string, fees string, memo string) (*sdk.TxResponse, error) {
+func (c Client) BroadcastUpgradeTx(from string, name string, codeFile string, desc string, fees string, memo string) (*sdk.TxResponse, error) {
 	msg, err := c.UpgradeMsg(from, name, codeFile, desc, fees)
 	if err != nil {
 		return nil, err
 	}
 	return c.GenerateAndBroadcastTx(from, fees, memo, 0, msg)
 }
-func (c *Client) BroadcastInvokeTx(from string, name string, method string, args string, amounts string, desc string, fees string, memo string) (*sdk.TxResponse, error) {
+func (c Client) BroadcastInvokeTx(from string, name string, method string, args string, amounts string, desc string, fees string, memo string) (*sdk.TxResponse, error) {
 	msg, err := c.InvokeMsg(from, name, method, args, desc, fees, amounts)
 	if err != nil {
 		return nil, err

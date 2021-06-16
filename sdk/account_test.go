@@ -8,7 +8,7 @@ import (
 
 func TestAccount(t *testing.T) {
 	address := authtypes.NewModuleAddress(authtypes.FeeCollectorName).String()
-	acct, err := testClient.GetAccount(address, 0)
+	acct, err := testClient.GetAccount(address)
 	if err != nil {
 		t.Fatal("GetAccount", address, err)
 	}

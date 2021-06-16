@@ -224,7 +224,7 @@ func (synced *Syncer) processValidators(height int64, db *gorm.DB) (int, error) 
 }
 
 func (synced *Syncer) processBlock(resultBlock *coretypes.ResultBlock, db *gorm.DB) error {
-	synced.logger.Debug("processBlock", "height", resultBlock.Block.Height)
+	synced.logger.Debug("processBlock ...", "height", resultBlock.Block.Height)
 	// collecting
 	txNum := 0
 	msgNum := 0
@@ -271,7 +271,7 @@ func (synced *Syncer) processBlock(resultBlock *coretypes.ResultBlock, db *gorm.
 		}
 
 		// 资产详情可能发生变动，需重新获取
-		if strings.Contains(mtx.Type, "Issue") || strings.Contains(mtx.Type, "Destroy") {
+		if strings.Contains(mtx.Type, "资产发行") || strings.Contains(mtx.Type, "资产销毁") {
 			assets := strings.Split(mtx.Assets, ",")
 			for _, asset := range assets {
 				if len(asset) == 0 {
@@ -300,9 +300,11 @@ func (synced *Syncer) processBlock(resultBlock *coretypes.ResultBlock, db *gorm.
 			}
 		}
 
-		db.Unscoped().Delete(&model.MTransaction{
-			Hash: mtx.Hash,
-		})
+		if h := mtx.Height - 10; h > 0 {
+			db.Unscoped().Delete(&model.MTransaction{
+				Height: h,
+			})
+		}
 	}
 
 	// 更新关联地址
@@ -340,6 +342,9 @@ func (synced *Syncer) processBlock(resultBlock *coretypes.ResultBlock, db *gorm.
 		ast, err := c.GetToken(asset)
 		if err != nil {
 			return err
+		}
+		if ast.Token == nil {
+			continue
 		}
 		var item model.Asset
 		if result := db.FirstOrInit(&item, map[string]interface{}{"name": asset}); result.Error != nil {
@@ -459,11 +464,12 @@ func (synced *Syncer) processBlock(resultBlock *coretypes.ResultBlock, db *gorm.
 		db.Where("tx_num < ? AND msg_num < ?", txNum, msgNum).Delete(&model.BlockChainTPSChart{})
 	}
 
+	synced.logger.Debug("processBlock", "height", resultBlock.Block.Height)
 	return nil
 }
 
 func (synced *Syncer) processTx(hash []byte, time string) (*model.Transaction, error) {
-	synced.logger.Debug("processTx", "hash", hex.EncodeToString(hash))
+	synced.logger.Debug("processTx ...", "hash", hex.EncodeToString(hash))
 	resultTx, err := synced.client.GetTx(hex.EncodeToString(hash))
 	if err != nil {
 		return nil, err
@@ -562,6 +568,7 @@ func (synced *Syncer) processTx(hash []byte, time string) (*model.Transaction, e
 	}
 	mtx.Type = strings.Join(types, ",")
 
+	synced.logger.Debug("processTx", "hash", hex.EncodeToString(hash))
 	return mtx, nil
 }
 
@@ -593,7 +600,7 @@ func ProcessMsgIssue(msg *utxotypes.MsgIssue) *model.MsgUTXO {
 		}
 		if has := addressesMap[input.FromAddr]; !has {
 			addressesMap[input.FromAddr] = true
-			addresses = append(addresses, input.String())
+			addresses = append(addresses, input.FromAddr)
 		}
 	}
 	for _, output := range msg.Outputs {
@@ -618,7 +625,7 @@ func ProcessMsgIssue(msg *utxotypes.MsgIssue) *model.MsgUTXO {
 	if len(assets) > 0 {
 		mmsg.Assets = "," + strings.Join(assets, ",") + ","
 	}
-	mmsg.Type = msg.Type()
+	mmsg.Type = "资产发行"
 	return mmsg
 }
 func ProcessMsgSend(msg *utxotypes.MsgSend) *model.MsgUTXO {
@@ -649,7 +656,7 @@ func ProcessMsgSend(msg *utxotypes.MsgSend) *model.MsgUTXO {
 		}
 		if has := addressesMap[input.FromAddr]; !has {
 			addressesMap[input.FromAddr] = true
-			addresses = append(addresses, input.String())
+			addresses = append(addresses, input.FromAddr)
 		}
 	}
 	for _, output := range msg.Outputs {
@@ -674,7 +681,7 @@ func ProcessMsgSend(msg *utxotypes.MsgSend) *model.MsgUTXO {
 	if len(assets) > 0 {
 		mmsg.Assets = "," + strings.Join(assets, ",") + ","
 	}
-	mmsg.Type = msg.Type()
+	mmsg.Type = "资产转移"
 	return mmsg
 }
 func ProcessMsgDestroy(msg *utxotypes.MsgDestroy) *model.MsgUTXO {
@@ -705,7 +712,7 @@ func ProcessMsgDestroy(msg *utxotypes.MsgDestroy) *model.MsgUTXO {
 		}
 		if has := addressesMap[input.FromAddr]; !has {
 			addressesMap[input.FromAddr] = true
-			addresses = append(addresses, input.String())
+			addresses = append(addresses, input.FromAddr)
 		}
 	}
 	for _, output := range msg.Outputs {
@@ -730,7 +737,7 @@ func ProcessMsgDestroy(msg *utxotypes.MsgDestroy) *model.MsgUTXO {
 	if len(assets) > 0 {
 		mmsg.Assets = "," + strings.Join(assets, ",") + ","
 	}
-	mmsg.Type = msg.Type()
+	mmsg.Type = "资产销毁"
 	return mmsg
 }
 
@@ -804,7 +811,7 @@ func ProcessMsgDeploy(msg *wasmtypes.MsgDeploy) *model.MsgUTXO {
 	if len(contracts) > 0 {
 		mmsg.Contracts = "," + strings.Join(contracts, ",") + ","
 	}
-	mmsg.Type = msg.Type()
+	mmsg.Type = "合约部署"
 	return mmsg
 }
 func ProcessMsgUpgrade(msg *wasmtypes.MsgUpgrade) *model.MsgUTXO {
@@ -876,7 +883,7 @@ func ProcessMsgUpgrade(msg *wasmtypes.MsgUpgrade) *model.MsgUTXO {
 	if len(contracts) > 0 {
 		mmsg.Contracts = "," + strings.Join(contracts, ",") + ","
 	}
-	mmsg.Type = msg.Type()
+	mmsg.Type = "合约升级"
 	return mmsg
 }
 
@@ -966,7 +973,7 @@ func ProcessMsgInvoke(msg *wasmtypes.MsgInvoke) *model.MsgUTXO {
 	if len(contracts) > 0 {
 		mmsg.Contracts = "," + strings.Join(contracts, ",") + ","
 	}
-	mmsg.Type = msg.Type()
+	mmsg.Type = "合约调用"
 	return mmsg
 }
 
