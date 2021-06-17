@@ -15,7 +15,7 @@
         },
         "version": "1.0"
     },
-    "host": "8.131.229.225:8080",
+    "host": "localhost:8080",
     "basePath": "/api",
     "paths": {
         "/account/create": {

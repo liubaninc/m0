@@ -65,7 +65,7 @@ module.exports = {
   // 配置转发代理cli 3.5 以后不需要再配置
   devServer: {
     disableHostCheck: true,
-    port: 8085,
+    port: 8086,
     // open: true, // 配置浏览器自动打开
     // host: 'localhost', // 默认是localhost
     proxy: {

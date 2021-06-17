@@ -117,24 +117,26 @@ wasm2cclean:
 images/build-%:
 	@echo "Building Docker image tq_bc/$*"
 	docker build --force-rm -f images/$*/Dockerfile \
+		--build-arg NODE_VER=$(NODE_VER) \
 		--build-arg GO_VER=$(GO_VER) \
 		--build-arg ALPINE_VER=$(ALPINE_VER) \
 		--build-arg GO_TAGS=${GO_TAGS} \
-		-t liubaninc/$* \
+		-t liubaninc/$*:${COMMIT} \
 		.
 
 images/clean-%:
-	-@for image in "$$(docker images --quiet --filter=reference='tq_bc/$*')"; do \
+	-@for image in "$$(docker images --quiet --filter=reference='liubaninc/$*')"; do \
 		[ -z "$$image" ] || docker rmi -f $$image; \
 	done
 
+NODE_VER = 16.3
 GO_VER = 1.16
 ALPINE_VER ?= 3.13
 GO_TAGS ?=
 
-m0d-image: images/build-m0d
+m0-image: images/build-m0
 
-m0d-image-clean: images/clean-m0d
+m0-image-clean: images/clean-m0
 
 clean: distclean
 	rm -rf $(BUILDDIR)/

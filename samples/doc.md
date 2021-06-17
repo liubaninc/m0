@@ -1,0 +1,1 @@
+ docker-compose -f docker-compose-one.yaml --env-file env up

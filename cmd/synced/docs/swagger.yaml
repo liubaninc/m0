@@ -208,7 +208,7 @@ definitions:
     - name
     - password
     type: object
-host: 8.131.229.225:8080
+host: localhost:8080
 info:
   contact:
     email: support@swagger.io
