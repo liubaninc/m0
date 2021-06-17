@@ -181,17 +181,15 @@ func (c Client) SignTx(from string, multiSigAddrStr string, txBuilder client.TxB
 	return nil
 }
 
-func (c Client) MultiSignTx(txBuilder client.TxBuilder, multisigPubKey cryptotypes.PubKey, signatures ...[]signingtypes.SignatureV2) error {
+func (c Client) MultiSignTx(txBuilder client.TxBuilder, multisigPubKey cryptotypes.PubKey, signatures ...signingtypes.SignatureV2) error {
 	multisigPub := multisigPubKey.(*kmultisig.LegacyAminoPubKey)
 	multisigSig := multisig.NewMultisig(len(multisigPub.PubKeys))
 
 	sequence := uint64(0)
-	for _, sigs := range signatures {
-		for _, sig := range sigs {
-			sequence = sig.Sequence
-			if err := multisig.AddSignatureV2(multisigSig, sig, multisigPub.GetPubKeys()); err != nil {
-				return err
-			}
+	for _, sig := range signatures {
+		sequence = sig.Sequence
+		if err := multisig.AddSignatureV2(multisigSig, sig, multisigPub.GetPubKeys()); err != nil {
+			return err
 		}
 	}
 

@@ -89,51 +89,38 @@ func (api *API) getUtxoResponse(c *gin.Context, tp string, request *UTXORequest)
 	}
 
 	var resp TxResponse
-	tx, err := api.client.GenerateTx(request.From, fee, request.Memo, 0, msg)
+	txBuilder, err := api.client.GenerateTx(request.From, fee, request.Memo, 0, msg)
 	if err != nil {
 		return nil, err
 	}
 	if acct.Threshold > 0 {
-		resp.MultiAddress = acct.Address
-		resp.MultiPublic = acct.PublicKey
-		resp.Threshold = acct.Threshold
 		// 多签地址 仅仅构建交易
 		if len(acct.Related) > 0 {
 			kb := api.getKeyBase(c)
 			if err := kb.ImportPrivKey(acct.Related, acct.PrivateKey, request.Password); err != nil {
 				return nil, err
 			}
-			client := api.client.WithKeyring(kb)
-			if err := client.SignTx(acct.Related, acct.Address, tx, true); err != nil {
+			if err := api.client.WithKeyring(kb).SignTx(acct.Related, acct.Address, txBuilder, true); err != nil {
 				return nil, err
 			}
 		}
-		resp.Signatures = []string{}
-		signatures, _ := tx.GetTx().GetSignaturesV2()
-		for _, signature := range signatures {
-			addr, err := sdk.AccAddressFromHex(signature.PubKey.Address().String())
-			if err != nil {
-				panic(err)
-			}
-			resp.Signatures = append(resp.Signatures, addr.String())
-		}
-		// resp.Tx = string(api.client.Codec.MustMarshalJSON(tx))
-		bts, _ := api.client.TxConfig.TxEncoder()(tx.GetTx())
-		resp.Hash = fmt.Sprintf("%X", tmhash.Sum(bts))
-	} else {
-		// 签名
-		kb := api.getKeyBase(c)
-		if err := kb.ImportPrivKey(acct.Name, acct.PrivateKey, request.Password); err != nil {
-			return nil, err
-		}
-		client := api.client.WithKeyring(kb)
-		if err := client.SignTx(acct.Name, "", tx, true); err != nil {
-			return nil, err
-		}
-
 		if request.Commit {
+			publicKeyBytes, err := hex.DecodeString(acct.PublicKey)
+			if err != nil {
+				return nil, err
+			}
+			var multiSigPub multisig.LegacyAminoPubKey
+			if err := api.client.LegacyAmino.UnmarshalBinaryBare(publicKeyBytes, &multiSigPub); err != nil {
+				return nil, err
+			}
+			signatures, _ := txBuilder.GetTx().GetSignaturesV2()
+
+			txBuilder, _ = api.client.TxConfig.WrapTxBuilder(txBuilder.GetTx())
+			if err := api.client.MultiSignTx(txBuilder, &multiSigPub, signatures...); err != nil {
+				return nil, err
+			}
 			// 广播交易
-			result, err := api.client.BroadcastTx(tx.GetTx())
+			result, err := api.client.BroadcastTx(txBuilder.GetTx())
 			if err != nil {
 				return nil, err
 			}
@@ -142,12 +129,49 @@ func (api *API) getUtxoResponse(c *gin.Context, tp string, request *UTXORequest)
 			}
 			resp.Hash = result.TxHash
 		} else {
-			bts, _ := api.client.TxConfig.TxEncoder()(tx.GetTx())
+			resp.MultiAddress = acct.Address
+			resp.MultiPublic = acct.PublicKey
+			resp.Threshold = acct.Threshold
+			resp.Signatures = []string{}
+			signatures, _ := txBuilder.GetTx().GetSignaturesV2()
+			for _, signature := range signatures {
+				addr, err := sdk.AccAddressFromHex(signature.PubKey.Address().String())
+				if err != nil {
+					panic(err)
+				}
+				resp.Signatures = append(resp.Signatures, addr.String())
+			}
+			// resp.Tx = string(api.client.Codec.MustMarshalJSON(tx))
+			bts, _ := api.client.TxConfig.TxEncoder()(txBuilder.GetTx())
+			resp.Hash = fmt.Sprintf("%X", tmhash.Sum(bts))
+		}
+	} else {
+		// 签名
+		kb := api.getKeyBase(c)
+		if err := kb.ImportPrivKey(acct.Name, acct.PrivateKey, request.Password); err != nil {
+			return nil, err
+		}
+		if err := api.client.WithKeyring(kb).SignTx(acct.Name, "", txBuilder, true); err != nil {
+			return nil, err
+		}
+
+		if request.Commit {
+			// 广播交易
+			result, err := api.client.BroadcastTx(txBuilder.GetTx())
+			if err != nil {
+				return nil, err
+			}
+			if result.Code != 0 {
+				return nil, fmt.Errorf(result.RawLog)
+			}
+			resp.Hash = result.TxHash
+		} else {
+			bts, _ := api.client.TxConfig.TxEncoder()(txBuilder.GetTx())
 			// resp.Tx = string(api.client.Codec.MustMarshalJSON(tx))
 			resp.Hash = fmt.Sprintf("%X", tmhash.Sum(bts))
 		}
 	}
-	if err := api.processTx(tx.GetTx(), request.Commit); err != nil {
+	if err := api.processTx(txBuilder.GetTx(), request.Commit); err != nil {
 		panic(err)
 	}
 	return &resp, nil
@@ -385,8 +409,7 @@ func (api *API) Sign(c *gin.Context) {
 			c.JSON(http.StatusOK, response)
 			return
 		}
-		client := api.client.WithKeyring(kb)
-		err = client.SignTx(acct.Related, multiAddress, txBuilder, false)
+		err = api.client.WithKeyring(kb).SignTx(acct.Related, multiAddress, txBuilder, false)
 		if err != nil {
 			response.Code = ExecuteCode
 			response.Msg = ERROR_SIGN
@@ -446,7 +469,7 @@ func (api *API) Sign(c *gin.Context) {
 	if request.Commit {
 		signatures, _ := txBuilder.GetTx().GetSignaturesV2()
 		if len(multiAddress) > 0 {
-			if err := api.client.MultiSignTx(txBuilder, multiSigPub, signatures); err != nil {
+			if err := api.client.MultiSignTx(txBuilder, multiSigPub, signatures...); err != nil {
 				response.Code = ExecuteCode
 				response.Msg = ERROR_SIGN
 				response.Detail = err.Error()
@@ -475,9 +498,6 @@ func (api *API) Sign(c *gin.Context) {
 			return
 		}
 		resp.Hash = result.TxHash
-		//tx.Signatures = signatures
-		bts, _ := api.client.TxConfig.TxEncoder()(tx)
-		resp.Hash = fmt.Sprintf("%X", tmhash.Sum(bts))
 	} else {
 		if len(multiAddress) > 0 {
 			resp.MultiAddress = multiAddress
@@ -518,7 +538,6 @@ func (api *API) processTx(tx signing.Tx, commit bool) error {
 		}
 		return nil
 	}
-	fmt.Println("cccc", hash)
 
 	db := api.db.Begin()
 	mtx := &model.MTransaction{
