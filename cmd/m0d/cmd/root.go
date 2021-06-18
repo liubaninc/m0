@@ -100,6 +100,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		testnetCmd(m0.ModuleBasics, banktypes.GenesisBalancesIterator{}),
 		debug.Cmd(),
 		// this line is used by starport scaffolding # stargate/root/commands
+		automaticCommand(),
 	)
 
 	a := appCreator{encodingConfig}

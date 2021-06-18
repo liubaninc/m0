@@ -87,7 +87,7 @@ endif
 ###                              Documentation                              ###
 ###############################################################################
 
-all: build wasm2c
+all: build wasm2c reserved
 
 BUILD_TARGETS := build install
 
@@ -106,6 +106,9 @@ go.sum: go.mod
 	@echo "--> Ensure dependencies have not been modified"
 	@go mod verify
 
+reserved: build
+	@./xdev.sh reserved
+
 wasm2c: $(BUILDDIR)/
 	@echo "Building wasm2c ..."
 	@make -C x/wasm/xmodel/xvm/compile/wabt -j 4
@@ -123,6 +126,7 @@ images/build-%:
 		--build-arg GO_TAGS=${GO_TAGS} \
 		-t liubaninc/$*:${COMMIT} \
 		.
+	echo "TAG=${COMMIT}" > samples/env
 
 images/clean-%:
 	-@for image in "$$(docker images --quiet --filter=reference='liubaninc/$*')"; do \
@@ -163,4 +167,4 @@ format:
 	@find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" | xargs goimports -w -local github.com/cosmos/cosmos-sdk
 
 
-.PHONY: all build build-linux install format lint wasm2c
+.PHONY: all build build-linux install format lint wasm2c reserved
