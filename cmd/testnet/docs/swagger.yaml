@@ -1,0 +1,89 @@
+basePath: /api
+definitions:
+  main.ChainRequest:
+    properties:
+      algo:
+        description: 私钥算法
+        type: string
+      chain-id:
+        description: 节点个数
+        type: string
+      genesis-time:
+        description: 创世时间
+        type: integer
+      node-ip:
+        description: ip:port列表
+        type: string
+      num:
+        description: 节点个数
+        type: integer
+      reserved-account-amount:
+        description: 预留账户
+        type: string
+      reserved-account-mnemonic:
+        description: 预留账户
+        type: string
+      validator-key:
+        description: 验证者私钥列表
+        type: string
+    type: object
+host: 192.168.7.241:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample server synced server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Swagger Example API
+  version: "1.0"
+paths:
+  /chain:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 链信息
+        in: body
+        name: tx
+        required: true
+        schema:
+          $ref: '#/definitions/main.ChainRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: 生成创世块文件
+  /download/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 文件id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: 下载创世块文件
+swagger: "2.0"

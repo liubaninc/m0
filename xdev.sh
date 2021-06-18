@@ -16,13 +16,13 @@ if ! command -v ./build/xdev &>/dev/null; then
 fi
 
 # build examples
-mkdir -p build
+mkdir -p build/wasm
 for elem in `ls $dir`; do
     cc=$dir/$elem
 
     # build single cc file
     if [[ -f $cc ]]; then
-        out=build/$(basename $elem .cc).wasm
+        out=build/wasm/$(basename $elem .cc).wasm
         echo "build $cc"
         ./build/xdev build -o $out $cc
     fi
@@ -30,7 +30,7 @@ for elem in `ls $dir`; do
     # build package
     if [[ -d $cc ]]; then
         echo "build $cc"
-        bash -c "cd $cc && ./build/xdev build && mv -v $elem.wasm ../../build/"
+        bash -c "cd $cc && ./build/xdev build && mv -v $elem.wasm ../../build/wasm"
     fi
     echo
 done

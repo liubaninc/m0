@@ -207,6 +207,7 @@ func InitTestnet(
 		gentxsDir := filepath.Join(outputDir, "gentxs")
 
 		nodeConfig.SetRoot(nodeDir)
+		nodeConfig.Instrumentation.Prometheus = true
 		nodeConfig.RPC.ListenAddress = "tcp://0.0.0.0:26657"
 		nodeConfig.RPC.TimeoutBroadcastTxCommit = 60 * time.Second
 

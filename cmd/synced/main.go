@@ -45,7 +45,7 @@ func main() {
 
 	rootCmd.AddCommand(newStartCommand())
 	rootCmd.AddCommand(server.VersionCmd())
-	executor := cli.PrepareMainCmd(rootCmd, "M0_SYNCED", os.ExpandEnv("$HOME/.m0synced"))
+	executor := cli.PrepareMainCmd(rootCmd, "SYNCED", os.ExpandEnv("$HOME/.synced"))
 	err := executor.Execute()
 	if err != nil {
 		panic(err)

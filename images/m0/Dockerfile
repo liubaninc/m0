@@ -17,21 +17,23 @@ RUN apk add --no-cache \
 	g++ \
 	git \
 	make \
-	musl-dev
+	musl-dev \
+	npm
 ADD . $GOPATH/src/github.com/liubaninc/m0
 WORKDIR $GOPATH/src/github.com/liubaninc/m0
 
 FROM golang as m0
 ARG GO_TAGS
-RUN make wasm2c build GO_TAGS=${GO_TAGS}
+RUN make vue wasm2c build GO_TAGS=${GO_TAGS}
 
 FROM m0-base
 COPY --from=m0 /go/src/github.com/liubaninc/m0/build /usr/local/bin
+COPY --from=m0 /go/src/github.com/liubaninc/m0/build/wasm /
 COPY --from=m0 /go/src/github.com/liubaninc/m0/vue /vue
 COPY --from=m0  /go/src/github.com/liubaninc/m0/images/scripts /
 COPY --from=m0  /go/src/github.com/liubaninc/m0/images/wait /
 # ENV WAIT_VERSION 2.7.2
 # ADD https://github.com/ufoscout/docker-compose-wait/releases/download/$WAIT_VERSION/wait /wait
 RUN chmod +x /wait
-EXPOSE 26656 26657 26660
+EXPOSE 26656 26657 26660 8080 8086 8088
 CMD ["m0d","start"]

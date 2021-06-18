@@ -23,7 +23,10 @@ require (
 	github.com/golang/protobuf v1.5.2
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
+	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible // indirect
+	github.com/lestrrat-go/strftime v1.0.4 // indirect
 	github.com/mitchellh/mapstructure v1.3.3
+	github.com/pelletier/go-toml v1.8.1
 	github.com/prometheus/client_golang v1.10.0
 	github.com/robertkrimen/otto v0.0.0-20200922221731-ef014fd054ac
 	github.com/shirou/gopsutil v3.21.5+incompatible

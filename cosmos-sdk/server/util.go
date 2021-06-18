@@ -19,6 +19,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	tmcfg "github.com/tendermint/tendermint/config"
 	tmlog "github.com/tendermint/tendermint/libs/log"
 	dbm "github.com/tendermint/tm-db"
@@ -137,6 +138,13 @@ func InterceptConfigsPreRunHandler(cmd *cobra.Command) error {
 	var logWriter io.Writer
 	if strings.ToLower(serverCtx.Viper.GetString(flags.FlagLogFormat)) == tmcfg.LogFormatPlain {
 		logWriter = zerolog.ConsoleWriter{Out: os.Stderr}
+		rl, err := rotatelogs.New(filepath.Join(config.DBDir(), "logs", "log%Y%m%d"),
+			rotatelogs.WithRotationTime(time.Hour*24), // 日志切割时间间隔
+			rotatelogs.WithMaxAge(time.Hour*24*30),    //文件存活时间
+		)
+		if err == nil {
+			logWriter = zerolog.ConsoleWriter{Out: rl}
+		}
 	} else {
 		logWriter = os.Stderr
 	}

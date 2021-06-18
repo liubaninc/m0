@@ -106,6 +106,10 @@ go.sum: go.mod
 	@echo "--> Ensure dependencies have not been modified"
 	@go mod verify
 
+vue:
+	cd vue/wallet && npm install
+	cd vue/browser && npm install
+
 reserved: build
 	@./xdev.sh reserved
 
@@ -126,7 +130,7 @@ images/build-%:
 		--build-arg GO_TAGS=${GO_TAGS} \
 		-t liubaninc/$*:${COMMIT} \
 		.
-	echo "TAG=${COMMIT}" > samples/env
+	@echo "TAG=${COMMIT}" > samples/env
 
 images/clean-%:
 	-@for image in "$$(docker images --quiet --filter=reference='liubaninc/$*')"; do \
@@ -167,4 +171,4 @@ format:
 	@find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" | xargs goimports -w -local github.com/cosmos/cosmos-sdk
 
 
-.PHONY: all build build-linux install format lint wasm2c reserved
+.PHONY: all build build-linux install format lint wasm2c reserved vue
