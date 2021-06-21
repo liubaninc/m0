@@ -109,6 +109,8 @@ go.sum: go.mod
 vue:
 	cd vue/wallet && npm install
 	cd vue/browser && npm install
+	cd vue/wallet && npm run build
+	cd vue/browser && npm run build
 
 reserved: build
 	@./xdev.sh reserved
@@ -119,12 +121,11 @@ wasm2c: $(BUILDDIR)/
 	@cp x/wasm/xmodel/xvm/compile/wabt/build/wasm2c build
 
 wasm2cclean:
-	@make -C xmodel/xvm/compile/wabt clean
+	@make -C x/wasm/xmodel/xvm/compile/wabt clean
 
-images/build-%:
+images/build-%: reserved
 	@echo "Building Docker image tq_bc/$*"
 	docker build --force-rm -f images/$*/Dockerfile \
-		--build-arg NODE_VER=$(NODE_VER) \
 		--build-arg GO_VER=$(GO_VER) \
 		--build-arg ALPINE_VER=$(ALPINE_VER) \
 		--build-arg GO_TAGS=${GO_TAGS} \
@@ -137,7 +138,6 @@ images/clean-%:
 		[ -z "$$image" ] || docker rmi -f $$image; \
 	done
 
-NODE_VER = 16.3
 GO_VER = 1.16
 ALPINE_VER ?= 3.13
 GO_TAGS ?=

@@ -28,7 +28,7 @@ const (
 var (
 	// Secp256k1 uses the Bitcoin secp256k1 ECDSA parameters.
 	Secp256k1 = secp256k1Algo{}
-	SM2 = sm2Algo{}
+	SM2       = sm2Algo{}
 )
 
 type DeriveFn func(mnemonic string, bip39Passphrase, hdPath string) ([]byte, error)

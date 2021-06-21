@@ -73,7 +73,7 @@ func SaveCoinKey(keybase keyring.Keyring, keyName string, mnemonic string, overw
 		}
 	}
 
-	info, err := keybase.NewAccount(keyName, mnemonic ,keyring.DefaultBIP39Passphrase, sdk.FullFundraiserPath, algo)
+	info, err := keybase.NewAccount(keyName, mnemonic, keyring.DefaultBIP39Passphrase, sdk.FullFundraiserPath, algo)
 	if err != nil {
 		return sdk.AccAddress([]byte{}), err
 	}

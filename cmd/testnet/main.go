@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	_ "github.com/liubaninc/m0/cmd/testnet/docs"
 	toml "github.com/pelletier/go-toml"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
@@ -12,7 +13,6 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	tmrand "github.com/tendermint/tendermint/libs/rand"
 	"github.com/tendermint/tendermint/types/time"
-	_ "github.com/liubaninc/m0/cmd/testnet/docs"
 	"io/ioutil"
 	"net/http"
 	"os/exec"
@@ -56,14 +56,14 @@ func main() {
 }
 
 type ChainRequest struct {
-	ChainID         string `json:"chain-id"`                  // 节点个数
-	Num             int64  `json:"num"`                       // 节点个数
-	Validator       string `json:"validator-key"`             // 验证者私钥列表
-	IP              string `json:"node-ip"`                   // ip:port列表
-	GenesisTime int64  `json:"genesis-time"` //创世时间
-	ReservedAccount string `json:"reserved-account-mnemonic"` // 预留账户
-	ReservedAccountAmount string `json:"reserved-account-amount"` // 预留账户
-	Algo        string `json:"algo"`         // 私钥算法
+	ChainID               string `json:"chain-id"`                  // 节点个数
+	Num                   int64  `json:"num"`                       // 节点个数
+	Validator             string `json:"validator-key"`             // 验证者私钥列表
+	IP                    string `json:"node-ip"`                   // ip:port列表
+	GenesisTime           int64  `json:"genesis-time"`              //创世时间
+	ReservedAccount       string `json:"reserved-account-mnemonic"` // 预留账户
+	ReservedAccountAmount string `json:"reserved-account-amount"`   // 预留账户
+	Algo                  string `json:"algo"`                      // 私钥算法
 }
 
 // @生成创世块文件
@@ -141,7 +141,7 @@ func chain(c *gin.Context) {
 	//}
 	if tmos.FileExists(filepath.Join(uploadDir, hash, "node0", ".m0d", "config", "genesis.json")) {
 		c.JSON(http.StatusOK, map[string]string{
-			"hash": hash,
+			"hash":  hash,
 			"seeds": seeds(hash),
 		})
 		return
@@ -158,7 +158,7 @@ func chain(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, map[string]string{
-		"hash": hash,
+		"hash":  hash,
 		"seeds": seeds(hash),
 	})
 }
@@ -179,7 +179,7 @@ func download(c *gin.Context) {
 	c.File(dst)
 }
 
-func seeds(hash string) string   {
+func seeds(hash string) string {
 	dst := filepath.Join(uploadDir, hash, "node0", ".m0d", "config", "config.toml")
 	bts, err := ioutil.ReadFile(dst)
 	if err != nil {

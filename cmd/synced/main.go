@@ -53,16 +53,15 @@ func main() {
 }
 
 const (
-	flagRPCHost    = "node-rpc"
-	flagDBHost     = "db-host"
-	flagDBPort     = "db-port"
-	flagDBName     = "db-name"
-	flagDBUser     = "db-user"
-	flagDBPassword = "db-pass"
-	flagPort       = "port"
+	flagRPCHost       = "node-rpc"
+	flagDBHost        = "db-host"
+	flagDBPort        = "db-port"
+	flagDBName        = "db-name"
+	flagDBUser        = "db-user"
+	flagDBPassword    = "db-pass"
+	flagPort          = "port"
 	flagFaucetAccount = "faucet-account"
-	flagFaucetCoin = "faucet-amount"
-
+	flagFaucetCoin    = "faucet-amount"
 )
 
 func newStartCommand() *cobra.Command {
@@ -72,13 +71,12 @@ func newStartCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			logger := log.NewTMLogger(log.NewSyncWriter(os.Stdout))
 
-
 			//Keyring.Key("faucet")
 			kr, err := keyring.New("m0", keyring.BackendMemory, viper.GetString(flags.FlagHome), os.Stdin)
 			if err != nil {
 				panic(err)
 			}
-			if _, err := kr.NewAccount("faucet", viper.GetString(flagFaucetAccount), keyring.DefaultBIP39Passphrase, sdk.GetConfig().GetFullFundraiserPath(), hd.Secp256k1);err != nil {
+			if _, err := kr.NewAccount("faucet", viper.GetString(flagFaucetAccount), keyring.DefaultBIP39Passphrase, sdk.GetConfig().GetFullFundraiserPath(), hd.Secp256k1); err != nil {
 				panic(err)
 			}
 			client := msdk.MustNew(viper.GetString(flagRPCHost), kr)

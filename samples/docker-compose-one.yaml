@@ -45,7 +45,7 @@ services:
       - "-c"
       - |
         set -ex
-        if [ ! -e $M0D_HOME/config/genesis.json ]; then
+        if [ ! -e /var/tq/production/mytestnet/node0/.m0/config/genesis.json ]; then
         m0d testnet -n 1
         cp -r mytestnet /var/tq/production
         fi
@@ -68,6 +68,7 @@ services:
       service: tq-m0
     environment:
       - M0D_CHAIN_ID=testchain
+      - M0D_NODE=tcp://m0-node0:26657
       - WAIT_HOSTS=m0-node0:26657
       - WAIT_HOSTS_TIMEOUT=300
       - WAIT_SLEEP_INTERVAL=30
@@ -77,7 +78,8 @@ services:
       - "-c"
       - |
         /wait
-        /automatic.sh
+        set -ex
+        m0d automatic
     volumes:
       - mytestnet:/var/tq/production/mytestnet
     depends_on:
@@ -106,7 +108,9 @@ services:
       - "-c" 
       - |
         /wait
-        /synced.sh
+        set -ex
+        nginx -g "daemon off;" &
+        synced start
     volumes:
       - mytestnet:/var/tq/production/mytestnet
     depends_on:
