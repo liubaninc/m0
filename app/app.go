@@ -92,6 +92,9 @@ import (
 	"github.com/liubaninc/m0/x/wasm"
 	wasmkeeper "github.com/liubaninc/m0/x/wasm/keeper"
 	wasmtypes "github.com/liubaninc/m0/x/wasm/types"
+	mibcmodule "github.com/liubaninc/m0/x/mibc"
+	mibcmodulekeeper "github.com/liubaninc/m0/x/mibc/keeper"
+	mibcmoduletypes "github.com/liubaninc/m0/x/mibc/types"
 )
 
 const Name = "m0"
@@ -138,6 +141,7 @@ var (
 		transfer.AppModuleBasic{},
 		vesting.AppModuleBasic{},
 		// this line is used by starport scaffolding # stargate/app/moduleBasic
+		mibcmodule.AppModuleBasic{},
 		wasm.AppModuleBasic{},
 		utxo.AppModuleBasic{},
 	)
@@ -205,6 +209,9 @@ type App struct {
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
 	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
 
+	ScopedMibcKeeper capabilitykeeper.ScopedKeeper
+	MibcKeeper       mibcmodulekeeper.Keeper
+
 	utxoKeeper utxokeeper.Keeper
 	wasmKeeper wasmkeeper.Keeper
 
@@ -235,6 +242,7 @@ func New(
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
 		govtypes.StoreKey, paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey,
 		evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
+		mibcmoduletypes.StoreKey,
 		utxotypes.StoreKey,
 		wasmtypes.StoreKey,
 	)
@@ -263,6 +271,17 @@ func New(
 	// grant capabilities for the ibc and ibc-transfer modules
 	scopedIBCKeeper := app.CapabilityKeeper.ScopeToModule(ibchost.ModuleName)
 	scopedTransferKeeper := app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
+
+	app.ScopedMibcKeeper = app.CapabilityKeeper.ScopeToModule(mibcmoduletypes.ModuleName)
+	app.MibcKeeper = *mibcmodulekeeper.NewKeeper(
+		appCodec,
+		keys[mibcmoduletypes.StoreKey],
+		keys[mibcmoduletypes.MemStoreKey],
+		app.IBCKeeper.ChannelKeeper,
+		&app.IBCKeeper.PortKeeper,
+		app.ScopedMibcKeeper,
+	)
+	mibcModule := mibcmodule.NewAppModule(appCodec, app.MibcKeeper)
 
 	// add keepers
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
@@ -354,6 +373,7 @@ func New(
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()
 	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferModule)
+	ibcRouter.AddRoute(mibcmoduletypes.ModuleName, mibcModule)
 	// this line is used by starport scaffolding # ibc/app/router
 	app.IBCKeeper.SetRouter(ibcRouter)
 
@@ -386,6 +406,7 @@ func New(
 		ibc.NewAppModule(app.IBCKeeper),
 		params.NewAppModule(app.ParamsKeeper),
 		transferModule,
+		mibcModule,
 		utxoModule,
 		wasmModule,
 	)
@@ -421,6 +442,7 @@ func New(
 		evidencetypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
+		mibcmoduletypes.ModuleName,
 		wasmtypes.ModuleName,
 		utxotypes.ModuleName,
 	)
@@ -605,6 +627,7 @@ func initParamsKeeper(appCodec codec.BinaryMarshaler, legacyAmino *codec.LegacyA
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
+	paramsKeeper.Subspace(mibcmoduletypes.ModuleName)
 	paramsKeeper.Subspace(wasmtypes.ModuleName)
 	paramsKeeper.Subspace(utxotypes.ModuleName).WithKeyTable(utxotypes.ParamKeyTable())
 
