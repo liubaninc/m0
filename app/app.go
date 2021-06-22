@@ -88,6 +88,9 @@ import (
 	m0module "github.com/liubaninc/m0/x/m0"
 	m0modulekeeper "github.com/liubaninc/m0/x/m0/keeper"
 	m0moduletypes "github.com/liubaninc/m0/x/m0/types"
+	mibcmodule "github.com/liubaninc/m0/x/mibc"
+	mibcmodulekeeper "github.com/liubaninc/m0/x/mibc/keeper"
+	mibcmoduletypes "github.com/liubaninc/m0/x/mibc/types"
 )
 
 const Name = "m0"
@@ -134,6 +137,7 @@ var (
 		transfer.AppModuleBasic{},
 		vesting.AppModuleBasic{},
 		// this line is used by starport scaffolding # stargate/app/moduleBasic
+		mibcmodule.AppModuleBasic{},
 		m0module.AppModuleBasic{},
 	)
 
@@ -201,6 +205,8 @@ type App struct {
 	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
 
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
+	ScopedMibcKeeper capabilitykeeper.ScopedKeeper
+	MibcKeeper       mibcmodulekeeper.Keeper
 
 	M0Keeper m0modulekeeper.Keeper
 
@@ -232,6 +238,7 @@ func New(
 		govtypes.StoreKey, paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey,
 		evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
 		// this line is used by starport scaffolding # stargate/app/storeKey
+		mibcmoduletypes.StoreKey,
 		m0moduletypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
@@ -324,6 +331,17 @@ func New(
 	app.EvidenceKeeper = *evidenceKeeper
 
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
+	scopedMibcKeeper := app.CapabilityKeeper.ScopeToModule(mibcmoduletypes.ModuleName)
+	app.ScopedMibcKeeper = scopedMibcKeeper
+	app.MibcKeeper = *mibcmodulekeeper.NewKeeper(
+		appCodec,
+		keys[mibcmoduletypes.StoreKey],
+		keys[mibcmoduletypes.MemStoreKey],
+		app.IBCKeeper.ChannelKeeper,
+		&app.IBCKeeper.PortKeeper,
+		scopedMibcKeeper,
+	)
+	mibcModule := mibcmodule.NewAppModule(appCodec, app.MibcKeeper)
 
 	app.M0Keeper = *m0modulekeeper.NewKeeper(
 		appCodec,
@@ -341,6 +359,7 @@ func New(
 	ibcRouter := porttypes.NewRouter()
 	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferModule)
 	// this line is used by starport scaffolding # ibc/app/router
+	ibcRouter.AddRoute(mibcmoduletypes.ModuleName, mibcModule)
 	app.IBCKeeper.SetRouter(ibcRouter)
 
 	/****  Module Options ****/
@@ -373,6 +392,7 @@ func New(
 		params.NewAppModule(app.ParamsKeeper),
 		transferModule,
 		// this line is used by starport scaffolding # stargate/app/appModule
+		mibcModule,
 		m0Module,
 	)
 
@@ -407,6 +427,7 @@ func New(
 		evidencetypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
+		mibcmoduletypes.ModuleName,
 		m0moduletypes.ModuleName,
 	)
 
@@ -595,6 +616,7 @@ func initParamsKeeper(appCodec codec.BinaryMarshaler, legacyAmino *codec.LegacyA
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
+	paramsKeeper.Subspace(mibcmoduletypes.ModuleName)
 	paramsKeeper.Subspace(m0moduletypes.ModuleName)
 
 	return paramsKeeper

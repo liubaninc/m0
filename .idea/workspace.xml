@@ -1,7 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="d7dce721-c838-48cb-951f-cef72e5016b6" name="Default Changelist" comment="" />
+    <list default="true" id="d7dce721-c838-48cb-951f-cef72e5016b6" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/proto/mibc/genesis.proto" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/proto/mibc/itx.proto" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/proto/mibc/packet.proto" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/proto/mibc/query.proto" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/proto/mibc/tx.proto" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/x/mibc/client/cli/query.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/x/mibc/client/cli/query_itx.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/x/mibc/client/cli/query_itx_test.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/x/mibc/client/cli/tx.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/x/mibc/genesis.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/x/mibc/handler.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/x/mibc/keeper/grpc_query.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/x/mibc/keeper/grpc_query_itx.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/x/mibc/keeper/grpc_query_itx_test.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/x/mibc/keeper/ibc.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/x/mibc/keeper/itx.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/x/mibc/keeper/itx_test.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/x/mibc/keeper/keeper.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/x/mibc/keeper/keeper_test.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/x/mibc/keeper/msg_server.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/x/mibc/keeper/msg_server_test.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/x/mibc/module.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/x/mibc/module_ibc.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/x/mibc/types/codec.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/x/mibc/types/errors.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/x/mibc/types/events_ibc.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/x/mibc/types/expected_keeper_ibc.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/x/mibc/types/genesis.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/x/mibc/types/genesis.pb.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/x/mibc/types/itx.pb.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/x/mibc/types/keys.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/x/mibc/types/packet.pb.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/x/mibc/types/query.pb.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/x/mibc/types/query.pb.gw.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/x/mibc/types/tx.pb.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/x/mibc/types/types.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/app.go" beforeDir="false" afterPath="$PROJECT_DIR$/app/app.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/static/openapi.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docs/static/openapi.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vue/src/store/generated/index.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/vue/src/store/generated/index.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vue/src/store/generated/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/vue/src/store/generated/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vue/src/store/generated/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/vue/src/store/generated/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vue/src/views/Types.vue" beforeDir="false" afterPath="$PROJECT_DIR$/vue/src/views/Types.vue" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

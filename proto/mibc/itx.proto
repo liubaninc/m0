@@ -1,0 +1,15 @@
+syntax = "proto3";
+package liubaninc.m0.mibc;
+
+option go_package = "github.com/liubaninc/m0/x/mibc/types";
+
+import "gogoproto/gogo.proto";
+
+message Itx {
+  string creator = 1;
+  uint64 id = 2;
+  string hash = 3; 
+  bool source = 4; 
+  string chain = 5; 
+  string log = 6; 
+}
