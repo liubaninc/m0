@@ -54,7 +54,7 @@ func (k msgServer) SendIbcUTXO(goCtx context.Context, msg *types.MsgSendIbcUTXO)
 				})
 				iOutputs = append(iOutputs, &types.Output{
 					Addr: output.ToAddr,
-					Denom: output.Amount.Denom,
+					Denom: fullDenomPath,
 					Amount: output.Amount.Amount,
 					FrozenHeight: output.FrozenHeight,
 				})
@@ -67,7 +67,7 @@ func (k msgServer) SendIbcUTXO(goCtx context.Context, msg *types.MsgSendIbcUTXO)
 				// ibc burn
 				iOutputs = append(iOutputs, &types.Output{
 					Addr: output.ToAddr,
-					Denom: output.Amount.Denom,
+					Denom: fullDenomPath,
 					Amount: output.Amount.Amount,
 					FrozenHeight: output.FrozenHeight,
 				})

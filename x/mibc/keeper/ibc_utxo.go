@@ -172,6 +172,9 @@ func (k Keeper) OnRecvIbcUTXOPacket(ctx sdk.Context, packet channeltypes.Packet,
 // OnAcknowledgementIbcUTXOPacket responds to the the success or failure of a packet
 // acknowledgement written on the receiving chain.
 func (k Keeper) OnAcknowledgementIbcUTXOPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcUTXOPacketData, ack channeltypes.Acknowledgement) error {
+	msgOffset := int32(ctx.Context().Value("msg-index").(int))
+	hash := fmt.Sprintf("%X", tmhash.Sum(ctx.TxBytes()))
+
 	switch dispatchedAck := ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Error:
 
@@ -184,7 +187,7 @@ func (k Keeper) OnAcknowledgementIbcUTXOPacket(ctx sdk.Context, packet channelty
 			Source: false,
 			Log: dispatchedAck.Error,
 		})
-		return k.refundPacketToken(ctx, packet, data)
+		return k.refundPacketToken(ctx, packet, data, hash, msgOffset)
 	case *channeltypes.Acknowledgement_Result:
 		// Decode the packet acknowledgment
 		var packetAck types.IbcUTXOPacketAck
@@ -212,20 +215,68 @@ func (k Keeper) OnAcknowledgementIbcUTXOPacket(ctx sdk.Context, packet channelty
 // OnTimeoutIbcUTXOPacket responds to the case where a packet has not been transmitted because of a timeout
 func (k Keeper) OnTimeoutIbcUTXOPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcUTXOPacketData) error {
 	// TODO: packet timeout logic
+	msgOffset := int32(ctx.Context().Value("msg-index").(int))
+	hash := fmt.Sprintf("%X", tmhash.Sum(ctx.TxBytes()))
 	k.AppendItx(ctx, types.Itx{
 		Creator: strings.Join([]string{packet.SourceChannel, packet.SourcePort, data.Creator}, "-"),
 		SourceHash: data.Hash,
 		Source: false,
 		Log: "timeout",
 	})
-	return k.refundPacketToken(ctx, packet, data)
+	return k.refundPacketToken(ctx, packet, data, hash, msgOffset)
 }
 
 // refundPacketToken will unescrow and send back the tokens back to sender
 // if the sending chain was the source chain. Otherwise, the sent tokens
 // were burnt in the original send so new tokens are minted and sent to
 // the sending address.
-func (k Keeper) refundPacketToken(ctx sdk.Context, packet channeltypes.Packet, data types.IbcUTXOPacketData) error {
+func (k Keeper) refundPacketToken(ctx sdk.Context, packet channeltypes.Packet, data types.IbcUTXOPacketData, hash string, msgOffset int32) error {
+	var outputs []*utxotypes.Output
+	escrowAddress := types.GetEscrowAddress(packet.SourcePort, packet.SourceChannel)
+	totalNeeded := sdk.NewCoins()
+	for _, output := range data.Outputs {
+		// parse the denomination from the full denom path
+		trace := types.ParseDenomTrace(output.Denom)
 
+		token := sdk.NewCoin(trace.IBCDenom(), output.Amount)
+		if types.SenderChainIsSource(packet.SourcePort, packet.SourceChannel, output.Denom) {
+			// unescrow tokens back to sender
+			outputs = append(outputs, &utxotypes.Output{
+				ToAddr: data.Creator,
+				Amount: token,
+			})
+			totalNeeded = totalNeeded.Add()
+		} else {
+			// mint vouchers back to sender
+			outputs = append(outputs, &utxotypes.Output{
+				ToAddr: data.Creator,
+				Amount: token,
+			})
+		}
+	}
+
+	var inputs []*utxotypes.Input
+	if !totalNeeded.IsZero() {
+		res, err := k.utxoKeeper.Input(context.Background(), &utxotypes.QueryInputRequest{
+			Address: escrowAddress.String(),
+			Amounts: totalNeeded.String(),
+			Lock:    10,
+		})
+		if err != nil {
+			return err
+		}
+		inputs = append(inputs, res.Inputs...)
+		changeCoins := res.Amount.Sub(totalNeeded)
+		for _, changeCoin := range changeCoins {
+			outputs = append(outputs, &utxotypes.Output{
+				ToAddr: escrowAddress.String(),
+				Amount: changeCoin,
+			})
+		}
+	}
+
+	if err := k.utxoKeeper.Transfer(ctx, hash, msgOffset, escrowAddress.String(), inputs, outputs); err != nil{
+		return err
+	}
 	return nil
 }
