@@ -1,6 +1,7 @@
 syntax = "proto3";
 package liubaninc.m0.mibc;
 
+import "gogoproto/gogo.proto";
 option go_package = "github.com/liubaninc/m0/x/mibc/types";
 
 message MibcPacketData {
@@ -18,11 +19,28 @@ message NoData {
 // IbcUTXOPacketData defines a struct for the packet payload
 message IbcUTXOPacketData {
   string creator = 1;
-  string receiver = 2;
-  string amount = 3;
+  repeated Output outputs = 2;
+  string hash = 3;
 }
 
 // IbcUTXOPacketAck defines a struct for the packet acknowledgment
 message IbcUTXOPacketAck {
 	  string hash = 1;
+}
+
+message Output {
+  string addr = 1;
+  string denom  = 2;
+  string amount = 3 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int", (gogoproto.nullable) = false];
+  int64  frozen_height = 4;
+}
+
+// DenomTrace contains the base denomination for ICS20 fungible tokens and the
+// source tracing information path.
+message DenomTrace {
+  // path defines the chain of port/channel identifiers used for tracing the
+  // source of the fungible token.
+  string path = 1;
+  // base denomination of the relayed fungible token.
+  string base_denom = 2;
 }

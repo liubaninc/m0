@@ -30,7 +30,10 @@ func (m *Input) ValidateBasic() error {
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid input address %s (%s)", m.FromAddr, err)
 	}
-	if m.Amount.IsNegative() {
+	if !m.Amount.IsValid() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, m.Amount.String())
+	}
+	if !m.Amount.IsPositive() {
 		return sdkerrors.Wrapf(ErrNegativeAmount, "invalid input amount %s (%s)", m.Amount, err)
 	}
 	return nil
@@ -44,7 +47,10 @@ func (m *Output) ValidateBasic() error {
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid output address %s (%s)", m.ToAddr, err)
 	}
-	if m.Amount.IsNegative() {
+	if !m.Amount.IsValid() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, m.Amount.String())
+	}
+	if !m.Amount.IsPositive() {
 		return sdkerrors.Wrapf(ErrNegativeAmount, "invalid output amount %s (%s)", m.Amount, err)
 	}
 	return nil

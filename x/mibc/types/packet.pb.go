@@ -5,6 +5,8 @@ package types
 
 import (
 	fmt "fmt"
+	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
+	_ "github.com/gogo/protobuf/gogoproto"
 	proto "github.com/gogo/protobuf/proto"
 	io "io"
 	math "math"
@@ -146,9 +148,9 @@ var xxx_messageInfo_NoData proto.InternalMessageInfo
 // this line is used by starport scaffolding # ibc/packet/proto/message
 // IbcUTXOPacketData defines a struct for the packet payload
 type IbcUTXOPacketData struct {
-	Creator  string `protobuf:"bytes,1,opt,name=creator,proto3" json:"creator,omitempty"`
-	Receiver string `protobuf:"bytes,2,opt,name=receiver,proto3" json:"receiver,omitempty"`
-	Amount   string `protobuf:"bytes,3,opt,name=amount,proto3" json:"amount,omitempty"`
+	Creator string    `protobuf:"bytes,1,opt,name=creator,proto3" json:"creator,omitempty"`
+	Outputs []*Output `protobuf:"bytes,2,rep,name=outputs,proto3" json:"outputs,omitempty"`
+	Hash    string    `protobuf:"bytes,3,opt,name=hash,proto3" json:"hash,omitempty"`
 }
 
 func (m *IbcUTXOPacketData) Reset()         { *m = IbcUTXOPacketData{} }
@@ -191,16 +193,16 @@ func (m *IbcUTXOPacketData) GetCreator() string {
 	return ""
 }
 
-func (m *IbcUTXOPacketData) GetReceiver() string {
+func (m *IbcUTXOPacketData) GetOutputs() []*Output {
 	if m != nil {
-		return m.Receiver
+		return m.Outputs
 	}
-	return ""
+	return nil
 }
 
-func (m *IbcUTXOPacketData) GetAmount() string {
+func (m *IbcUTXOPacketData) GetHash() string {
 	if m != nil {
-		return m.Amount
+		return m.Hash
 	}
 	return ""
 }
@@ -250,35 +252,164 @@ func (m *IbcUTXOPacketAck) GetHash() string {
 	return ""
 }
 
+type Output struct {
+	Addr         string                                 `protobuf:"bytes,1,opt,name=addr,proto3" json:"addr,omitempty"`
+	Denom        string                                 `protobuf:"bytes,2,opt,name=denom,proto3" json:"denom,omitempty"`
+	Amount       github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,3,opt,name=amount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"amount"`
+	FrozenHeight int64                                  `protobuf:"varint,4,opt,name=frozen_height,json=frozenHeight,proto3" json:"frozen_height,omitempty"`
+}
+
+func (m *Output) Reset()         { *m = Output{} }
+func (m *Output) String() string { return proto.CompactTextString(m) }
+func (*Output) ProtoMessage()    {}
+func (*Output) Descriptor() ([]byte, []int) {
+	return fileDescriptor_272ff5e3b75a5e29, []int{4}
+}
+func (m *Output) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *Output) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_Output.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *Output) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Output.Merge(m, src)
+}
+func (m *Output) XXX_Size() int {
+	return m.Size()
+}
+func (m *Output) XXX_DiscardUnknown() {
+	xxx_messageInfo_Output.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Output proto.InternalMessageInfo
+
+func (m *Output) GetAddr() string {
+	if m != nil {
+		return m.Addr
+	}
+	return ""
+}
+
+func (m *Output) GetDenom() string {
+	if m != nil {
+		return m.Denom
+	}
+	return ""
+}
+
+func (m *Output) GetFrozenHeight() int64 {
+	if m != nil {
+		return m.FrozenHeight
+	}
+	return 0
+}
+
+// DenomTrace contains the base denomination for ICS20 fungible tokens and the
+// source tracing information path.
+type DenomTrace struct {
+	// path defines the chain of port/channel identifiers used for tracing the
+	// source of the fungible token.
+	Path string `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`
+	// base denomination of the relayed fungible token.
+	BaseDenom string `protobuf:"bytes,2,opt,name=base_denom,json=baseDenom,proto3" json:"base_denom,omitempty"`
+}
+
+func (m *DenomTrace) Reset()         { *m = DenomTrace{} }
+func (m *DenomTrace) String() string { return proto.CompactTextString(m) }
+func (*DenomTrace) ProtoMessage()    {}
+func (*DenomTrace) Descriptor() ([]byte, []int) {
+	return fileDescriptor_272ff5e3b75a5e29, []int{5}
+}
+func (m *DenomTrace) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *DenomTrace) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_DenomTrace.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *DenomTrace) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DenomTrace.Merge(m, src)
+}
+func (m *DenomTrace) XXX_Size() int {
+	return m.Size()
+}
+func (m *DenomTrace) XXX_DiscardUnknown() {
+	xxx_messageInfo_DenomTrace.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DenomTrace proto.InternalMessageInfo
+
+func (m *DenomTrace) GetPath() string {
+	if m != nil {
+		return m.Path
+	}
+	return ""
+}
+
+func (m *DenomTrace) GetBaseDenom() string {
+	if m != nil {
+		return m.BaseDenom
+	}
+	return ""
+}
+
 func init() {
 	proto.RegisterType((*MibcPacketData)(nil), "liubaninc.m0.mibc.MibcPacketData")
 	proto.RegisterType((*NoData)(nil), "liubaninc.m0.mibc.NoData")
 	proto.RegisterType((*IbcUTXOPacketData)(nil), "liubaninc.m0.mibc.IbcUTXOPacketData")
 	proto.RegisterType((*IbcUTXOPacketAck)(nil), "liubaninc.m0.mibc.IbcUTXOPacketAck")
+	proto.RegisterType((*Output)(nil), "liubaninc.m0.mibc.Output")
+	proto.RegisterType((*DenomTrace)(nil), "liubaninc.m0.mibc.DenomTrace")
 }
 
 func init() { proto.RegisterFile("mibc/packet.proto", fileDescriptor_272ff5e3b75a5e29) }
 
 var fileDescriptor_272ff5e3b75a5e29 = []byte{
-	// 283 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x12, 0xcc, 0xcd, 0x4c, 0x4a,
-	0xd6, 0x2f, 0x48, 0x4c, 0xce, 0x4e, 0x2d, 0xd1, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x12, 0xcc,
-	0xc9, 0x2c, 0x4d, 0x4a, 0xcc, 0xcb, 0xcc, 0x4b, 0xd6, 0xcb, 0x35, 0xd0, 0x03, 0xc9, 0x2b, 0xcd,
-	0x65, 0xe4, 0xe2, 0xf3, 0xcd, 0x4c, 0x4a, 0x0e, 0x00, 0xab, 0x73, 0x49, 0x2c, 0x49, 0x14, 0x32,
-	0xe6, 0x62, 0xcb, 0xcb, 0x07, 0xb1, 0x24, 0x18, 0x15, 0x18, 0x35, 0xb8, 0x8d, 0x24, 0xf5, 0x30,
-	0xb4, 0xe9, 0xf9, 0x81, 0x15, 0x78, 0x30, 0x04, 0x41, 0x95, 0x0a, 0xf9, 0x70, 0xf1, 0x66, 0x26,
-	0x25, 0x87, 0x86, 0x44, 0xf8, 0x43, 0x4c, 0x92, 0x60, 0x02, 0xeb, 0x55, 0xc1, 0xa2, 0xd7, 0x13,
-	0x59, 0x1d, 0xd4, 0x18, 0x54, 0xcd, 0x4e, 0x1c, 0x5c, 0x6c, 0x10, 0x87, 0x2b, 0x71, 0x70, 0xb1,
-	0x41, 0xec, 0x52, 0x4a, 0xe4, 0x12, 0xc4, 0xd0, 0x29, 0x24, 0xc1, 0xc5, 0x9e, 0x5c, 0x94, 0x9a,
-	0x58, 0x92, 0x5f, 0x04, 0x76, 0x2c, 0x67, 0x10, 0x8c, 0x2b, 0x24, 0xc5, 0xc5, 0x51, 0x94, 0x9a,
-	0x9c, 0x9a, 0x59, 0x96, 0x5a, 0x04, 0x76, 0x0b, 0x67, 0x10, 0x9c, 0x2f, 0x24, 0xc6, 0xc5, 0x96,
-	0x98, 0x9b, 0x5f, 0x9a, 0x57, 0x22, 0xc1, 0x0c, 0x96, 0x81, 0xf2, 0x94, 0xd4, 0xb8, 0x04, 0x50,
-	0xac, 0x70, 0x4c, 0xce, 0x16, 0x12, 0xe2, 0x62, 0xc9, 0x48, 0x2c, 0xce, 0x80, 0x1a, 0x0f, 0x66,
-	0x3b, 0xd9, 0x9d, 0x78, 0x24, 0xc7, 0x78, 0xe1, 0x91, 0x1c, 0xe3, 0x83, 0x47, 0x72, 0x8c, 0x13,
-	0x1e, 0xcb, 0x31, 0x5c, 0x78, 0x2c, 0xc7, 0x70, 0xe3, 0xb1, 0x1c, 0x43, 0x94, 0x4a, 0x7a, 0x66,
-	0x49, 0x46, 0x69, 0x92, 0x5e, 0x72, 0x7e, 0xae, 0x3e, 0xdc, 0xe7, 0xfa, 0xb9, 0x06, 0xfa, 0x15,
-	0xfa, 0xe0, 0xe8, 0x28, 0xa9, 0x2c, 0x48, 0x2d, 0x4e, 0x62, 0x03, 0x47, 0x87, 0x31, 0x20, 0x00,
-	0x00, 0xff, 0xff, 0xd5, 0xb4, 0x6e, 0xea, 0xa3, 0x01, 0x00, 0x00,
+	// 425 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x74, 0x52, 0xd1, 0x8a, 0xd3, 0x40,
+	0x14, 0xcd, 0x6c, 0xd7, 0xec, 0xf6, 0xea, 0x8a, 0x1d, 0xf6, 0x21, 0x0a, 0x66, 0x4b, 0x5c, 0x96,
+	0x7d, 0x71, 0xb2, 0xd8, 0x77, 0xc5, 0xb2, 0xc8, 0x16, 0xd4, 0x4a, 0xa8, 0x20, 0xbe, 0x94, 0xc9,
+	0x64, 0x4c, 0x42, 0x4d, 0x26, 0x24, 0x13, 0x51, 0xbf, 0xc2, 0x1f, 0x10, 0x7f, 0xa7, 0x8f, 0x7d,
+	0x14, 0x1f, 0x8a, 0xb4, 0x3f, 0x22, 0x33, 0x93, 0x96, 0x94, 0xba, 0x4f, 0x73, 0xe6, 0xde, 0x73,
+	0xce, 0x3d, 0x77, 0x18, 0xe8, 0x65, 0x69, 0xc8, 0xfc, 0x82, 0xb2, 0x19, 0x97, 0xa4, 0x28, 0x85,
+	0x14, 0xb8, 0xf7, 0x39, 0xad, 0x43, 0x9a, 0xa7, 0x39, 0x23, 0xd9, 0x15, 0x51, 0xfd, 0x47, 0xa7,
+	0xb1, 0x88, 0x85, 0xee, 0xfa, 0x0a, 0x19, 0xa2, 0xf7, 0x13, 0xc1, 0xfd, 0x37, 0x69, 0xc8, 0xde,
+	0x69, 0xf5, 0x35, 0x95, 0x14, 0x0f, 0xc0, 0xce, 0x85, 0x42, 0x0e, 0xea, 0xa3, 0xcb, 0xbb, 0xcf,
+	0x1e, 0x92, 0x3d, 0x33, 0xf2, 0x56, 0x13, 0x6e, 0xac, 0xa0, 0xa1, 0xe2, 0xd7, 0x70, 0x92, 0x86,
+	0xec, 0xfd, 0xe4, 0xc3, 0xd8, 0x38, 0x39, 0x07, 0x5a, 0x7b, 0xfe, 0x1f, 0xed, 0xa8, 0xcd, 0x6b,
+	0x6c, 0x76, 0xc5, 0xc3, 0x63, 0xb0, 0xcd, 0x3a, 0xde, 0x31, 0xd8, 0x66, 0x96, 0xf7, 0x05, 0x7a,
+	0x7b, 0x4a, 0xec, 0xc0, 0x11, 0x2b, 0x39, 0x95, 0xa2, 0xd4, 0x61, 0xbb, 0xc1, 0xe6, 0x8a, 0x07,
+	0x70, 0x24, 0x6a, 0x59, 0xd4, 0xb2, 0x72, 0x0e, 0xfa, 0x9d, 0x5b, 0xd6, 0x18, 0x6b, 0x46, 0xb0,
+	0x61, 0x62, 0x0c, 0x87, 0x09, 0xad, 0x12, 0xa7, 0xa3, 0xbd, 0x34, 0xf6, 0x2e, 0xe0, 0xc1, 0xce,
+	0xdc, 0x97, 0x6c, 0xb6, 0xe5, 0xa1, 0x16, 0xef, 0x17, 0x02, 0xdb, 0xf8, 0xa9, 0x36, 0x8d, 0xa2,
+	0x4d, 0x24, 0x8d, 0xf1, 0x29, 0xdc, 0x89, 0x78, 0x2e, 0x32, 0xfd, 0x30, 0xdd, 0xc0, 0x5c, 0xf0,
+	0x2b, 0xb0, 0x69, 0x26, 0xea, 0x5c, 0x9a, 0x91, 0x43, 0x32, 0x5f, 0x9e, 0x59, 0x7f, 0x96, 0x67,
+	0x17, 0x71, 0x2a, 0x93, 0x3a, 0x24, 0x4c, 0x64, 0x3e, 0x13, 0x55, 0x26, 0xaa, 0xe6, 0x78, 0x5a,
+	0x45, 0x33, 0x5f, 0x7e, 0x2b, 0x78, 0x45, 0x46, 0xb9, 0x0c, 0x1a, 0x35, 0x7e, 0x02, 0x27, 0x9f,
+	0x4a, 0xf1, 0x9d, 0xe7, 0xd3, 0x84, 0xa7, 0x71, 0x22, 0x9d, 0xc3, 0x3e, 0xba, 0xec, 0x04, 0xf7,
+	0x4c, 0xf1, 0x46, 0xd7, 0xbc, 0x17, 0x00, 0xd7, 0x6a, 0xea, 0xa4, 0xa4, 0x8c, 0xab, 0x90, 0x05,
+	0x95, 0xdb, 0x1d, 0x14, 0xc6, 0x8f, 0x01, 0x42, 0x5a, 0xf1, 0x69, 0x3b, 0x69, 0x57, 0x55, 0xb4,
+	0x6e, 0xf8, 0x7c, 0xbe, 0x72, 0xd1, 0x62, 0xe5, 0xa2, 0xbf, 0x2b, 0x17, 0xfd, 0x58, 0xbb, 0xd6,
+	0x62, 0xed, 0x5a, 0xbf, 0xd7, 0xae, 0xf5, 0xf1, 0xbc, 0x95, 0x77, 0xfb, 0xcc, 0x7e, 0x76, 0xe5,
+	0x7f, 0xf5, 0xf5, 0xe7, 0xd4, 0x89, 0x43, 0x5b, 0xff, 0xb9, 0xc1, 0xbf, 0x00, 0x00, 0x00, 0xff,
+	0xff, 0x3b, 0x3b, 0xe5, 0x1d, 0xb1, 0x02, 0x00, 0x00,
 }
 
 func (m *MibcPacketData) Marshal() (dAtA []byte, err error) {
@@ -398,19 +529,26 @@ func (m *IbcUTXOPacketData) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if len(m.Amount) > 0 {
-		i -= len(m.Amount)
-		copy(dAtA[i:], m.Amount)
-		i = encodeVarintPacket(dAtA, i, uint64(len(m.Amount)))
+	if len(m.Hash) > 0 {
+		i -= len(m.Hash)
+		copy(dAtA[i:], m.Hash)
+		i = encodeVarintPacket(dAtA, i, uint64(len(m.Hash)))
 		i--
 		dAtA[i] = 0x1a
 	}
-	if len(m.Receiver) > 0 {
-		i -= len(m.Receiver)
-		copy(dAtA[i:], m.Receiver)
-		i = encodeVarintPacket(dAtA, i, uint64(len(m.Receiver)))
-		i--
-		dAtA[i] = 0x12
+	if len(m.Outputs) > 0 {
+		for iNdEx := len(m.Outputs) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Outputs[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintPacket(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x12
+		}
 	}
 	if len(m.Creator) > 0 {
 		i -= len(m.Creator)
@@ -446,6 +584,95 @@ func (m *IbcUTXOPacketAck) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i -= len(m.Hash)
 		copy(dAtA[i:], m.Hash)
 		i = encodeVarintPacket(dAtA, i, uint64(len(m.Hash)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *Output) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *Output) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Output) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.FrozenHeight != 0 {
+		i = encodeVarintPacket(dAtA, i, uint64(m.FrozenHeight))
+		i--
+		dAtA[i] = 0x20
+	}
+	{
+		size := m.Amount.Size()
+		i -= size
+		if _, err := m.Amount.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintPacket(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x1a
+	if len(m.Denom) > 0 {
+		i -= len(m.Denom)
+		copy(dAtA[i:], m.Denom)
+		i = encodeVarintPacket(dAtA, i, uint64(len(m.Denom)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Addr) > 0 {
+		i -= len(m.Addr)
+		copy(dAtA[i:], m.Addr)
+		i = encodeVarintPacket(dAtA, i, uint64(len(m.Addr)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *DenomTrace) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *DenomTrace) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *DenomTrace) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.BaseDenom) > 0 {
+		i -= len(m.BaseDenom)
+		copy(dAtA[i:], m.BaseDenom)
+		i = encodeVarintPacket(dAtA, i, uint64(len(m.BaseDenom)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Path) > 0 {
+		i -= len(m.Path)
+		copy(dAtA[i:], m.Path)
+		i = encodeVarintPacket(dAtA, i, uint64(len(m.Path)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -518,11 +745,13 @@ func (m *IbcUTXOPacketData) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovPacket(uint64(l))
 	}
-	l = len(m.Receiver)
-	if l > 0 {
-		n += 1 + l + sovPacket(uint64(l))
+	if len(m.Outputs) > 0 {
+		for _, e := range m.Outputs {
+			l = e.Size()
+			n += 1 + l + sovPacket(uint64(l))
+		}
 	}
-	l = len(m.Amount)
+	l = len(m.Hash)
 	if l > 0 {
 		n += 1 + l + sovPacket(uint64(l))
 	}
@@ -536,6 +765,45 @@ func (m *IbcUTXOPacketAck) Size() (n int) {
 	var l int
 	_ = l
 	l = len(m.Hash)
+	if l > 0 {
+		n += 1 + l + sovPacket(uint64(l))
+	}
+	return n
+}
+
+func (m *Output) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Addr)
+	if l > 0 {
+		n += 1 + l + sovPacket(uint64(l))
+	}
+	l = len(m.Denom)
+	if l > 0 {
+		n += 1 + l + sovPacket(uint64(l))
+	}
+	l = m.Amount.Size()
+	n += 1 + l + sovPacket(uint64(l))
+	if m.FrozenHeight != 0 {
+		n += 1 + sovPacket(uint64(m.FrozenHeight))
+	}
+	return n
+}
+
+func (m *DenomTrace) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Path)
+	if l > 0 {
+		n += 1 + l + sovPacket(uint64(l))
+	}
+	l = len(m.BaseDenom)
 	if l > 0 {
 		n += 1 + l + sovPacket(uint64(l))
 	}
@@ -781,9 +1049,9 @@ func (m *IbcUTXOPacketData) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Receiver", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Outputs", wireType)
 			}
-			var stringLen uint64
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowPacket
@@ -793,27 +1061,29 @@ func (m *IbcUTXOPacketData) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
+			if msglen < 0 {
 				return ErrInvalidLengthPacket
 			}
-			postIndex := iNdEx + intStringLen
+			postIndex := iNdEx + msglen
 			if postIndex < 0 {
 				return ErrInvalidLengthPacket
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Receiver = string(dAtA[iNdEx:postIndex])
+			m.Outputs = append(m.Outputs, &Output{})
+			if err := m.Outputs[len(m.Outputs)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
 			iNdEx = postIndex
 		case 3:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Hash", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -841,7 +1111,7 @@ func (m *IbcUTXOPacketData) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Amount = string(dAtA[iNdEx:postIndex])
+			m.Hash = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -924,6 +1194,287 @@ func (m *IbcUTXOPacketAck) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.Hash = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipPacket(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthPacket
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *Output) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowPacket
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: Output: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: Output: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Addr", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPacket
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthPacket
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthPacket
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Addr = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Denom", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPacket
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthPacket
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthPacket
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Denom = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPacket
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthPacket
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthPacket
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Amount.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field FrozenHeight", wireType)
+			}
+			m.FrozenHeight = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPacket
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.FrozenHeight |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipPacket(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthPacket
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *DenomTrace) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowPacket
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: DenomTrace: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: DenomTrace: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Path", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPacket
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthPacket
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthPacket
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Path = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field BaseDenom", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPacket
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthPacket
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthPacket
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.BaseDenom = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	utxokeeper "github.com/liubaninc/m0/x/utxo/keeper"
 
 	"github.com/tendermint/tendermint/libs/log"
 
@@ -19,6 +20,7 @@ type (
 		channelKeeper types.ChannelKeeper
 		portKeeper    types.PortKeeper
 		scopedKeeper  types.ScopedKeeper
+		utxoKeeper    utxokeeper.Keeper
 	}
 )
 
@@ -29,6 +31,7 @@ func NewKeeper(
 	channelKeeper types.ChannelKeeper,
 	portKeeper types.PortKeeper,
 	scopedKeeper types.ScopedKeeper,
+	utxoKeeper utxokeeper.Keeper,
 ) *Keeper {
 	return &Keeper{
 		cdc:           cdc,
@@ -37,6 +40,7 @@ func NewKeeper(
 		channelKeeper: channelKeeper,
 		portKeeper:    portKeeper,
 		scopedKeeper:  scopedKeeper,
+		utxoKeeper:    utxoKeeper,
 	}
 }
 

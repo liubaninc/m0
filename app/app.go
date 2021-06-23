@@ -86,15 +86,15 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	// this line is used by starport scaffolding # stargate/app/moduleImport
+	mibcmodule "github.com/liubaninc/m0/x/mibc"
+	mibcmodulekeeper "github.com/liubaninc/m0/x/mibc/keeper"
+	mibcmoduletypes "github.com/liubaninc/m0/x/mibc/types"
 	"github.com/liubaninc/m0/x/utxo"
 	utxokeeper "github.com/liubaninc/m0/x/utxo/keeper"
 	utxotypes "github.com/liubaninc/m0/x/utxo/types"
 	"github.com/liubaninc/m0/x/wasm"
 	wasmkeeper "github.com/liubaninc/m0/x/wasm/keeper"
 	wasmtypes "github.com/liubaninc/m0/x/wasm/types"
-	mibcmodule "github.com/liubaninc/m0/x/mibc"
-	mibcmodulekeeper "github.com/liubaninc/m0/x/mibc/keeper"
-	mibcmoduletypes "github.com/liubaninc/m0/x/mibc/types"
 )
 
 const Name = "m0"
@@ -271,17 +271,7 @@ func New(
 	// grant capabilities for the ibc and ibc-transfer modules
 	scopedIBCKeeper := app.CapabilityKeeper.ScopeToModule(ibchost.ModuleName)
 	scopedTransferKeeper := app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
-
-	app.ScopedMibcKeeper = app.CapabilityKeeper.ScopeToModule(mibcmoduletypes.ModuleName)
-	app.MibcKeeper = *mibcmodulekeeper.NewKeeper(
-		appCodec,
-		keys[mibcmoduletypes.StoreKey],
-		keys[mibcmoduletypes.MemStoreKey],
-		app.IBCKeeper.ChannelKeeper,
-		&app.IBCKeeper.PortKeeper,
-		app.ScopedMibcKeeper,
-	)
-	mibcModule := mibcmodule.NewAppModule(appCodec, app.MibcKeeper)
+	scopedMibcKeeper := app.CapabilityKeeper.ScopeToModule(mibcmoduletypes.ModuleName)
 
 	// add keepers
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
@@ -364,6 +354,17 @@ func New(
 		app.BankKeeper,
 	)
 	utxoModule := utxo.NewAppModule(appCodec, app.utxoKeeper)
+
+	app.MibcKeeper = *mibcmodulekeeper.NewKeeper(
+		appCodec,
+		keys[mibcmoduletypes.StoreKey],
+		keys[mibcmoduletypes.MemStoreKey],
+		app.IBCKeeper.ChannelKeeper,
+		&app.IBCKeeper.PortKeeper,
+		scopedMibcKeeper,
+		app.utxoKeeper,
+	)
+	mibcModule := mibcmodule.NewAppModule(appCodec, app.MibcKeeper)
 
 	app.GovKeeper = govkeeper.NewKeeper(
 		appCodec, keys[govtypes.StoreKey], app.GetSubspace(govtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
@@ -485,6 +486,7 @@ func New(
 
 	app.ScopedIBCKeeper = scopedIBCKeeper
 	app.ScopedTransferKeeper = scopedTransferKeeper
+	app.ScopedMibcKeeper = scopedMibcKeeper
 
 	return app
 }

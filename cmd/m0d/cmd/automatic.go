@@ -117,14 +117,13 @@ func automaticCommand() *cobra.Command {
 				WithFromAddress(info.GetAddress()).
 				WithFromName(rid)
 
-
 			utxoQueryClient := utxotypes.NewQueryClient(clientCtx)
 			wasmQueryClient := wasmtypes.NewQueryClient(clientCtx)
 			for i := 0; i < 10; i++ {
 				res, err := utxoQueryClient.Input(context.Background(), &utxotypes.QueryInputRequest{
 					Address: clientCtx.GetFromAddress().String(),
-					Amounts: "10"+denom,
-					Lock: 0,
+					Amounts: "10" + denom,
+					Lock:    0,
 				})
 				if err == nil && len(res.Inputs) > 0 {
 					break
