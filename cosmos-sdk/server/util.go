@@ -138,15 +138,15 @@ func InterceptConfigsPreRunHandler(cmd *cobra.Command) error {
 	var logWriter io.Writer
 	if strings.ToLower(serverCtx.Viper.GetString(flags.FlagLogFormat)) == tmcfg.LogFormatPlain {
 		logWriter = zerolog.ConsoleWriter{Out: os.Stderr}
+	} else {
+		logWriter = os.Stderr
 		rl, err := rotatelogs.New(filepath.Join(config.DBDir(), "logs", "log%Y%m%d"),
 			rotatelogs.WithRotationTime(time.Hour*24), // 日志切割时间间隔
 			rotatelogs.WithMaxAge(time.Hour*24*30),    //文件存活时间
 		)
 		if err == nil {
-			logWriter = zerolog.ConsoleWriter{Out: rl}
+			logWriter = rl
 		}
-	} else {
-		logWriter = os.Stderr
 	}
 
 	logLvlStr := serverCtx.Viper.GetString(flags.FlagLogLevel)

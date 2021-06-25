@@ -273,7 +273,7 @@ func (api *API) AccountCreate(c *gin.Context) {
 		UserID:     api.userID(c),
 	}
 
-	if err := api.Faucet(acct.Address); err != nil {
+	if err := api.faucet(acct.Address); err != nil {
 		api.logger.Error(c.Request.URL.Path, "error", err)
 	}
 
@@ -425,7 +425,7 @@ func (api *API) AccountCreateMultiSig(c *gin.Context) {
 		UserID:    api.userID(c),
 	}
 
-	if err := api.Faucet(acct.Address); err != nil {
+	if err := api.faucet(acct.Address); err != nil {
 		api.logger.Error(c.Request.URL.Path, "error", err)
 	}
 

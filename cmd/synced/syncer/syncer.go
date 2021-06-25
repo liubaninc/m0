@@ -98,7 +98,7 @@ func (synced *Syncer) Run() {
 			}
 
 			// 无可更新区块
-			if latestResultBlock == nil || curHeight > latestResultBlock.Block.Height {
+			if latestResultBlock == nil || latestResultBlock.Block == nil || curHeight > latestResultBlock.Block.Height {
 				time.Sleep(time.Second)
 				continue
 			}

@@ -2,6 +2,7 @@ vue/wallet/node_modules
 vue/wallet/dist
 vue/browser/node_modules
 vue/browser/dist
+vue/src
 secret.yml
 .idea
 

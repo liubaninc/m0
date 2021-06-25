@@ -8,6 +8,5 @@ message Itx {
   uint64 id = 2;
   string sourceHash = 3;
   string destinationHash = 4;
-  bool source = 5;
   string log = 6;
 }

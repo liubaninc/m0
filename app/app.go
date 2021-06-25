@@ -271,7 +271,6 @@ func New(
 	// grant capabilities for the ibc and ibc-transfer modules
 	scopedIBCKeeper := app.CapabilityKeeper.ScopeToModule(ibchost.ModuleName)
 	scopedTransferKeeper := app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
-	scopedMibcKeeper := app.CapabilityKeeper.ScopeToModule(mibcmoduletypes.ModuleName)
 
 	// add keepers
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
@@ -355,6 +354,8 @@ func New(
 	)
 	utxoModule := utxo.NewAppModule(appCodec, app.utxoKeeper)
 
+	scopedMibcKeeper := app.CapabilityKeeper.ScopeToModule(mibcmoduletypes.ModuleName)
+	app.ScopedMibcKeeper = scopedMibcKeeper
 	app.MibcKeeper = *mibcmodulekeeper.NewKeeper(
 		appCodec,
 		keys[mibcmoduletypes.StoreKey],
@@ -485,8 +486,6 @@ func New(
 	}
 
 	app.ScopedIBCKeeper = scopedIBCKeeper
-	app.ScopedTransferKeeper = scopedTransferKeeper
-	app.ScopedMibcKeeper = scopedMibcKeeper
 
 	return app
 }

@@ -13,6 +13,7 @@ import (
 	utxotypes "github.com/liubaninc/m0/x/utxo/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	"strings"
+	"time"
 )
 
 // TransmitIbcUTXOPacket transmits the packet over IBC with the specified source port and source channel
@@ -80,6 +81,10 @@ func (k Keeper) OnRecvIbcUTXOPacket(ctx sdk.Context, packet channeltypes.Packet,
 	// TODO: packet reception logic
 	msgOffset := int32(ctx.Context().Value("msg-index").(int))
 	hash := fmt.Sprintf("%X", tmhash.Sum(ctx.TxBytes()))
+	t := time.Now()
+	defer func() {
+		k.Logger(ctx).Debug("handler", "mibc", "utxo recv", "hash", hash, "index", msgOffset, "elapsed", time.Now().Sub(t).String())
+	}()
 	escrowAddress := types.GetEscrowAddress(packet.GetDestPort(), packet.GetDestChannel())
 	var outputs []*utxotypes.Output
 	totalNeeded := sdk.NewCoins()
@@ -103,8 +108,8 @@ func (k Keeper) OnRecvIbcUTXOPacket(ctx sdk.Context, packet channeltypes.Packet,
 			token := sdk.NewCoin(denom, output.Amount)
 
 			outputs = append(outputs, &utxotypes.Output{
-				ToAddr: output.Addr,
-				Amount: token,
+				ToAddr:       output.Addr,
+				Amount:       token,
 				FrozenHeight: output.FrozenHeight,
 			})
 			totalNeeded = totalNeeded.Add(token)
@@ -127,8 +132,8 @@ func (k Keeper) OnRecvIbcUTXOPacket(ctx sdk.Context, packet channeltypes.Packet,
 			voucher := sdk.NewCoin(voucherDenom, output.Amount)
 
 			outputs = append(outputs, &utxotypes.Output{
-				ToAddr: output.Addr,
-				Amount: voucher,
+				ToAddr:       output.Addr,
+				Amount:       voucher,
 				FrozenHeight: output.FrozenHeight,
 			})
 		}
@@ -154,15 +159,14 @@ func (k Keeper) OnRecvIbcUTXOPacket(ctx sdk.Context, packet channeltypes.Packet,
 		}
 	}
 
-	if err := k.utxoKeeper.Transfer(ctx, hash, msgOffset, escrowAddress.String(), inputs, outputs); err != nil{
+	if err := k.utxoKeeper.Transfer(ctx, hash, msgOffset, escrowAddress.String(), inputs, outputs); err != nil {
 		return packetAck, err
 	}
 
 	k.AppendItx(ctx, types.Itx{
-		Creator: strings.Join([]string{packet.SourceChannel, packet.SourcePort, data.Creator}, "-"),
-		SourceHash: data.Hash,
+		Creator:         strings.Join([]string{packet.SourceChannel, packet.SourcePort, data.Creator}, "-"),
+		SourceHash:      data.Hash,
 		DestinationHash: hash,
-		Source: false,
 	})
 
 	packetAck.Hash = hash
@@ -174,7 +178,10 @@ func (k Keeper) OnRecvIbcUTXOPacket(ctx sdk.Context, packet channeltypes.Packet,
 func (k Keeper) OnAcknowledgementIbcUTXOPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcUTXOPacketData, ack channeltypes.Acknowledgement) error {
 	msgOffset := int32(ctx.Context().Value("msg-index").(int))
 	hash := fmt.Sprintf("%X", tmhash.Sum(ctx.TxBytes()))
-
+	t := time.Now()
+	defer func() {
+		k.Logger(ctx).Debug("handler", "mibc", "utxo ack", "hash", hash, "index", msgOffset, "elapsed", time.Now().Sub(t).String())
+	}()
 	switch dispatchedAck := ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Error:
 
@@ -182,10 +189,10 @@ func (k Keeper) OnAcknowledgementIbcUTXOPacket(ctx sdk.Context, packet channelty
 		_ = dispatchedAck.Error
 
 		k.AppendItx(ctx, types.Itx{
-			Creator: strings.Join([]string{packet.SourceChannel, packet.SourcePort, data.Creator}, "-"),
-			SourceHash: data.Hash,
-			Source: false,
-			Log: dispatchedAck.Error,
+			Creator:         data.Creator,
+			SourceHash:      data.Hash,
+			DestinationHash: hash,
+			Log:             "ack: " + dispatchedAck.Error,
 		})
 		return k.refundPacketToken(ctx, packet, data, hash, msgOffset)
 	case *channeltypes.Acknowledgement_Result:
@@ -199,10 +206,9 @@ func (k Keeper) OnAcknowledgementIbcUTXOPacket(ctx sdk.Context, packet channelty
 
 		// TODO: successful acknowledgement logic
 		k.AppendItx(ctx, types.Itx{
-			Creator: strings.Join([]string{packet.SourceChannel, packet.SourcePort, data.Creator}, "-"),
-			SourceHash: data.Hash,
+			Creator:         data.Creator,
+			SourceHash:      data.Hash,
 			DestinationHash: packetAck.Hash,
-			Source: false,
 		})
 
 		return nil
@@ -217,11 +223,15 @@ func (k Keeper) OnTimeoutIbcUTXOPacket(ctx sdk.Context, packet channeltypes.Pack
 	// TODO: packet timeout logic
 	msgOffset := int32(ctx.Context().Value("msg-index").(int))
 	hash := fmt.Sprintf("%X", tmhash.Sum(ctx.TxBytes()))
+	t := time.Now()
+	defer func() {
+		k.Logger(ctx).Debug("handler", "mibc", "utxo ack timeout", "hash", hash, "index", msgOffset, "elapsed", time.Now().Sub(t).String())
+	}()
 	k.AppendItx(ctx, types.Itx{
-		Creator: strings.Join([]string{packet.SourceChannel, packet.SourcePort, data.Creator}, "-"),
-		SourceHash: data.Hash,
-		Source: false,
-		Log: "timeout",
+		Creator:         data.Creator,
+		SourceHash:      data.Hash,
+		DestinationHash: hash,
+		Log:             "ack: " + "timeout",
 	})
 	return k.refundPacketToken(ctx, packet, data, hash, msgOffset)
 }
@@ -245,7 +255,7 @@ func (k Keeper) refundPacketToken(ctx sdk.Context, packet channeltypes.Packet, d
 				ToAddr: data.Creator,
 				Amount: token,
 			})
-			totalNeeded = totalNeeded.Add()
+			totalNeeded = totalNeeded.Add(token)
 		} else {
 			// mint vouchers back to sender
 			outputs = append(outputs, &utxotypes.Output{
@@ -274,8 +284,7 @@ func (k Keeper) refundPacketToken(ctx sdk.Context, packet channeltypes.Packet, d
 			})
 		}
 	}
-
-	if err := k.utxoKeeper.Transfer(ctx, hash, msgOffset, escrowAddress.String(), inputs, outputs); err != nil{
+	if err := k.utxoKeeper.Transfer(ctx, hash, msgOffset, escrowAddress.String(), inputs, outputs); err != nil {
 		return err
 	}
 	return nil

@@ -521,7 +521,25 @@ func (api *API) getAccount(c *gin.Context, name string, usrID uint) *model.Accou
 	return &acct
 }
 
-func (api *API) Faucet(address string) error {
+func (api *API) Faucet(c *gin.Context) {
+	response := &Response{
+		Code: OKCode,
+		Msg:  OKMsg,
+	}
+
+	addr := c.Param("address")
+	if err := api.faucet(addr); err != nil {
+		response.Code = ExecuteCode
+		response.Msg = "faucet failed"
+		response.Detail = err.Error()
+		api.logger.Error(c.Request.URL.Path, "error", response.Detail)
+		c.JSON(http.StatusOK, response)
+		return
+	}
+	c.JSON(http.StatusOK, response)
+}
+
+func (api *API) faucet(address string) error {
 	info, err := api.client.Keyring.Key("faucet")
 	if err != nil {
 		panic(err)

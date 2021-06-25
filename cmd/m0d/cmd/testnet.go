@@ -105,10 +105,11 @@ Example:
 			if len(ips) == 0 {
 				ips = make([]string, numValidators)
 				for i := 0; i < numValidators; i++ {
-					ips[i], err = getIP(i, startingIPAddress)
+					ip, err := getIP(i, startingIPAddress)
 					if err != nil {
 						return err
 					}
+					ips[i] = ip + ":26656"
 				}
 			}
 			if n := len(ips); n != numValidators {
@@ -227,7 +228,7 @@ func InitTestnet(
 			return err
 		}
 
-		memo := fmt.Sprintf("%s@%s:26656", nodeIDs[i], ip)
+		memo := fmt.Sprintf("%s@%s", nodeIDs[i], ip)
 		genFiles = append(genFiles, nodeConfig.GenesisFile())
 
 		kb, err := keyring.New(sdk.KeyringServiceName(), keyringBackend, nodeDir, inBuf)

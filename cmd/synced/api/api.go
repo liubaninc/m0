@@ -54,6 +54,7 @@ func (api *API) Run(port int) {
 	router.MaxMultipartMemory = 8 << 20 // 8 MiB
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	v1 := router.Group("/api")
+	v1.GET("/faucet/:address", api.Faucet)
 	v1.GET("/search/:content", api.GetSearch)
 	v1.GET("/charts", api.GetCharts)
 	v1.GET("/peers", api.GetPeers)

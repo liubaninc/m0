@@ -25,10 +25,9 @@ func (k msgServer) SendIbcUTXO(goCtx context.Context, msg *types.MsgSendIbcUTXO)
 		k.Logger(ctx).Debug("handler", "route", msg.Route(), "msg", msg.Type(), "hash", hash, "index", msgOffset, "elapsed", time.Now().Sub(t).String())
 	}()
 
-	feeAddr := authtypes.NewModuleAddress(authtypes.FeeCollectorName).String()
-
 	var outputs []*utxotypes.Output
 	var iOutputs []*types.Output
+	feeAddr := authtypes.NewModuleAddress(authtypes.FeeCollectorName).String()
 	escrowAddress := types.GetEscrowAddress(msg.Port, msg.ChannelID)
 	for _, output := range msg.Outputs {
 		fullDenomPath := output.Amount.Denom
@@ -53,9 +52,9 @@ func (k msgServer) SendIbcUTXO(goCtx context.Context, msg *types.MsgSendIbcUTXO)
 					Amount: output.Amount,
 				})
 				iOutputs = append(iOutputs, &types.Output{
-					Addr: output.ToAddr,
-					Denom: fullDenomPath,
-					Amount: output.Amount.Amount,
+					Addr:         output.ToAddr,
+					Denom:        fullDenomPath,
+					Amount:       output.Amount.Amount,
 					FrozenHeight: output.FrozenHeight,
 				})
 			}
@@ -66,15 +65,15 @@ func (k msgServer) SendIbcUTXO(goCtx context.Context, msg *types.MsgSendIbcUTXO)
 			} else {
 				// ibc burn
 				iOutputs = append(iOutputs, &types.Output{
-					Addr: output.ToAddr,
-					Denom: fullDenomPath,
-					Amount: output.Amount.Amount,
+					Addr:         output.ToAddr,
+					Denom:        fullDenomPath,
+					Amount:       output.Amount.Amount,
 					FrozenHeight: output.FrozenHeight,
 				})
 			}
 		}
 	}
-	if err := k.utxoKeeper.Transfer(ctx, hash, msgOffset, msg.Sender, msg.Inputs, outputs); err != nil{
+	if err := k.utxoKeeper.Transfer(ctx, hash, msgOffset, msg.Sender, msg.Inputs, outputs); err != nil {
 		return nil, err
 	}
 
@@ -83,6 +82,7 @@ func (k msgServer) SendIbcUTXO(goCtx context.Context, msg *types.MsgSendIbcUTXO)
 
 	packet.Creator = msg.Sender
 	packet.Outputs = iOutputs
+	packet.Hash = hash
 
 	// Transmit the packet
 	err := k.TransmitIbcUTXOPacket(
