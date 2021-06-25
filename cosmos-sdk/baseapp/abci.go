@@ -565,6 +565,7 @@ func (app *BaseApp) handleQueryGRPC(handler GRPCQueryHandler, req abci.RequestQu
 		res.Height = req.Height
 		return res
 	}
+	app.cms.Commit()
 
 	return res
 }

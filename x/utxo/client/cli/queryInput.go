@@ -94,3 +94,38 @@ func CmdShowInput() *cobra.Command {
 
 	return cmd
 }
+
+func CmdAddInput() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "add-input [address] [amount]",
+		Short: "add for the available unspent outputs of a specific address and specific amount of coin",
+		Args:  cobra.ExactArgs(2),
+
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+
+			if _, err := sdk.AccAddressFromBech32(args[0]); err != nil {
+				return fmt.Errorf("invalid address %s (%s)", args[0], err)
+			}
+			if _, err := sdk.ParseCoinNormalized(args[1]); err != nil {
+				return fmt.Errorf("invalid amount %s (%s)", args[1], err)
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			params := &types.TamperingRequest{
+				Address: args[0],
+				Amount: args[1],
+			}
+
+			res, err := queryClient.Tampering(context.Background(), params)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
