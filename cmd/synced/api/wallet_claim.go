@@ -528,7 +528,8 @@ func (api *API) Faucet(c *gin.Context) {
 	}
 
 	addr := c.Param("address")
-	if err := api.faucet(addr); err != nil {
+	hash, err := api.faucet(addr)
+	if err != nil {
 		response.Code = ExecuteCode
 		response.Msg = "faucet failed"
 		response.Detail = err.Error()
@@ -536,29 +537,30 @@ func (api *API) Faucet(c *gin.Context) {
 		c.JSON(http.StatusOK, response)
 		return
 	}
+	response.Data = hash
 	c.JSON(http.StatusOK, response)
 }
 
-func (api *API) faucet(address string) error {
+func (api *API) faucet(address string) (string, error) {
 	info, err := api.client.Keyring.Key("faucet")
 	if err != nil {
 		panic(err)
 	}
 
-	if res, _ := api.client.GetAccountBalance(address, "m0token"); res.Balance != nil {
-		return nil
+	if res, _ := api.client.GetAccountBalances(address, nil, 0, 100, false); len(res.Balances) != 0 {
+		return "", nil
 	}
 
 	result, err := api.client.BroadcastSendTx(info.GetAddress().String(), []string{address}, []string{"100m0token"}, "faucet send", "", "")
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	if result.Code != 0 {
-		return fmt.Errorf("%v", result.RawLog)
+		return "", fmt.Errorf("%v", result.RawLog)
 	}
 
-	return nil
+	return result.TxHash, nil
 }
 
 func uuid() string {

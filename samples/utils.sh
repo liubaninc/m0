@@ -16,7 +16,7 @@ function printHelp() {
     println "    -key <node key> - 节点私钥助记词"
     println "    -seeds <seeds> - 种子节点列表 ID@host:port,ID@host:port"
     println "    -seed - 节点启动种子模式"
-    println "    -unsync - 启动同步程序，开启浏览器、钱包服务"
+    println "    -sync - 启动同步程序，开启浏览器、钱包服务"
     println "    -automatic - 启动自动发送交易"
     println "    -output <directory> - 结果输出目录(默认当前目录)"
     println
@@ -36,7 +36,7 @@ function printHelp() {
     println "    -seeds <seeds> - 种子节点列表 ID@host:port,ID@host:port"
     println "    -seed - 节点启动种子模式"
     println "    -node <node rpc> - 可访问的节点RPC"
-    println "    -unsync - 启动同步程序，开启浏览器、钱包服务"
+    println "    -sync - 启动同步程序，开启浏览器、钱包服务"
     println "    -automatic - 启动自动发送交易"
     println "    -output <directory> - 结果输出目录(默认当前目录)"
     println

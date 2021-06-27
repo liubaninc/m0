@@ -55,12 +55,19 @@ services:
         # wget http://NODERPC/net_info -q
         fi
 
+        nohup m0d start > m0.log 2>&1 &
+        
+        export WAIT_HOSTS=127.0.0.1:26657
+        /wait
         if [ SYNCED ];then
           nginx -g "daemon off;" &
-          export 
           nohup synced start  > synced.log 2>&1 &
         fi
-        m0d start
+        if [ AUTOMATIC ];then
+          m0d automatic  > automatic.log 2>&1 &
+        fi
+
+        tail -f m0.log
     volumes:
       - data-CHAINID:/var/tq/production
     ports:
@@ -70,7 +77,7 @@ services:
       - 26657 # RPC(HTTP)
       - 26660 # prometheus (HTTP)
       #- 6060 # pprof 
-      #- 8080 # synced
+      - 8080 # synced
       - 8086 # wallet
       - 8088 # browser
     networks:

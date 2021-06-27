@@ -17,7 +17,8 @@ VALIDATORS_KEY="$mnemonic"
 NODE_KEY="$mnemonic"
 SEEDS=
 SEED_MODE=false
-SYNCED=true
+SYNCED=false
+AUTOMATIC=false
 NODE_RPC=
 
 function nodeFirst() {
@@ -38,6 +39,7 @@ function nodeFirst() {
   sed -i '' "s/SEEDMODE/${SEED_MODE}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
   sed -i '' "s/NODERPC/${NODE_RPC}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
   sed -i '' "s/SYNCED/${SYNCED}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
+  sed -i '' "s/AUTOMATIC/${AUTOMATIC}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
 }
 
 function nodeMore() {
@@ -65,6 +67,7 @@ function nodeMore() {
   sed -i '' "s/SEEDMODE/${SEED_MODE}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
   sed -i '' "s/NODERPC/${NODE_RPC}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
   sed -i '' "s/SYNCED/${SYNCED}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
+  sed -i '' "s/AUTOMATIC/${AUTOMATIC}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
 }
 
 ## Parse mode
@@ -130,8 +133,11 @@ while [[ $# -ge 1 ]] ; do
   -seed )
     SEED_MODE=true
     ;;
-  -unsync )
-    SYNCED=false
+  -sync )
+    SYNCED=true
+    ;;
+  -automatic )
+    AUTOMATIC=true
     ;;
   * )
     errorln "Unknown flag: $key"
