@@ -132,6 +132,7 @@ images/build-%: reserved
 		-t liubaninc/$*:${COMMIT} \
 		.
 	@echo "TAG=${COMMIT}" > samples/env
+	docker tag liubaninc/$*:${COMMIT} liuban/$*:latest
 
 images/clean-%:
 	-@for image in "$$(docker images --quiet --filter=reference='liubaninc/$*')"; do \

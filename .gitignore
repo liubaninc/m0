@@ -19,5 +19,6 @@ buf-stamp
 artifactss
 happy/*.log
 build/
+samples/testnet
 x/wasm/xmodel/contractsdk/cpp/build/
 x/wasm/xmodel/xvm/compile/wabt/build/

@@ -1,0 +1,77 @@
+# 启动区块链网络节点, 适用于非首个节点的启动节点
+# 前置条件：
+# 1. 提供节点相关信息, 如助记词、IP:端口
+# 2. 提供可访问的已启动的节点rpc接口
+# 3. 提供节点列表 ID@host:port,ID@host:port,ID@host:port
+# 步骤:
+# 1、生成节点配置（根据前置条件中1）
+# 2、获得链配置信息（根据前置条件中2）
+# 3、启动节点
+# 结果:
+# 启动节点
+
+version: '2.4'
+
+volumes:
+  data-CHAINID: # 链存储数据定义
+
+networks:
+  default:
+    name: network-CHAINID #链网络定义
+
+services:
+  CHAINID-NODEID:
+    container_name: CHAINID-NODEID
+    image: liuban/m0:TAG
+    # restart: always
+    labels:
+      service: CHAINID
+    environment:
+      - NODE_RPC=NODERPC
+      # 节点参数
+      - NODE_MNEMONIC=NODEKEY
+      - M0D_MONIKER=NODEID
+      - M0D_CHAIN_ID=CHAINID
+      - M0D_CONSENSUS_CREATE_EMPTY_BLOCKS=true
+      - M0D_HOME=/var/tq/production/CHAINID-NODEID/.m0
+      - M0D_LOG_LEVEL=info
+      - M0D_INSTRUMENTATION_PROMETHEUS=true
+      - M0D_P2P_SEED_MODE=SEEDMODE
+      - M0D_P2P_SEEDS=SEEDNODES
+      - WAIT_HOSTS=NODERPC
+      - WAIT_HOSTS_TIMEOUT=300
+      - WAIT_SLEEP_INTERVAL=30
+      - WAIT_HOST_CONNECT_TIMEOUT=30
+    command:
+      - "sh"
+      - "-c"
+      - |
+        set -ex
+        /wait
+        if [ ! -e /var/tq/production/CHAINID-NODEID/.m0/config/genesis.json ]; then
+        echo "NODEKEY" | m0d init NODEID --recover  --home /var/tq/production/CHAINID-NODEID/.m0
+        wget http://NODERPC/genesis -q
+        cat genesis | jq .result.genesis > /var/tq/production/CHAINID-NODEID/.m0/config/genesis.json
+        # wget http://NODERPC/net_info -q
+        fi
+
+        if [ SYNCED ];then
+          nginx -g "daemon off;" &
+          export 
+          nohup synced start  > synced.log 2>&1 &
+        fi
+        m0d start
+    volumes:
+      - data-CHAINID:/var/tq/production
+    ports:
+      #- 1317  # API(HTTP)
+      #- 9090  # GRPC (TCP)
+      - 26656 # P2P (TCP)
+      - 26657 # RPC(HTTP)
+      - 26660 # prometheus (HTTP)
+      #- 6060 # pprof 
+      #- 8080 # synced
+      - 8086 # wallet
+      - 8088 # browser
+    networks:
+      - default

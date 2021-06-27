@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/tendermint/tendermint/libs/log"
-	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
@@ -13,11 +12,10 @@ type Model struct {
 	DB     *gorm.DB
 }
 
-func New(dbHost string, dbPort int, dbUser string, dbPassword string, dbName string, logger log.Logger) *Model {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", dbUser, dbPassword, dbHost, dbPort, dbName)
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+func New(conn gorm.Dialector, logger log.Logger) *Model {
+	db, err := gorm.Open(conn, &gorm.Config{})
 	if err != nil {
-		panic(fmt.Sprintf("failed to connect database %v, error %v", dsn, err))
+		panic(fmt.Sprintf("failed to connect database %v, error %v", conn.Name(), err))
 	}
 	autoMigrate(db)
 

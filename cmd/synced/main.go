@@ -1,12 +1,15 @@
 package main
 
 import (
+	"fmt"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"gorm.io/gorm"
 	"os"
 
+	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/liubaninc/m0/cmd/synced/api"
 	_ "github.com/liubaninc/m0/cmd/synced/docs"
 	"github.com/liubaninc/m0/cmd/synced/model"
@@ -16,8 +19,9 @@ import (
 	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/libs/cli"
 	"github.com/tendermint/tendermint/libs/log"
-
-	"github.com/cosmos/cosmos-sdk/server"
+	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
+	"gorm.io/driver/sqlite"
 )
 
 // @title Swagger Example API
@@ -54,6 +58,7 @@ func main() {
 
 const (
 	flagRPCHost       = "node-rpc"
+	flagDBMode        = "db-mode"
 	flagDBHost        = "db-host"
 	flagDBPort        = "db-port"
 	flagDBName        = "db-name"
@@ -79,14 +84,36 @@ func newStartCommand() *cobra.Command {
 			if _, err := kr.NewAccount("faucet", viper.GetString(flagFaucetAccount), keyring.DefaultBIP39Passphrase, sdk.GetConfig().GetFullFundraiserPath(), hd.Secp256k1); err != nil {
 				panic(err)
 			}
+			mode := viper.GetString(flagDBMode)
 			client := msdk.MustNew(viper.GetString(flagRPCHost), kr)
-			model := model.New(viper.GetString(flagDBHost), viper.GetInt(flagDBPort), viper.GetString(flagDBUser), viper.GetString(flagDBPassword), viper.GetString(flagDBName), logger)
+			dbUser := viper.GetString(flagDBUser)
+			dbPassword := viper.GetString(flagDBPassword)
+			dbHost := viper.GetString(flagDBHost)
+			dbPort := viper.GetInt(flagDBPort)
+			dbName := viper.GetString(flagDBName)
+			var conn gorm.Dialector
+			switch mode {
+			case "mysql":
+				dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", dbUser, dbPassword, dbHost, dbPort, dbName)
+				conn = mysql.Open(dsn)
+			case "postgres":
+				dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable TimeZone=Asia/Shanghai", dbHost, dbUser, dbPassword, dbName, dbPort)
+				conn = postgres.Open(dsn)
+			case "sqlserver":
+
+			case "sqlite":
+				conn = sqlite.Open(dbName + ".db")
+			default:
+				panic("not support db mode")
+			}
+			model := model.New(conn, logger)
 			syncer.New(model.DB, client, logger).Run()
 			api.New(model.DB, client, logger).Run(viper.GetInt(flagPort))
 			return nil
 		},
 	}
 	cmd.Flags().String(flagRPCHost, "tcp://localhost:26657", "node rpc host")
+	cmd.Flags().String(flagDBMode, "sqlite", "database mode, mysql,postgres,sqlserver,sqlite")
 	cmd.Flags().String(flagDBHost, "localhost", "database host")
 	cmd.Flags().Int(flagDBPort, 3306, "database port")
 	cmd.Flags().String(flagDBUser, "root", "database user")

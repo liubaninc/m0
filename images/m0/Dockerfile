@@ -2,7 +2,7 @@ ARG GO_VER
 ARG ALPINE_VER
 
 FROM alpine:${ALPINE_VER} as m0-base
-RUN apk add --no-cache tzdata build-base nginx 
+RUN apk add --no-cache tzdata build-base nginx jq
 RUN mkdir /run/nginx/
 # set up nsswitch.conf for Go's "netgo" implementation
 # - https://github.com/golang/go/blob/go1.9.1/src/net/conf.go#L194-L275
@@ -37,5 +37,5 @@ COPY --from=m0  /go/src/github.com/liubaninc/m0/images/m0/*.conf /etc/nginx/conf
 # ENV WAIT_VERSION 2.7.2
 # ADD https://github.com/ufoscout/docker-compose-wait/releases/download/$WAIT_VERSION/wait /wait
 RUN chmod +x /wait
-EXPOSE 26656 26657 26660 8080 8086 8088 80
+EXPOSE 26656 26657 26660 9090 8080 8086 8088
 CMD ["m0d","start"]
