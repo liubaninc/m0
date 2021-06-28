@@ -16,9 +16,11 @@ VALIDATORS_IP=${CHAIN_ID}-${NODE_ID}:26657
 VALIDATORS_KEY="$mnemonic"
 NODE_KEY="$mnemonic"
 SEEDS=
+# 如果为true，收集节点信息，不同步数据
 SEED_MODE=false
 SYNCED=false
-AUTOMATIC=false
+AUTOMATIC=
+# 拉取创世文件
 NODE_RPC=
 
 function nodeFirst() {
@@ -27,19 +29,19 @@ function nodeFirst() {
   fi
   mkdir -p  $OUTPUT/$CHAIN_ID
   cp ./template/docker-compose-first.yaml $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
-  sed -i '' "s/TAG/${TAG}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
-  sed -i '' "s/VALIDATORNUM/${NUM}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
-  sed -i '' "s/CHAINID/${CHAIN_ID}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
-  sed -i '' "s/GENESISTIME/${GENESIS_TIME}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
-  sed -i '' "s/VALIDATORIP/${VALIDATORS_IP}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
-  sed -i '' "s/VALIDATORKEY/${VALIDATORS_KEY}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
-  sed -i '' "s/NODEID/${NODE_ID}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
-  sed -i '' "s/NODEKEY/${NODE_KEY}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
-  sed -i '' "s/SEEDNODES/${SEEDS}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
-  sed -i '' "s/SEEDMODE/${SEED_MODE}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
-  sed -i '' "s/NODERPC/${NODE_RPC}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
-  sed -i '' "s/SYNCED/${SYNCED}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
-  sed -i '' "s/AUTOMATIC/${AUTOMATIC}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
+  sed -i "s/TAG/${TAG}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
+  sed -i "s/VALIDATORNUM/${NUM}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
+  sed -i "s/CHAINID/${CHAIN_ID}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
+  sed -i "s/GENESISTIME/${GENESIS_TIME}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
+  sed -i "s/VALIDATORIP/${VALIDATORS_IP}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
+  sed -i "s/VALIDATORKEY/${VALIDATORS_KEY}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
+  sed -i "s/NODEID/${NODE_ID}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
+  sed -i "s/NODEKEY/${NODE_KEY}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
+  sed -i "s/SEEDNODES/${SEEDS}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
+  sed -i "s/SEEDMODE/${SEED_MODE}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
+  sed -i "s/NODERPC/${NODE_RPC}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
+  sed -i "s/SYNCED/${SYNCED}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
+  sed -i "s/AUTOMATIC/${AUTOMATIC}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
 }
 
 function nodeMore() {
@@ -55,19 +57,19 @@ function nodeMore() {
   fi
   mkdir -p  $OUTPUT/$CHAIN_ID
   cp ./template/docker-compose-more.yaml $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
-  sed -i '' "s/TAG/${TAG}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
-  sed -i '' "s/VALIDATORNUM/${NUM}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
-  sed -i '' "s/CHAINID/${CHAIN_ID}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
-  sed -i '' "s/GENESISTIME/${GENESIS_TIME}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
-  sed -i '' "s/VALIDATORIP/${VALIDATORS_IP}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
-  sed -i '' "s/VALIDATORKEY/${VALIDATORS_KEY}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
-  sed -i '' "s/NODEID/${NODE_ID}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
-  sed -i '' "s/NODEKEY/${NODE_KEY}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
-  sed -i '' "s/SEEDNODES/${SEEDS}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
-  sed -i '' "s/SEEDMODE/${SEED_MODE}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
-  sed -i '' "s/NODERPC/${NODE_RPC}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
-  sed -i '' "s/SYNCED/${SYNCED}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
-  sed -i '' "s/AUTOMATIC/${AUTOMATIC}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
+  sed -i "s/TAG/${TAG}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
+  sed -i "s/VALIDATORNUM/${NUM}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
+  sed -i "s/CHAINID/${CHAIN_ID}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
+  sed -i "s/GENESISTIME/${GENESIS_TIME}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
+  sed -i "s/VALIDATORIP/${VALIDATORS_IP}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
+  sed -i "s/VALIDATORKEY/${VALIDATORS_KEY}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
+  sed -i "s/NODEID/${NODE_ID}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
+  sed -i "s/NODEKEY/${NODE_KEY}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
+  sed -i "s/SEEDNODES/${SEEDS}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
+  sed -i "s/SEEDMODE/${SEED_MODE}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
+  sed -i "s/NODERPC/${NODE_RPC}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
+  sed -i "s/SYNCED/${SYNCED}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
+  sed -i "s/AUTOMATIC/${AUTOMATIC}/g" $OUTPUT/${CHAIN_ID}/$NODE_ID.yaml
 }
 
 ## Parse mode
