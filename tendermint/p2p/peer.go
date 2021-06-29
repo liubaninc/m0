@@ -2,12 +2,12 @@ package p2p
 
 import (
 	"fmt"
-	"net"
-	"time"
-
+	"github.com/golang/snappy"
 	"github.com/tendermint/tendermint/libs/cmap"
 	"github.com/tendermint/tendermint/libs/log"
 	"github.com/tendermint/tendermint/libs/service"
+	"net"
+	"time"
 
 	tmconn "github.com/tendermint/tendermint/p2p/conn"
 )
@@ -251,13 +251,18 @@ func (p *peer) Send(chID byte, msgBytes []byte) bool {
 	} else if !p.hasChannel(chID) {
 		return false
 	}
-	res := p.mconn.Send(chID, msgBytes)
+
+	p.Logger.Info("before compression len ",len(msgBytes))
+	got := snappy.Encode(nil, msgBytes)
+	p.Logger.Info("after compression len",len(got))
+
+	res := p.mconn.Send(chID, got)
 	if res {
 		labels := []string{
 			"peer_id", string(p.ID()),
 			"chID", fmt.Sprintf("%#x", chID),
 		}
-		p.metrics.PeerSendBytesTotal.With(labels...).Add(float64(len(msgBytes)))
+		p.metrics.PeerSendBytesTotal.With(labels...).Add(float64(len(got)))
 	}
 	return res
 }
@@ -270,13 +275,18 @@ func (p *peer) TrySend(chID byte, msgBytes []byte) bool {
 	} else if !p.hasChannel(chID) {
 		return false
 	}
-	res := p.mconn.TrySend(chID, msgBytes)
+
+	p.Logger.Info("before compression len ",len(msgBytes))
+	got := snappy.Encode(nil, msgBytes)
+	p.Logger.Info("after compression len",len(got))
+
+	res := p.mconn.TrySend(chID, got)
 	if res {
 		labels := []string{
 			"peer_id", string(p.ID()),
 			"chID", fmt.Sprintf("%#x", chID),
 		}
-		p.metrics.PeerSendBytesTotal.With(labels...).Add(float64(len(msgBytes)))
+		p.metrics.PeerSendBytesTotal.With(labels...).Add(float64(len(got)))
 	}
 	return res
 }
@@ -386,8 +396,13 @@ func createMConnection(
 			"peer_id", string(p.ID()),
 			"chID", fmt.Sprintf("%#x", chID),
 		}
-		p.metrics.PeerReceiveBytesTotal.With(labels...).Add(float64(len(msgBytes)))
-		reactor.Receive(chID, p, msgBytes)
+
+		p.Logger.Info("before decompression len ",len(msgBytes))
+		got := snappy.Encode(nil, msgBytes)
+		p.Logger.Info("after decompression len",len(got))
+
+		p.metrics.PeerReceiveBytesTotal.With(labels...).Add(float64(len(got)))
+		reactor.Receive(chID, p, got)
 	}
 
 	onError := func(r interface{}) {
