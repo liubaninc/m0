@@ -3,13 +3,12 @@ package simapp
 import (
 	"time"
 
+	"github.com/cosmos/cosmos-sdk/simapp"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmtypes "github.com/tendermint/tendermint/types"
 	tmdb "github.com/tendermint/tm-db"
-
-	"github.com/cosmos/cosmos-sdk/simapp"
 
 	"github.com/liubaninc/m0/app"
 )

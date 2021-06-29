@@ -86,6 +86,9 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	// this line is used by starport scaffolding # stargate/app/moduleImport
+	"github.com/liubaninc/m0/x/blob"
+	blobkeeper "github.com/liubaninc/m0/x/blob/keeper"
+	blobtypes "github.com/liubaninc/m0/x/blob/types"
 	mibcmodule "github.com/liubaninc/m0/x/mibc"
 	mibcmodulekeeper "github.com/liubaninc/m0/x/mibc/keeper"
 	mibcmoduletypes "github.com/liubaninc/m0/x/mibc/types"
@@ -144,6 +147,8 @@ var (
 		mibcmodule.AppModuleBasic{},
 		wasm.AppModuleBasic{},
 		utxo.AppModuleBasic{},
+
+		blob.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -215,6 +220,8 @@ type App struct {
 	utxoKeeper utxokeeper.Keeper
 	wasmKeeper wasmkeeper.Keeper
 
+	blobKeeper blobkeeper.Keeper
+
 	// the module manager
 	mm *module.Manager
 }
@@ -245,6 +252,8 @@ func New(
 		mibcmoduletypes.StoreKey,
 		utxotypes.StoreKey,
 		wasmtypes.StoreKey,
+
+		blobtypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -354,6 +363,13 @@ func New(
 	)
 	utxoModule := utxo.NewAppModule(appCodec, app.utxoKeeper)
 
+	app.blobKeeper = *blobkeeper.NewKeeper(
+		appCodec,
+		keys[blobtypes.StoreKey],
+		keys[blobtypes.MemStoreKey],
+	)
+	blobModule := blob.NewAppModule(appCodec, app.blobKeeper)
+
 	scopedMibcKeeper := app.CapabilityKeeper.ScopeToModule(mibcmoduletypes.ModuleName)
 	app.ScopedMibcKeeper = scopedMibcKeeper
 	app.MibcKeeper = *mibcmodulekeeper.NewKeeper(
@@ -411,6 +427,8 @@ func New(
 		mibcModule,
 		utxoModule,
 		wasmModule,
+
+		blobModule,
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -447,6 +465,8 @@ func New(
 		mibcmoduletypes.ModuleName,
 		wasmtypes.ModuleName,
 		utxotypes.ModuleName,
+
+		blobtypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)

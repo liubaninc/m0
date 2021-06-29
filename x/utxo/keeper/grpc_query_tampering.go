@@ -70,4 +70,3 @@ func (k Keeper) Tampering(c context.Context, req *types.TamperingRequest) (*type
 		Outs: outs,
 	}, nil
 }
-

@@ -115,7 +115,7 @@ func CmdAddInput() *cobra.Command {
 
 			params := &types.TamperingRequest{
 				Address: args[0],
-				Amount: args[1],
+				Amount:  args[1],
 			}
 
 			res, err := queryClient.Tampering(context.Background(), params)
