@@ -97,6 +97,9 @@ func CmdIssue() *cobra.Command {
 
 			flagAesKey := viper.GetString(flagAesKey)
 			flagDesc := viper.GetString(flagDesc)
+
+			fmt.Print("desc:", flagDesc)
+
 			if len(flagAesKey) > 0 {
 				if len(flagAesKey) == 16 || len(flagAesKey) == 24 || len(flagAesKey) == 32 {
 					flagDesc = Encode(flagAesKey, flagDesc)
