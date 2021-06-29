@@ -105,7 +105,7 @@ func CmdIssue() *cobra.Command {
 				}
 			}
 
-			msg := types.NewMsgIssue(clientCtx.GetFromAddress().String(), inputs, outputs, viper.GetString(flagDesc))
+			msg := types.NewMsgIssue(clientCtx.GetFromAddress().String(), inputs, outputs, flagDesc)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
