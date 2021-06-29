@@ -1,0 +1,13 @@
+syntax = "proto3";
+package liubaninc.m0.blob;
+
+option go_package = "github.com/liubaninc/m0/x/blob/types";
+
+import "gogoproto/gogo.proto";
+
+message Blob {
+  string creator = 1;
+  uint64 id = 2;
+  string title = 3; 
+  string content = 4; 
+}

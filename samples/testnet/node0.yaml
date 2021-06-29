@@ -1,0 +1,88 @@
+# 启动区块链网络节点，适用于知晓链初始配置所需参数的启动节点，如区块链首个节点
+# 前置条件：
+# 1. 提供验证人列表信息，如助记词、IP、端口等
+# 2. 提供链相关信息， 如链ID、创世块时间等
+# 3. 提供节点相关信息, 如助记词、IP:端口
+# 4. 提供节点列表 ID@host:port,ID@host:port,ID@host:port
+# 步骤:
+# 1、生成链配置信息（根据前置条件中1、2）
+# 2、生成节点配置（根据前置条件中3）
+# 3、使用1结果
+# 4、启动节点
+# 结果:
+# 启动节点
+
+version: '2.4'
+
+volumes:
+  data-testnet: # 链存储数据定义
+
+networks:
+  default:
+    name: network-testnet #链网络定义
+
+services:
+  testnet-node0:
+    container_name: testnet-node0
+    image: liuban/m0:latest
+    # restart: always
+    labels:
+      service: testnet
+    environment:
+      # 链参数
+      - M0D_NUM=1
+      - M0D_CHAIN_ID=testnet
+      - M0D_GENESIS_TIME=1615183366
+      - M0D_NODE_IP=testnet-node0:26657
+      - M0D_NODE_VALIDATOR_KEY=other joke bid home humor spider ski blush captain chapter pluck table invite bench trap virus envelope forum lend federal find caught able menu
+      # 节点参数
+      - M0D_MONIKER=node0
+      - NODE_MNEMONIC=other joke bid home humor spider ski blush captain chapter pluck table invite bench trap virus envelope forum lend federal find caught able menu
+      #- M0D_CHAIN_ID=testnet
+      - M0D_CONSENSUS_CREATE_EMPTY_BLOCKS=true
+      - M0D_HOME=/var/tq/production/testnet-node0/.m0
+      - M0D_LOG_LEVEL=info
+      - M0D_INSTRUMENTATION_PROMETHEUS=true
+      - M0D_P2P_SEED_MODE=false
+      - M0D_P2P_SEEDS=
+      - WAIT_HOSTS_TIMEOUT=300
+      - WAIT_SLEEP_INTERVAL=30
+      - WAIT_HOST_CONNECT_TIMEOUT=30
+    command:
+      - "sh"
+      - "-c"
+      - |
+        set -ex
+        if [ ! -e /var/tq/production/testnet-node0/.m0/config/genesis.json ]; then
+        echo "other joke bid home humor spider ski blush captain chapter pluck table invite bench trap virus envelope forum lend federal find caught able menu" | m0d init node0 --recover --home /var/tq/production/testnet-node0/.m0
+        m0d testnet
+        cp -r mytestnet/node0/.m0/config/genesis.json /var/tq/production/testnet-node0/.m0/config
+        fi
+
+        nohup m0d start > m0.log 2>&1 &
+        
+        export WAIT_HOSTS=127.0.0.1:26657
+        /wait
+        if [ false ];then
+          nginx -g "daemon off;" &
+          nohup synced start  > synced.log 2>&1 &
+        fi
+        if [ false ];then
+          m0d automatic > automatic.log 2>&1 &
+        fi
+        
+        tail -f m0.log
+    volumes:
+      - data-testnet:/var/tq/production
+    ports:
+      #- 1317  # API(HTTP)
+      #- 9090  # GRPC (TCP)
+      - 26656 # P2P (TCP)
+      - 26657 # RPC(HTTP)
+      - 26660 # prometheus (HTTP)
+      #- 6060 # pprof 
+      - 8080 # synced
+      - 8086 # wallet
+      - 8088 # browser
+    networks:
+      - default

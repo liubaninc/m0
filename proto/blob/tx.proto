@@ -1,0 +1,32 @@
+syntax = "proto3";
+package liubaninc.m0.blob;
+
+// this line is used by starport scaffolding # proto/tx/import
+
+option go_package = "github.com/liubaninc/m0/x/blob/types";
+
+// Msg defines the Msg service.
+service Msg {
+    // this line is used by starport scaffolding # proto/tx/rpc
+  rpc CommentBlog(MsgCommentBlog) returns (MsgCommentBlogResponse);
+  rpc SendBlob(MsgSendBlob) returns (MsgSendBlobResponse);
+}
+
+// this line is used by starport scaffolding # proto/tx/message
+message MsgCommentBlog {
+  string creator = 1;
+  string blobId = 2;
+  string comment = 3;
+}
+
+message MsgCommentBlogResponse {
+}
+
+message MsgSendBlob {
+  string creator = 1;
+  string title = 2;
+  string content = 3;
+}
+
+message MsgSendBlobResponse {
+}

@@ -1,0 +1,84 @@
+# 启动区块链网络节点, 适用于非首个节点的启动节点
+# 前置条件：
+# 1. 提供节点相关信息, 如助记词、IP:端口
+# 2. 提供可访问的已启动的节点rpc接口
+# 3. 提供节点列表 ID@host:port,ID@host:port,ID@host:port
+# 步骤:
+# 1、生成节点配置（根据前置条件中1）
+# 2、获得链配置信息（根据前置条件中2）
+# 3、启动节点
+# 结果:
+# 启动节点
+
+version: '2.4'
+
+volumes:
+  data-testnet: # 链存储数据定义
+
+networks:
+  default:
+    name: network-testnet #链网络定义
+
+services:
+  testnet-node1:
+    container_name: testnet-node1
+    image: liuban/m0:latest
+    # restart: always
+    labels:
+      service: testnet
+    environment:
+      - NODE_RPC=testnet-node0:26657
+      # 节点参数
+      - NODE_MNEMONIC=butter destroy theory ready hurry subway pole wide section head neither snake flight surge lift maximum invite capital nephew field inch innocent nominee abandon
+      - M0D_MONIKER=node1
+      - M0D_CHAIN_ID=testnet
+      - M0D_CONSENSUS_CREATE_EMPTY_BLOCKS=true
+      - M0D_HOME=/var/tq/production/testnet-node1/.m0
+      - M0D_LOG_LEVEL=info
+      - M0D_INSTRUMENTATION_PROMETHEUS=true
+      - M0D_P2P_SEED_MODE=false
+      - M0D_P2P_SEEDS=be0b59e5cd1e9e48a7b6d30220f658353b79d23d@testnet-node0:26656
+      - WAIT_HOSTS=testnet-node0:26657
+      - WAIT_HOSTS_TIMEOUT=300
+      - WAIT_SLEEP_INTERVAL=30
+      - WAIT_HOST_CONNECT_TIMEOUT=30
+    command:
+      - "sh"
+      - "-c"
+      - |
+        set -ex
+        /wait
+        if [ ! -e /var/tq/production/testnet-node1/.m0/config/genesis.json ]; then
+        echo "butter destroy theory ready hurry subway pole wide section head neither snake flight surge lift maximum invite capital nephew field inch innocent nominee abandon" | m0d init node1 --recover  --home /var/tq/production/testnet-node1/.m0
+        wget http://testnet-node0:26657/genesis -q
+        cat genesis | jq .result.genesis > /var/tq/production/testnet-node1/.m0/config/genesis.json
+        # wget http://testnet-node0:26657/net_info -q
+        fi
+
+        nohup m0d start > m0.log 2>&1 &
+        
+        export WAIT_HOSTS=127.0.0.1:26657
+        /wait
+        if [ false ];then
+          nginx -g "daemon off;" &
+          nohup synced start  > synced.log 2>&1 &
+        fi
+        if [  ];then
+          m0d automatic  > automatic.log 2>&1 &
+        fi
+
+        tail -f m0.log
+    volumes:
+      - data-testnet:/var/tq/production
+    ports:
+      #- 1317  # API(HTTP)
+      #- 9090  # GRPC (TCP)
+      - 26656 # P2P (TCP)
+      - 26657 # RPC(HTTP)
+      - 26660 # prometheus (HTTP)
+      #- 6060 # pprof 
+      - 8080 # synced
+      - 8086 # wallet
+      - 8088 # browser
+    networks:
+      - default
