@@ -26,6 +26,7 @@ func New(conn gorm.Dialector, logger log.Logger) *Model {
 }
 
 func autoMigrate(db *gorm.DB) {
+
 	db.AutoMigrate(&BlockChain{})
 	db.AutoMigrate(&BlockChainChart{})
 	db.AutoMigrate(&BlockChainTPSChart{})

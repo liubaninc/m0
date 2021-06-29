@@ -17,7 +17,7 @@ type Transaction struct {
 	Height       int64      `json:"height" gorm:"index" `
 	Time         string     `json:"time" `
 	MsgNum       int        `json:"msg_num" `
-	Type         string     `json:"type" `
+	Type         string     `json:"type"`
 	UTXOMsgs     []*MsgUTXO `json:"utxo_msgs,omitempty"`
 	Confirmed    int64      `json:"confirmed" `
 	Version      string     `json:"version" gorm:"-" `

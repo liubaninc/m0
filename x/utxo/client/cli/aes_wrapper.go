@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/md5"
 	"encoding/base64"
 	"fmt"
+	"io"
 )
 
 func PKCS5Padding(ciphertext []byte, blockSize int) []byte {
@@ -51,7 +53,7 @@ func AesDecrypt(crypted, key []byte) ([]byte, error) {
 func Encode(key string, data string) string {
 
 	//16,24,32 key length
-	var aeskey = []byte(key)
+	var aeskey = []byte(md5_32(key))
 
 	dataByte := []byte(data)
 
@@ -60,6 +62,13 @@ func Encode(key string, data string) string {
 	pass64 := base64.StdEncoding.EncodeToString(xpass)
 
 	return pass64
+}
+
+//对字符串进行MD5哈希，返回 32 位结果
+func md5_32(data string) string {
+	t := md5.New()
+	io.WriteString(t, data)
+	return fmt.Sprintf("%x", t.Sum(nil))
 }
 
 func main() {
