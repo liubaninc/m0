@@ -27,9 +27,6 @@ func New(conn gorm.Dialector, logger log.Logger) *Model {
 
 func autoMigrate(db *gorm.DB) {
 
-	//创建数据库
-	db.Exec("create database m0 default charset utf8 collate utf8_general_ci")
-
 	db.AutoMigrate(&BlockChain{})
 	db.AutoMigrate(&BlockChainChart{})
 	db.AutoMigrate(&BlockChainTPSChart{})
