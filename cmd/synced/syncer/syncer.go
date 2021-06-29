@@ -89,7 +89,7 @@ func (synced *Syncer) Run() {
 		var latestResultBlock *coretypes.ResultBlock
 		for {
 			// 获取链上最新区块
-			if latestResultBlock == nil || curHeight > latestResultBlock.Block.Height {
+			if latestResultBlock == nil || latestResultBlock.Block == nil || curHeight > latestResultBlock.Block.Height {
 				if resultBlock, err := synced.client.GetBlockLatest(); err != nil {
 					synced.logger.Error("GetBlockLatest", "error", err)
 				} else {
