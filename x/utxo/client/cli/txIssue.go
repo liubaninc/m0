@@ -22,8 +22,9 @@ import (
 var _ = strconv.Itoa(0)
 
 const (
-	flagDesc = "desc"
-	flagLock = "lock"
+	flagDesc   = "desc"
+	flagLock   = "lock"
+	flagAesKey = "aes-key"
 )
 
 func CmdIssue() *cobra.Command {
@@ -94,7 +95,20 @@ func CmdIssue() *cobra.Command {
 				}
 			}
 
-			msg := types.NewMsgIssue(clientCtx.GetFromAddress().String(), inputs, outputs, viper.GetString(flagDesc))
+			flagAesKey := viper.GetString(flagAesKey)
+			flagDesc := viper.GetString(flagDesc)
+
+			fmt.Print("desc:", flagDesc)
+
+			if len(flagAesKey) > 0 {
+				if len(flagAesKey) == 16 || len(flagAesKey) == 24 || len(flagAesKey) == 32 {
+					flagDesc = Encode(flagAesKey, flagDesc)
+				} else {
+					return fmt.Errorf("aeskey length mast be 16 or 24 or 32")
+				}
+			}
+
+			msg := types.NewMsgIssue(clientCtx.GetFromAddress().String(), inputs, outputs, flagDesc)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -103,6 +117,7 @@ func CmdIssue() *cobra.Command {
 	}
 
 	cmd.Flags().String(flagDesc, "", "description of msg")
+	cmd.Flags().String(flagAesKey, "", "aeskey to encode description of msg. key length 16 or 24 or 32")
 	cmd.Flags().Int64(flagLock, 60, "will lock inputs for a while. eg. 60s")
 
 	flags.AddTxFlagsToCmd(cmd)
