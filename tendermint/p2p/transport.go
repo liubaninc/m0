@@ -521,6 +521,8 @@ func (mt *MultiplexTransport) wrapPeer(
 		cfg.reactorsByCh,
 		cfg.chDescs,
 		cfg.onPeerError,
+		mt.mConfig.AllowCompesss,
+		mt.mConfig.CompressThreshold,
 		PeerMetrics(cfg.metrics),
 	)
 

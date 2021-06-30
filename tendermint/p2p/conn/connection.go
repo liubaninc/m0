@@ -45,6 +45,10 @@ const (
 	defaultSendTimeout         = 10 * time.Second
 	defaultPingInterval        = 60 * time.Second
 	defaultPongTimeout         = 45 * time.Second
+
+	//snappy compress
+	AllowCompesss     = false
+	CompressThreshold = 1024
 )
 
 type receiveCbFunc func(chID byte, msgBytes []byte)
@@ -133,6 +137,10 @@ type MConnConfig struct {
 
 	// Maximum wait time for pongs
 	PongTimeout time.Duration `mapstructure:"pong_timeout"`
+
+	//snappy compress
+	AllowCompesss     bool `mapstructure:"enable_compresss"`
+	CompressThreshold int  `mapstructure:"compress_threshold"`
 }
 
 // DefaultMConnConfig returns the default config.
@@ -144,6 +152,8 @@ func DefaultMConnConfig() MConnConfig {
 		FlushThrottle:           defaultFlushThrottle,
 		PingInterval:            defaultPingInterval,
 		PongTimeout:             defaultPongTimeout,
+		AllowCompesss:           AllowCompesss,
+		CompressThreshold:       CompressThreshold,
 	}
 }
 

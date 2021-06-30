@@ -119,6 +119,10 @@ type peer struct {
 
 	metrics       *Metrics
 	metricsTicker *time.Ticker
+
+	//snappy compress config
+	allowCompesss     bool
+	compressThreshold int
 }
 
 type PeerOption func(*peer)
@@ -130,15 +134,19 @@ func newPeer(
 	reactorsByCh map[byte]Reactor,
 	chDescs []*tmconn.ChannelDescriptor,
 	onPeerError func(Peer, interface{}),
+	allowCompesss bool,
+	compressThreshold int,
 	options ...PeerOption,
 ) *peer {
 	p := &peer{
-		peerConn:      pc,
-		nodeInfo:      nodeInfo,
-		channels:      nodeInfo.(DefaultNodeInfo).Channels,
-		Data:          cmap.NewCMap(),
-		metricsTicker: time.NewTicker(metricsTickerDuration),
-		metrics:       NopMetrics(),
+		peerConn:          pc,
+		nodeInfo:          nodeInfo,
+		channels:          nodeInfo.(DefaultNodeInfo).Channels,
+		Data:              cmap.NewCMap(),
+		metricsTicker:     time.NewTicker(metricsTickerDuration),
+		metrics:           NopMetrics(),
+		allowCompesss:     allowCompesss,
+		compressThreshold: compressThreshold,
 	}
 	p.mconn = createMConnection(
 		pc.conn,
@@ -273,7 +281,6 @@ func (p *peer) TrySend(chID byte, msgBytes []byte) bool {
 	} else if !p.hasChannel(chID) {
 		return false
 	}
-
 	//压缩
 	msgBytes = p.snapyEncode(msgBytes)
 
@@ -414,7 +421,7 @@ func createMConnection(
 
 //使用snappy解压数据，并检验hash前四位位检验码
 func (p *peer) snapyDecode(msgBytes []byte) []byte {
-	if len(msgBytes) <= 1024 {
+	if len(msgBytes) < p.compressThreshold || !p.allowCompesss {
 		return msgBytes
 	}
 	p.Logger.Info("before decode len ", "len", len(msgBytes))
@@ -433,7 +440,7 @@ func (p *peer) snapyDecode(msgBytes []byte) []byte {
 
 //使用snappy压缩数据，并使用hash前四位做位检验码
 func (p *peer) snapyEncode(msgBytes []byte) []byte {
-	if len(msgBytes) <= 1024 {
+	if len(msgBytes) < p.compressThreshold || !p.allowCompesss {
 		return msgBytes
 	}
 	p.Logger.Info("before compression len ", "len", len(msgBytes))
