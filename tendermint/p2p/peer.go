@@ -253,7 +253,7 @@ func (p *peer) Send(chID byte, msgBytes []byte) bool {
 		return false
 	}
 	//压缩
-	p.snapyEncode(msgBytes)
+	msgBytes = p.snapyEncode(msgBytes)
 	res := p.mconn.Send(chID, msgBytes)
 	if res {
 		labels := []string{
@@ -275,7 +275,7 @@ func (p *peer) TrySend(chID byte, msgBytes []byte) bool {
 	}
 
 	//压缩
-	p.snapyEncode(msgBytes)
+	msgBytes = p.snapyEncode(msgBytes)
 
 	res := p.mconn.TrySend(chID, msgBytes)
 	if res {
@@ -394,7 +394,7 @@ func createMConnection(
 			"chID", fmt.Sprintf("%#x", chID),
 		}
 		//解压
-		p.snapyDecode(msgBytes)
+		msgBytes = p.snapyDecode(msgBytes)
 		p.metrics.PeerReceiveBytesTotal.With(labels...).Add(float64(len(msgBytes)))
 		reactor.Receive(chID, p, msgBytes)
 	}
@@ -414,7 +414,7 @@ func createMConnection(
 
 //使用snappy解压数据，并检验hash前四位位检验码
 func (p *peer) snapyDecode(msgBytes []byte) []byte {
-	if len(msgBytes) <= 4 {
+	if len(msgBytes) <= 1024 {
 		return msgBytes
 	}
 	p.Logger.Info("before decode len ", "len", len(msgBytes))
@@ -433,13 +433,13 @@ func (p *peer) snapyDecode(msgBytes []byte) []byte {
 
 //使用snappy压缩数据，并使用hash前四位做位检验码
 func (p *peer) snapyEncode(msgBytes []byte) []byte {
-	if len(msgBytes) <= 4 {
+	if len(msgBytes) <= 1024 {
 		return msgBytes
 	}
 	p.Logger.Info("before compression len ", "len", len(msgBytes))
 	//msgBytes做一次hash,前四位字节做检验位.
 	input := append(tmhash.Sum(msgBytes)[0:4], msgBytes...)
-	snappy.Encode(nil, input)
+	input = snappy.Encode(nil, input)
 	p.Logger.Info("after compression len", "len", len(input))
 	return input
 }
