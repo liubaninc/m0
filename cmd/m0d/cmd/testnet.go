@@ -343,7 +343,12 @@ func InitTestnet(
 			return err
 		}
 
-		genBalances = append(genBalances, banktypes.Balance{Address: addr.String(), Coins: sdk.NewCoins()})
+		accStakingTokens := sdk.TokensFromConsensusPower(10000000000)
+		coins := sdk.Coins{
+			// sdk.NewCoin(fmt.Sprintf("%stoken", nodeDirName), accTokens),
+			sdk.NewCoin(sdk.DefaultBondDenom, accStakingTokens),
+		}
+		genBalances = append(genBalances, banktypes.Balance{Address: addr.String(), Coins: coins})
 		genAccounts = append(genAccounts, authtypes.NewBaseAccount(addr, nil, 0, 0))
 
 		msg := utxotypes.NewMsgIssue(addr.String(), []*utxotypes.Input{}, []*utxotypes.Output{

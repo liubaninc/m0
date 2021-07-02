@@ -1,9 +1,11 @@
 package keeper
 
 import (
-	"context"
 	"errors"
 	"fmt"
+	"strings"
+	"time"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	clienttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/02-client/types"
@@ -12,8 +14,6 @@ import (
 	"github.com/liubaninc/m0/x/mibc/types"
 	utxotypes "github.com/liubaninc/m0/x/utxo/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
-	"strings"
-	"time"
 )
 
 // TransmitIbcUTXOPacket transmits the packet over IBC with the specified source port and source channel
@@ -81,9 +81,12 @@ func (k Keeper) OnRecvIbcUTXOPacket(ctx sdk.Context, packet channeltypes.Packet,
 	// TODO: packet reception logic
 	msgOffset := int32(ctx.Context().Value("msg-index").(int))
 	hash := fmt.Sprintf("%X", tmhash.Sum(ctx.TxBytes()))
+	if ctx.IsCheckTx() || ctx.IsReCheckTx() {
+		return packetAck, nil
+	}
 	t := time.Now()
 	defer func() {
-		k.Logger(ctx).Debug("handler", "mibc", "utxo recv", "hash", hash, "index", msgOffset, "elapsed", time.Now().Sub(t).String())
+		k.Logger(ctx).Debug("handler", "mibc", "utxo recv", "hash", hash, "index", msgOffset, "elapsed", time.Now().Sub(t).String(), "height", ctx.BlockHeight())
 	}()
 	escrowAddress := types.GetEscrowAddress(packet.GetDestPort(), packet.GetDestChannel())
 	var outputs []*utxotypes.Output
@@ -141,16 +144,12 @@ func (k Keeper) OnRecvIbcUTXOPacket(ctx sdk.Context, packet channeltypes.Packet,
 
 	var inputs []*utxotypes.Input
 	if !totalNeeded.IsZero() {
-		res, err := k.utxoKeeper.Input(context.Background(), &utxotypes.QueryInputRequest{
-			Address: escrowAddress.String(),
-			Amounts: totalNeeded.String(),
-			Lock:    10,
-		})
+		sInput, total, err := k.utxoKeeper.SelectUtxos(ctx, escrowAddress, totalNeeded, 10)
 		if err != nil {
 			return packetAck, err
 		}
-		inputs = append(inputs, res.Inputs...)
-		changeCoins := res.Amount.Sub(totalNeeded)
+		inputs = append(inputs, sInput...)
+		changeCoins := total.Sub(totalNeeded)
 		for _, changeCoin := range changeCoins {
 			outputs = append(outputs, &utxotypes.Output{
 				ToAddr: escrowAddress.String(),
@@ -178,9 +177,12 @@ func (k Keeper) OnRecvIbcUTXOPacket(ctx sdk.Context, packet channeltypes.Packet,
 func (k Keeper) OnAcknowledgementIbcUTXOPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcUTXOPacketData, ack channeltypes.Acknowledgement) error {
 	msgOffset := int32(ctx.Context().Value("msg-index").(int))
 	hash := fmt.Sprintf("%X", tmhash.Sum(ctx.TxBytes()))
+	if ctx.IsCheckTx() || ctx.IsReCheckTx() {
+		return nil
+	}
 	t := time.Now()
 	defer func() {
-		k.Logger(ctx).Debug("handler", "mibc", "utxo ack", "hash", hash, "index", msgOffset, "elapsed", time.Now().Sub(t).String())
+		k.Logger(ctx).Debug("handler", "mibc", "utxo ack", "hash", hash, "index", msgOffset, "elapsed", time.Now().Sub(t).String(), "height", ctx.BlockHeight())
 	}()
 	switch dispatchedAck := ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Error:
@@ -223,9 +225,12 @@ func (k Keeper) OnTimeoutIbcUTXOPacket(ctx sdk.Context, packet channeltypes.Pack
 	// TODO: packet timeout logic
 	msgOffset := int32(ctx.Context().Value("msg-index").(int))
 	hash := fmt.Sprintf("%X", tmhash.Sum(ctx.TxBytes()))
+	if ctx.IsCheckTx() || ctx.IsReCheckTx() {
+		return nil
+	}
 	t := time.Now()
 	defer func() {
-		k.Logger(ctx).Debug("handler", "mibc", "utxo ack timeout", "hash", hash, "index", msgOffset, "elapsed", time.Now().Sub(t).String())
+		k.Logger(ctx).Debug("handler", "mibc", "utxo ack timeout", "hash", hash, "index", msgOffset, "elapsed", time.Now().Sub(t).String(), "height", ctx.BlockHeight(), "check", ctx.IsCheckTx() || ctx.IsReCheckTx())
 	}()
 	k.AppendItx(ctx, types.Itx{
 		Creator:         data.Creator,
@@ -267,16 +272,12 @@ func (k Keeper) refundPacketToken(ctx sdk.Context, packet channeltypes.Packet, d
 
 	var inputs []*utxotypes.Input
 	if !totalNeeded.IsZero() {
-		res, err := k.utxoKeeper.Input(context.Background(), &utxotypes.QueryInputRequest{
-			Address: escrowAddress.String(),
-			Amounts: totalNeeded.String(),
-			Lock:    10,
-		})
+		sInputs, total, err := k.utxoKeeper.SelectUtxos(ctx, escrowAddress, totalNeeded, 10)
 		if err != nil {
 			return err
 		}
-		inputs = append(inputs, res.Inputs...)
-		changeCoins := res.Amount.Sub(totalNeeded)
+		inputs = append(inputs, sInputs...)
+		changeCoins := total.Sub(totalNeeded)
 		for _, changeCoin := range changeCoins {
 			outputs = append(outputs, &utxotypes.Output{
 				ToAddr: escrowAddress.String(),

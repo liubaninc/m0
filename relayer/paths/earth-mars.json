@@ -1,0 +1,15 @@
+{
+  "src": {
+    "chain-id": "earth",
+    "port-id": "mibc",
+    "order": "unordered",
+    "version": "mibc-1"
+  },
+  "dst": {
+    "chain-id": "mars",
+    "port-id": "mibc",
+    "order": "unordered",
+    "version": "mibc-1"
+  },
+  "strategy": { "type": "naive" }
+}

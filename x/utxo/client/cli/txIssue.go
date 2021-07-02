@@ -91,6 +91,7 @@ func CmdIssue() *cobra.Command {
 					outputs = append(outputs, &types.Output{
 						ToAddr: clientCtx.GetFromAddress().String(),
 						Amount: changeCoin,
+						Change: true,
 					})
 				}
 			}

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	ibctransfertypes "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer/types"
 	host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
 	utxotypes "github.com/liubaninc/m0/x/utxo/types"
 )
@@ -88,7 +87,7 @@ func (msg *MsgSendIbcUTXO) ValidateBasic() error {
 		if err := input.ValidateBasic(); err != nil {
 			return err
 		}
-		if err := ibctransfertypes.ValidateIBCDenom(input.Amount.Denom); err != nil {
+		if err := ValidateIBCDenom(input.Amount.Denom); err != nil {
 			return err
 		}
 		key := fmt.Sprintf("%s_%d_%d", input.RefTx, input.RefMsg, input.RefOffset)
@@ -103,7 +102,7 @@ func (msg *MsgSendIbcUTXO) ValidateBasic() error {
 		if err := output.ValidateBasic(); err != nil {
 			return err
 		}
-		if err := ibctransfertypes.ValidateIBCDenom(output.Amount.Denom); err != nil {
+		if err := ValidateIBCDenom(output.Amount.Denom); err != nil {
 			return err
 		}
 		totalOut = totalOut.Add(output.Amount)
@@ -112,5 +111,6 @@ func (msg *MsgSendIbcUTXO) ValidateBasic() error {
 	if !totalIn.IsEqual(totalOut) {
 		return sdkerrors.Wrapf(utxotypes.ErrInputOutputNotEqual, "inputs amount %v should equal outputs amount %v", totalIn, totalOut)
 	}
+
 	return nil
 }

@@ -110,6 +110,7 @@ func CmdInvoke() *cobra.Command {
 					outputs = append(outputs, &utxotypes.Output{
 						ToAddr: clientCtx.GetFromAddress().String(),
 						Amount: changeCoin,
+						Change: true,
 					})
 				}
 			}

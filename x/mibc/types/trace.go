@@ -175,7 +175,7 @@ func ValidateIBCDenom(denom string) error {
 	case strings.TrimSpace(denom) == "",
 		len(denomSplit) == 1 && denomSplit[0] == DenomPrefix,
 		len(denomSplit) == 2 && (denomSplit[0] != DenomPrefix || strings.TrimSpace(denomSplit[1]) == ""):
-		return sdkerrors.Wrapf(ErrInvalidDenomForTransfer, "denomination should be prefixed with the format 'ibc/{hash(trace + \"/\" + %s)}'", denom)
+		return sdkerrors.Wrapf(ErrInvalidDenomForTransfer, "denomination should be prefixed with the format 'mibc/{hash(trace + \"/\" + %s)}'", denom)
 
 	case denomSplit[0] == denom && strings.TrimSpace(denom) != "":
 		return nil

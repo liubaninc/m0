@@ -22,7 +22,7 @@ func (k msgServer) SendIbcUTXO(goCtx context.Context, msg *types.MsgSendIbcUTXO)
 	hash := fmt.Sprintf("%X", tmhash.Sum(ctx.TxBytes()))
 	t := time.Now()
 	defer func() {
-		k.Logger(ctx).Debug("handler", "route", msg.Route(), "msg", msg.Type(), "hash", hash, "index", msgOffset, "elapsed", time.Now().Sub(t).String())
+		k.Logger(ctx).Debug("handler", "route", msg.Route(), "msg", msg.Type(), "hash", hash, "index", msgOffset, "elapsed", time.Now().Sub(t).String(), "height", ctx.BlockHeight())
 	}()
 
 	var outputs []*utxotypes.Output
@@ -42,7 +42,7 @@ func (k msgServer) SendIbcUTXO(goCtx context.Context, msg *types.MsgSendIbcUTXO)
 		}
 
 		if types.SenderChainIsSource(msg.Port, msg.ChannelID, fullDenomPath) {
-			if strings.Compare(msg.Sender, output.ToAddr) == 0 || strings.Compare(feeAddr, output.ToAddr) == 0 {
+			if output.Change || strings.Compare(feeAddr, output.ToAddr) == 0 {
 				// send
 				outputs = append(outputs, output)
 			} else {
@@ -59,7 +59,7 @@ func (k msgServer) SendIbcUTXO(goCtx context.Context, msg *types.MsgSendIbcUTXO)
 				})
 			}
 		} else {
-			if strings.Compare(msg.Sender, output.ToAddr) == 0 || strings.Compare(feeAddr, output.ToAddr) == 0 {
+			if output.Change || strings.Compare(feeAddr, output.ToAddr) == 0 {
 				// send
 				outputs = append(outputs, output)
 			} else {
