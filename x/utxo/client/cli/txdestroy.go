@@ -83,7 +83,7 @@ func CmdDestroy() *cobra.Command {
 	}
 
 	cmd.Flags().String(flagDesc, "", "description of msg")
-	cmd.Flags().Bool(flagLock, true, "will lock inputs for a while. eg. 60s")
+	cmd.Flags().Uint64(flagLock, 60, "will lock inputs for a while. eg. 60s")
 
 	flags.AddTxFlagsToCmd(cmd)
 

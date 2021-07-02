@@ -116,7 +116,7 @@ func CmdDeploy() *cobra.Command {
 	}
 
 	cmd.Flags().String(flagDesc, "", "description of msg")
-	cmd.Flags().Int64(flagLock, 60, "will lock inputs for a while. eg. 60s")
+	cmd.Flags().Uint64(flagLock, 60, "will lock inputs for a while. eg. 60s")
 	cmd.Flags().String(flagModule, "wasm", "contract code module, wasm")
 	cmd.Flags().String(flagRuntime, "c", "if contract code use golang, then go or if use c lang, then c")
 
