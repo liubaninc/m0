@@ -260,7 +260,7 @@ func (p *peer) Send(chID byte, msgBytes []byte) bool {
 	} else if !p.hasChannel(chID) {
 		return false
 	}
-	//压缩
+	// FIXME M0 压缩
 	msgBytes = p.snapyEncode(msgBytes)
 	res := p.mconn.Send(chID, msgBytes)
 	if res {
@@ -281,7 +281,7 @@ func (p *peer) TrySend(chID byte, msgBytes []byte) bool {
 	} else if !p.hasChannel(chID) {
 		return false
 	}
-	//压缩
+	//FIXME M0 压缩
 	msgBytes = p.snapyEncode(msgBytes)
 
 	res := p.mconn.TrySend(chID, msgBytes)
@@ -400,7 +400,7 @@ func createMConnection(
 			"peer_id", string(p.ID()),
 			"chID", fmt.Sprintf("%#x", chID),
 		}
-		//解压
+		// FIXME M0 解压
 		msgBytes = p.snapyDecode(msgBytes)
 		p.metrics.PeerReceiveBytesTotal.With(labels...).Add(float64(len(msgBytes)))
 		reactor.Receive(chID, p, msgBytes)
@@ -424,12 +424,12 @@ func (p *peer) snapyDecode(msgBytes []byte) []byte {
 	if len(msgBytes) < p.compressThreshold || !p.allowCompesss {
 		return msgBytes
 	}
-	p.Logger.Info("before decode len ", "len", len(msgBytes))
+	p.Logger.Debug("before decode len ", "len", len(msgBytes))
 	msgBytes, err := snappy.Decode(nil, msgBytes)
 	if err != nil {
 		p.Logger.Error("Error while snapy decode", "err", err)
 	}
-	p.Logger.Info("after decompression len", "len", len(msgBytes))
+	p.Logger.Debug("after decompression len", "len", len(msgBytes))
 
 	if !bytes.HasPrefix(tmhash.Sum(msgBytes[4:]), msgBytes[:4]) {
 		return msgBytes
@@ -443,10 +443,10 @@ func (p *peer) snapyEncode(msgBytes []byte) []byte {
 	if len(msgBytes) < p.compressThreshold || !p.allowCompesss {
 		return msgBytes
 	}
-	p.Logger.Info("before compression len ", "len", len(msgBytes))
+	p.Logger.Debug("before compression len ", "len", len(msgBytes))
 	//msgBytes做一次hash,前四位字节做检验位.
 	input := append(tmhash.Sum(msgBytes)[0:4], msgBytes...)
 	input = snappy.Encode(nil, input)
-	p.Logger.Info("after compression len", "len", len(input))
+	p.Logger.Debug("after compression len", "len", len(input))
 	return input
 }
