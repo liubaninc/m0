@@ -1,13 +1,15 @@
 package p2p
 
 import (
+	"bytes"
 	"fmt"
-	"net"
-	"time"
-
+	"github.com/golang/snappy"
+	"github.com/tendermint/tendermint/crypto/tmhash"
 	"github.com/tendermint/tendermint/libs/cmap"
 	"github.com/tendermint/tendermint/libs/log"
 	"github.com/tendermint/tendermint/libs/service"
+	"net"
+	"time"
 
 	tmconn "github.com/tendermint/tendermint/p2p/conn"
 )
@@ -117,6 +119,10 @@ type peer struct {
 
 	metrics       *Metrics
 	metricsTicker *time.Ticker
+
+	//snappy compress config
+	allowCompesss     bool
+	compressThreshold int
 }
 
 type PeerOption func(*peer)
@@ -128,17 +134,20 @@ func newPeer(
 	reactorsByCh map[byte]Reactor,
 	chDescs []*tmconn.ChannelDescriptor,
 	onPeerError func(Peer, interface{}),
+	allowCompesss bool,
+	compressThreshold int,
 	options ...PeerOption,
 ) *peer {
 	p := &peer{
-		peerConn:      pc,
-		nodeInfo:      nodeInfo,
-		channels:      nodeInfo.(DefaultNodeInfo).Channels,
-		Data:          cmap.NewCMap(),
-		metricsTicker: time.NewTicker(metricsTickerDuration),
-		metrics:       NopMetrics(),
+		peerConn:          pc,
+		nodeInfo:          nodeInfo,
+		channels:          nodeInfo.(DefaultNodeInfo).Channels,
+		Data:              cmap.NewCMap(),
+		metricsTicker:     time.NewTicker(metricsTickerDuration),
+		metrics:           NopMetrics(),
+		allowCompesss:     allowCompesss,
+		compressThreshold: compressThreshold,
 	}
-
 	p.mconn = createMConnection(
 		pc.conn,
 		p,
@@ -251,6 +260,8 @@ func (p *peer) Send(chID byte, msgBytes []byte) bool {
 	} else if !p.hasChannel(chID) {
 		return false
 	}
+	// FIXME M0 压缩
+	msgBytes = p.snapyEncode(msgBytes)
 	res := p.mconn.Send(chID, msgBytes)
 	if res {
 		labels := []string{
@@ -270,6 +281,9 @@ func (p *peer) TrySend(chID byte, msgBytes []byte) bool {
 	} else if !p.hasChannel(chID) {
 		return false
 	}
+	//FIXME M0 压缩
+	msgBytes = p.snapyEncode(msgBytes)
+
 	res := p.mconn.TrySend(chID, msgBytes)
 	if res {
 		labels := []string{
@@ -386,6 +400,8 @@ func createMConnection(
 			"peer_id", string(p.ID()),
 			"chID", fmt.Sprintf("%#x", chID),
 		}
+		// FIXME M0 解压
+		msgBytes = p.snapyDecode(msgBytes)
 		p.metrics.PeerReceiveBytesTotal.With(labels...).Add(float64(len(msgBytes)))
 		reactor.Receive(chID, p, msgBytes)
 	}
@@ -401,4 +417,36 @@ func createMConnection(
 		onError,
 		config,
 	)
+}
+
+//使用snappy解压数据，并检验hash前四位位检验码
+func (p *peer) snapyDecode(msgBytes []byte) []byte {
+	if len(msgBytes) < p.compressThreshold || !p.allowCompesss {
+		return msgBytes
+	}
+	p.Logger.Debug("before decode len ", "len", len(msgBytes))
+	msgBytes, err := snappy.Decode(nil, msgBytes)
+	if err != nil {
+		p.Logger.Error("Error while snapy decode", "err", err)
+	}
+	p.Logger.Debug("after decompression len", "len", len(msgBytes))
+
+	if !bytes.HasPrefix(tmhash.Sum(msgBytes[4:]), msgBytes[:4]) {
+		return msgBytes
+	}
+
+	return msgBytes[4:]
+}
+
+//使用snappy压缩数据，并使用hash前四位做位检验码
+func (p *peer) snapyEncode(msgBytes []byte) []byte {
+	if len(msgBytes) < p.compressThreshold || !p.allowCompesss {
+		return msgBytes
+	}
+	p.Logger.Debug("before compression len ", "len", len(msgBytes))
+	//msgBytes做一次hash,前四位字节做检验位.
+	input := append(tmhash.Sum(msgBytes)[0:4], msgBytes...)
+	input = snappy.Encode(nil, input)
+	p.Logger.Debug("after compression len", "len", len(input))
+	return input
 }

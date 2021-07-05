@@ -151,6 +151,8 @@ func (sw *Switch) addPeerWithConnection(conn net.Conn) error {
 		sw.reactorsByCh,
 		sw.chDescs,
 		sw.StopPeerForError,
+		sw.config.AllowCompesss,
+		sw.config.CompressThreshold,
 	)
 
 	if err = sw.addPeer(p); err != nil {

@@ -309,6 +309,10 @@ allow_duplicate_ip = {{ .P2P.AllowDuplicateIP }}
 handshake_timeout = "{{ .P2P.HandshakeTimeout }}"
 dial_timeout = "{{ .P2P.DialTimeout }}"
 
+# p2p network compress
+enable_compresss = {{ .P2P.AllowCompesss }}
+compress_threshold = {{ .P2P.CompressThreshold }}
+
 #######################################################
 ###          Mempool Configuration Option          ###
 #######################################################

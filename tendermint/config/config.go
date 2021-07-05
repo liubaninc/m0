@@ -542,6 +542,10 @@ type P2PConfig struct { //nolint: maligned
 	// FUzz connection
 	TestFuzz       bool            `mapstructure:"test_fuzz"`
 	TestFuzzConfig *FuzzConnConfig `mapstructure:"test_fuzz_config"`
+
+	// p2p network compress
+	AllowCompesss     bool `mapstructure:"enable_compresss"`
+	CompressThreshold int  `mapstructure:"compress_threshold"`
 }
 
 // DefaultP2PConfig returns a default configuration for the peer-to-peer layer
@@ -567,6 +571,9 @@ func DefaultP2PConfig() *P2PConfig {
 		TestDialFail:                 false,
 		TestFuzz:                     false,
 		TestFuzzConfig:               DefaultFuzzConnConfig(),
+
+		AllowCompesss:     false,
+		CompressThreshold: 1024, // 1 kB
 	}
 }
 
