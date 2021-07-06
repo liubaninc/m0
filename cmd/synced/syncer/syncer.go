@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"net"
 	"strings"
 	"time"
 
@@ -169,12 +170,20 @@ func (synced *Syncer) processPeers(db *gorm.DB) (int, error) {
 		return 0, nil
 	}
 	nodeInfo := status.NodeInfo
-	ip := strings.TrimLeft(nodeInfo.ListenAddr, "tcp://")
+	ip := nodeInfo.ListenAddr[len("tcp://"):]
+	ip = ip[:strings.Index(ip, ":")]
+	if addr := net.ParseIP(ip); addr != nil {
+		ip = addr.String()
+	} else if addr, err := net.ResolveIPAddr("ip", ip); err == nil {
+		ip = addr.IP.String()
+	}
 	peer := &model.Peer{
 		Name:    nodeInfo.Moniker,
-		IP:      ip[:strings.Index(ip, ":")],
-		Version: nodeInfo.Version,
+		IP:      ip,
+		Version: fmt.Sprintf("V%d", nodeInfo.ProtocolVersion.App),
 		NodeID:  string(nodeInfo.DefaultNodeID),
+		Status:  0,
+		Type:    1,
 	}
 	synced.updatePeerStatus(peer, db)
 	if result := db.Save(peer); result.Error != nil {
@@ -190,10 +199,11 @@ func (synced *Syncer) processPeers(db *gorm.DB) (int, error) {
 		peer := &model.Peer{
 			Name:    nodeInfo.Moniker,
 			IP:      p.RemoteIP,
-			Version: nodeInfo.Version,
+			Version: fmt.Sprintf("V%d", nodeInfo.ProtocolVersion.App),
 			NodeID:  string(nodeInfo.DefaultNodeID),
 			Time:    p.ConnectionStatus.Duration.String(),
-			Status:  1,
+			Status:  0,
+			Type:    1,
 		}
 		synced.updatePeerStatus(peer, db)
 		if result := db.Save(peer); result.Error != nil {
@@ -205,9 +215,9 @@ func (synced *Syncer) processPeers(db *gorm.DB) (int, error) {
 
 func (synced *Syncer) processValidators(height int64, db *gorm.DB) (int, error) {
 	db.Where("1 = 1").Delete(&model.Validator{})
-	result, err := synced.client.GetValidators(height, 0, 1000)
+	result, err := synced.client.GetValidators(height, 1, 1000)
 	if err != nil {
-		return 0, nil
+		return 0, err
 	}
 	for _, v := range result.Validators {
 		validator := &model.Validator{
@@ -982,7 +992,7 @@ func (synced *Syncer) updatePeerStatus(peer *model.Peer, db *gorm.DB) {
 	if result := db.Find(&validator, map[string]interface{}{
 		"node_id": peer.NodeID,
 	}); result.RowsAffected > 0 {
-		peer.Status = 0
+		peer.Type = 0
 		return
 	}
 }

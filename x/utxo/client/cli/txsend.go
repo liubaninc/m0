@@ -90,7 +90,14 @@ func CmdSend() *cobra.Command {
 				}
 			}
 
-			msg := types.NewMsgSend(clientCtx.GetFromAddress().String(), inputs, outputs, viper.GetString(flagDesc))
+			flagAesKey := viper.GetString(flagAesKey)
+			flagDesc := viper.GetString(flagDesc)
+
+			if len(flagAesKey) > 0 {
+				flagDesc = Encode(flagAesKey, flagDesc)
+			}
+
+			msg := types.NewMsgSend(clientCtx.GetFromAddress().String(), inputs, outputs, flagDesc)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -99,6 +106,7 @@ func CmdSend() *cobra.Command {
 	}
 
 	cmd.Flags().String(flagDesc, "", "description of msg")
+	cmd.Flags().String(flagAesKey, "", "aeskey to encode description of msg")
 	cmd.Flags().Int64(flagLock, 60, "will lock inputs for a while. eg. 60s")
 
 	flags.AddTxFlagsToCmd(cmd)
