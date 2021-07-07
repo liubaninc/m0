@@ -195,7 +195,7 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 	}
 
 	snapshotDir := filepath.Join(cast.ToString(appOpts.Get(flags.FlagHome)), "data", "snapshots")
-	snapshotDB, err := sdk.NewLevelDB("metadata", snapshotDir)
+	snapshotDB, err := sdk.NewLevelDB("metadata", snapshotDir, map[string]interface{}{})
 	if err != nil {
 		panic(err)
 	}

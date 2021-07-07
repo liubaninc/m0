@@ -25,4 +25,4 @@ else
   sed -i 's/prometheus = false/prometheus = true/g' ~/.m0/config/config.toml
 fi
 
-m0d start --pruning nothing --grpc.address 0.0.0.0:9090
+# m0d start --pruning nothing --grpc.address 0.0.0.0:9090

@@ -92,7 +92,7 @@ moniker = "{{ .BaseConfig.Moniker }}"
 # and verifying their commits
 fast_sync = {{ .BaseConfig.FastSyncMode }}
 
-# Database backend: goleveldb | cleveldb | boltdb | rocksdb | badgerdb
+# Database backend: goleveldb | cleveldb | boltdb | rocksdb | badgerdb | multidb
 # * goleveldb (github.com/syndtr/goleveldb - most popular implementation)
 #   - pure go
 #   - stable
@@ -111,10 +111,15 @@ fast_sync = {{ .BaseConfig.FastSyncMode }}
 # * badgerdb (uses github.com/dgraph-io/badger)
 #   - EXPERIMENTAL
 #   - use badgerdb build tag (go build -tags badgerdb)
+# * multidb (Multi disk storage)
+#   - pure go
+#   - stable
 db_backend = "{{ .BaseConfig.DBBackend }}"
 
 # Database directory
 db_dir = "{{ js .BaseConfig.DBPath }}"
+# Multi disk storage
+data_paths = "{{ js .BaseConfig.DBOtherPaths }}"
 
 # Output level for logging, including package level options
 log_level = "{{ .BaseConfig.LogLevel }}"

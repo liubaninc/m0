@@ -66,7 +66,7 @@ type DBProvider func(*DBContext) (dbm.DB, error)
 // specified in the ctx.Config.
 func DefaultDBProvider(ctx *DBContext) (dbm.DB, error) {
 	dbType := dbm.BackendType(ctx.Config.DBBackend)
-	return dbm.NewDB(ctx.ID, dbType, ctx.Config.DBDir())
+	return dbm.NewDB(ctx.ID, dbType, ctx.Config.DBDir(),ctx.Config.GetOtherPaths())
 }
 
 // GenesisDocProvider returns a GenesisDoc.

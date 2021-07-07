@@ -62,4 +62,6 @@ replace github.com/cosmos/cosmos-sdk => ./cosmos-sdk
 
 replace github.com/tendermint/tendermint => ./tendermint
 
+replace github.com/tendermint/tm-db => ./tm-db
+
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
