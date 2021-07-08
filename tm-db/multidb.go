@@ -39,6 +39,7 @@ func NewMultiDBWithOpts(name string, dir string, options map[string]interface{},
 			db: db,
 		}, nil
 	}
+
 	//多盘存储初始化
 	dataPaths := options["dataPaths"].([]string)
 	store, err := mstorage.OpenFile(dbPath, false, dataPaths)
