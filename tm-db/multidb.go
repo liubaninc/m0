@@ -30,7 +30,6 @@ func NewMultiDB(name string, dir string, options map[string]interface{}) (*Multi
 
 func NewMultiDBWithOpts(name string, dir string, options map[string]interface{}, o *opt.Options) (*MultiDB, error) {
 	dbPath := filepath.Join(dir, name+".db")
-	dataPaths := options["dataPaths"].([]string)
 	if options == nil || len(options) == 0 {
 		db, err := leveldb.OpenFile(dbPath, o)
 		if err != nil {
@@ -40,8 +39,8 @@ func NewMultiDBWithOpts(name string, dir string, options map[string]interface{},
 			db: db,
 		}, nil
 	}
-
 	//多盘存储初始化
+	dataPaths := options["dataPaths"].([]string)
 	store, err := mstorage.OpenFile(dbPath, false, dataPaths)
 	if err != nil {
 		return nil, err
