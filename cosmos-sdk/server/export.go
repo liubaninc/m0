@@ -39,7 +39,7 @@ func ExportCmd(appExporter types.AppExporter, defaultNodeHome string) *cobra.Com
 				return err
 			}
 
-			db, err := openDB(config.RootDir, map[string]interface{}{})
+			db, err := openDB(config.RootDir)
 			if err != nil {
 				return err
 			}

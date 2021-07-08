@@ -190,7 +190,7 @@ type BaseConfig struct { //nolint: maligned
 	DBPath string `mapstructure:"db_dir"`
 
 	// Multi disk storage
-	DBOtherPaths string `mapstructure:"data_paths"`
+	DBOtherPaths string `mapstructure:"data_other_paths"`
 
 	// Output level for logging
 	LogLevel string `mapstructure:"log_level"`

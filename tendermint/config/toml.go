@@ -119,7 +119,7 @@ db_backend = "{{ .BaseConfig.DBBackend }}"
 # Database directory
 db_dir = "{{ js .BaseConfig.DBPath }}"
 # Multi disk storage
-data_paths = "{{ js .BaseConfig.DBOtherPaths }}"
+data_other_paths = "{{ js .BaseConfig.DBOtherPaths }}"
 
 # Output level for logging, including package level options
 log_level = "{{ .BaseConfig.LogLevel }}"

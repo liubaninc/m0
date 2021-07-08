@@ -368,9 +368,9 @@ func addrToIP(addr net.Addr) net.IP {
 	return ip
 }
 
-func openDB(rootDir string, options map[string]interface{}) (dbm.DB, error) {
+func openDB(rootDir string) (dbm.DB, error) {
 	dataDir := filepath.Join(rootDir, "data")
-	return sdk.NewLevelDB("application", dataDir, options)
+	return sdk.NewLevelDB("application", dataDir)
 }
 
 func openTraceWriter(traceWriterFile string) (w io.Writer, err error) {

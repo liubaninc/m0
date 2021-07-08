@@ -30,7 +30,7 @@ func NewLegacy(name, dir string, opts ...KeybaseOption) (LegacyKeybase, error) {
 		return nil, fmt.Errorf("failed to create Keybase directory: %s", err)
 	}
 
-	db, err := sdk.NewLevelDB(name, dir, map[string]interface{}{})
+	db, err := sdk.NewLevelDB(name, dir)
 	if err != nil {
 		return nil, err
 	}
