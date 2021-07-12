@@ -12,7 +12,7 @@ endif
 
 PACKAGES=$(shell go list ./... | grep -v '/simulation')
 PACKAGES_SIMTEST=$(shell go list ./... | grep '/simulation')
-LEDGER_ENABLED ?= false
+LEDGER_ENABLED ?= true
 SDK_PACK := $(shell go list -m github.com/cosmos/cosmos-sdk | sed  's/ /\@/g')
 TM_VERSION := $(shell go list -m github.com/tendermint/tendermint | sed 's:.* ::') # grab everything after the space in "github.com/tendermint/tendermint v0.34.7"
 DOCKER := $(shell which docker)
@@ -46,9 +46,26 @@ ifeq ($(LEDGER_ENABLED),true)
   endif
 endif
 
-ifeq (cleveldb,$(findstring cleveldb,$(BUILD_OPTIONS)))
-  build_tags += gcc cleveldb
+ # handle cleveldb
+ ifeq (cleveldb,$(findstring cleveldb,$(M0_BUILD_OPTIONS)))
+   BUILD_TAGS += cleveldb
+ endif
+
+# handle badgerdb
+ifeq (badgerdb,$(findstring badgerdb,$(M0_BUILD_OPTIONS)))
+  BUILD_TAGS += badgerdb
 endif
+
+# handle rocksdb
+ifeq (rocksdb,$(findstring rocksdb,$(M0_BUILD_OPTIONS)))
+  BUILD_TAGS += rocksdb
+endif
+
+# handle boltdb
+ifeq (boltdb,$(findstring boltdb,$(M0_BUILD_OPTIONS)))
+  BUILD_TAGS += boltdb
+endif
+
 build_tags += $(BUILD_TAGS)
 build_tags := $(strip $(build_tags))
 
