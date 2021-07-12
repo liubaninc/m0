@@ -63,7 +63,6 @@ func NewDB(name string, backend BackendType, dir string, options map[string]inte
 		return nil, fmt.Errorf("unknown db_backend %s, expected one of %v",
 			backend, strings.Join(keys, ","))
 	}
-	fmt.Printf("initialize database:%s,%s,%s,%w \n", name, backend, dir, options)
 	db, err := dbCreator(name, dir, options)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize database: %w", err)
