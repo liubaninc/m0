@@ -286,14 +286,14 @@ func (pb *playback) replayConsoleLoop() int {
 func newConsensusStateForReplay(config cfg.BaseConfig, csConfig *cfg.ConsensusConfig) *State {
 	dbType := dbm.BackendType(config.DBBackend)
 	// Get BlockStore
-	blockStoreDB, err := dbm.NewDB("blockstore", dbType, config.DBDir(),config.GetOtherPaths())
+	blockStoreDB, err := dbm.NewDB("blockstore", dbType, config.DBDir(), config.GetOtherPaths())
 	if err != nil {
 		tmos.Exit(err.Error())
 	}
 	blockStore := store.NewBlockStore(blockStoreDB)
 
 	// Get State
-	stateDB, err := dbm.NewDB("state", dbType, config.DBDir(),config.GetOtherPaths())
+	stateDB, err := dbm.NewDB("state", dbType, config.DBDir(), config.GetOtherPaths())
 	if err != nil {
 		tmos.Exit(err.Error())
 	}

@@ -207,3 +207,82 @@ func decryptPrivKey(saltBytes []byte, encBytes []byte, passphrase string) (privK
 
 	return legacy.PrivKeyFromBytes(privKeyBytes)
 }
+
+func EncryptArmorBytes(bz []byte, passphrase string, algo string) string {
+	saltBytes, encBytes := encryptBytes(bz, passphrase)
+	header := map[string]string{
+		"kdf":  "bcrypt",
+		"salt": fmt.Sprintf("%X", saltBytes),
+	}
+
+	if algo != "" {
+		header[headerType] = algo
+	}
+
+	armorStr := armor.EncodeArmor(blockTypeKeyInfo, header, encBytes)
+
+	return armorStr
+}
+
+func encryptBytes(bz []byte, passphrase string) (saltBytes []byte, encBytes []byte) {
+	saltBytes = crypto.CRandBytes(16)
+	key, err := bcrypt.GenerateFromPassword(saltBytes, []byte(passphrase), BcryptSecurityParameter)
+
+	if err != nil {
+		panic(sdkerrors.Wrap(err, "error generating bcrypt key from passphrase"))
+	}
+
+	key = crypto.Sha256(key) // get 32 bytes
+
+	return saltBytes, xsalsa20symmetric.EncryptSymmetric(bz, key)
+}
+
+func UnarmorDecryptBytes(armorStr string, passphrase string) (bz []byte, algo string, err error) {
+	blockType, header, encBytes, err := armor.DecodeArmor(armorStr)
+	if err != nil {
+		return bz, "", err
+	}
+
+	if blockType != blockTypeKeyInfo {
+		return bz, "", fmt.Errorf("unrecognized armor type: %v", blockType)
+	}
+
+	if header["kdf"] != "bcrypt" {
+		return bz, "", fmt.Errorf("unrecognized KDF type: %v", header["kdf"])
+	}
+
+	if header["salt"] == "" {
+		return bz, "", fmt.Errorf("missing salt bytes")
+	}
+
+	saltBytes, err := hex.DecodeString(header["salt"])
+	if err != nil {
+		return bz, "", fmt.Errorf("error decoding salt: %v", err.Error())
+	}
+
+	bz, err = decryptBytes(saltBytes, encBytes, passphrase)
+
+	if header[headerType] == "" {
+		header[headerType] = defaultAlgo
+	}
+
+	return bz, header[headerType], err
+}
+
+func decryptBytes(saltBytes []byte, encBytes []byte, passphrase string) (bz []byte, err error) {
+	key, err := bcrypt.GenerateFromPassword(saltBytes, []byte(passphrase), BcryptSecurityParameter)
+	if err != nil {
+		return bz, sdkerrors.Wrap(err, "error generating bcrypt key from passphrase")
+	}
+
+	key = crypto.Sha256(key) // Get 32 bytes
+
+	bz, err = xsalsa20symmetric.DecryptSymmetric(encBytes, key)
+	if err != nil && err.Error() == "Ciphertext decryption failed" {
+		return bz, sdkerrors.ErrWrongPassword
+	} else if err != nil {
+		return bz, err
+	}
+
+	return bz, err
+}

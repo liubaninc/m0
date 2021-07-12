@@ -4,10 +4,8 @@ import (
 	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
-	"crypto/md5"
 	"encoding/base64"
-	"fmt"
-	"io"
+	"github.com/tendermint/tendermint/crypto/tmhash"
 )
 
 func PKCS5Padding(ciphertext []byte, blockSize int) []byte {
@@ -52,8 +50,7 @@ func AesDecrypt(crypted, key []byte) ([]byte, error) {
 
 func Encode(key string, data string) string {
 
-	//16,24,32 key length
-	var aeskey = []byte(md5_32(key))
+	aeskey := tmhash.Sum([]byte(key))
 
 	dataByte := []byte(data)
 
@@ -62,34 +59,4 @@ func Encode(key string, data string) string {
 	pass64 := base64.StdEncoding.EncodeToString(xpass)
 
 	return pass64
-}
-
-//对字符串进行MD5哈希，返回 32 位结果
-func md5_32(data string) string {
-	t := md5.New()
-	io.WriteString(t, data)
-	return fmt.Sprintf("%x", t.Sum(nil))
-}
-
-func main() {
-
-	var aeskey = []byte("1234567887654321")
-
-	pass64 := Encode("1234567887654321", "mydata")
-
-	fmt.Printf("加密后:%v\n", pass64)
-
-	bytesPass, err := base64.StdEncoding.DecodeString(pass64)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	tpass, err := AesDecrypt(bytesPass, aeskey)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	fmt.Printf("解密后:%s\n", tpass)
-
 }

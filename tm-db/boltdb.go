@@ -16,7 +16,7 @@ var (
 )
 
 func init() {
-	registerDBCreator(BoltDBBackend, func(name, dir string) (DB, error) {
+	registerDBCreator(BoltDBBackend, func(name, dir string, options map[string]interface{}) (DB, error) {
 		return NewBoltDB(name, dir)
 	}, false)
 }

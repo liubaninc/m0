@@ -263,10 +263,15 @@ func (api *API) AccountCreate(c *gin.Context) {
 		return
 	}
 
+	mnemonicArmor := request.Mnemonic
+	if len(request.Mnemonic) > 0 {
+		mnemonicArmor = crypto.EncryptArmorBytes([]byte(request.Mnemonic), request.Password, request.Algo)
+	}
+
 	acct := &model.Account{
 		Name:       request.Name,
 		Address:    info.GetAddress().String(),
-		Mnemonic:   request.Mnemonic,
+		Mnemonic:   mnemonicArmor,
 		PrivateKey: privateKeyArmor,
 		PublicKey:  hex.EncodeToString(api.client.LegacyAmino.MustMarshalBinaryBare(info.GetPubKey())),
 		Info:       string(signingAlgo.Name()),
@@ -512,9 +517,22 @@ func (api *API) AccountExport(c *gin.Context) {
 		return
 	}
 
+	var mnemonic []byte
+	if len(account.Mnemonic) > 0 {
+		mnemonic, _, err = crypto.UnarmorDecryptBytes(account.Mnemonic, request.Password)
+		if err != nil {
+			response.Code = ExecuteCode
+			response.Msg = ERROR_PASSWORD
+			response.Detail = err.Error()
+			api.logger.Error(c.Request.URL.Path, "error", response.Detail)
+			c.JSON(http.StatusOK, response)
+			return
+		}
+	}
+
 	response.Data = &AccountExportResponse{
 		AccountResponse: toAccount(&account),
-		Mnemonic:        account.Mnemonic,
+		Mnemonic:        string(mnemonic),
 		PrivateKeyArmor: account.PrivateKey,
 		PrivateKey:      hex.EncodeToString(privateKey.Bytes()),
 	}

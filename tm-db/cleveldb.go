@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	dbCreator := func(name string, dir string) (DB, error) {
+	dbCreator := func(name string, dir string, options map[string]interface{}) (DB, error) {
 		return NewCLevelDB(name, dir)
 	}
 	registerDBCreator(CLevelDBBackend, dbCreator, false)
