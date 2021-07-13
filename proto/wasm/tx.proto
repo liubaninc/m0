@@ -12,6 +12,18 @@ service Msg {
   rpc Deploy(MsgDeploy) returns (MsgDeployResponse);
   rpc Upgrade(MsgUpgrade) returns (MsgUpgradeResponse);
   rpc Invoke(MsgInvoke) returns (MsgInvokeResponse);
+  rpc Govern(MsgGovern) returns (MsgGovernResponse);
+}
+
+
+message MsgGovern {
+  string creator = 1;
+  string desc = 2;
+  string contract_name = 3;
+  int32 contract_status = 4;
+}
+
+message MsgGovernResponse {
 }
 
 message MsgDeploy {
