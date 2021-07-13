@@ -1,0 +1,19 @@
+syntax = "proto3";
+package liubaninc.m0.authority;
+
+option go_package = "github.com/liubaninc/m0/x/authority/types";
+
+message Account {
+    string address = 2;
+    string pub_key = 3;
+    uint64 account_number = 4;
+    uint64 sequence = 5;
+    repeated string roles = 6;
+}
+
+message PendingAccount {
+    string address = 2;
+    string pub_key = 3;
+    repeated string roles = 4;
+    repeated string approvals = 5;
+}

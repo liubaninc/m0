@@ -1,0 +1,23 @@
+syntax = "proto3";
+package liubaninc.m0.authority;
+
+// this line is used by starport scaffolding # proto/tx/import
+
+option go_package = "github.com/liubaninc/m0/x/authority/types";
+
+// Msg defines the Msg service.
+service Msg {
+    // this line is used by starport scaffolding # proto/tx/rpc
+  rpc ProposeAddAccount(MsgProposeAddAccountRequest) returns (MsgProposeAddAccountResponse);
+}
+
+// this line is used by starport scaffolding # proto/tx/message
+message MsgProposeAddAccountRequest {
+  string creator = 1;
+  string address = 2;
+  string public_key = 3;
+  repeated string roles = 4;
+}
+
+message MsgProposeAddAccountResponse {
+}
