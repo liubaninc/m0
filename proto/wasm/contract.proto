@@ -10,4 +10,5 @@ message Contract {
   string name = 1;
   string initiator = 2;
   xmodel.WasmCodeDesc desc = 3;
+  int32 contract_status = 7;
 }

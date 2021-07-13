@@ -29,4 +29,5 @@ message InvokeRequest {
   repeated xmodel.ResourceLimit resource_limits = 5;
   // amount is the amount transfer to the contract
   repeated cosmos.base.v1beta1.Coin amount = 6 [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+  int32 contract_status = 7;
 }
