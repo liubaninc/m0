@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	// this line is used by starport scaffolding # 1
 	"github.com/liubaninc/m0/x/wasm/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -19,7 +18,6 @@ func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 		)
 
 		switch path[0] {
-		// this line is used by starport scaffolding # 1
 		default:
 			err = sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unknown %s query endpoint: %s", types.ModuleName, path[0])
 		}
