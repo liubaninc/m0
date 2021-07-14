@@ -8,10 +8,19 @@ option go_package = "github.com/liubaninc/m0/x/authority/types";
 // Msg defines the Msg service.
 service Msg {
     // this line is used by starport scaffolding # proto/tx/rpc
+  rpc ApproveAddAccount(MsgApproveAddAccountRequest) returns (MsgApproveAddAccountResponse);
   rpc ProposeAddAccount(MsgProposeAddAccountRequest) returns (MsgProposeAddAccountResponse);
 }
 
 // this line is used by starport scaffolding # proto/tx/message
+message MsgApproveAddAccountRequest {
+  string creator = 1;
+  string address = 2;
+}
+
+message MsgApproveAddAccountResponse {
+}
+
 message MsgProposeAddAccountRequest {
   string creator = 1;
   string address = 2;

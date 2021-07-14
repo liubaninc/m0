@@ -8,7 +8,7 @@ import (
 )
 
 // Check if account has assigned role.
-func (k Keeper) HasRole(ctx sdk.Context, addr sdk.AccAddress, roleToCheck string) bool {
+func (k Keeper) HasRole(ctx sdk.Context, addr string, roleToCheck string) bool {
 	account := k.GetAccount(ctx, addr)
 
 	for _, role := range account.Roles {
@@ -20,11 +20,11 @@ func (k Keeper) HasRole(ctx sdk.Context, addr sdk.AccAddress, roleToCheck string
 }
 
 // Get the Account record associated with an address.
-func (k Keeper) GetAccount(ctx sdk.Context, addr sdk.AccAddress) (acc types.Account) {
+func (k Keeper) GetAccount(ctx sdk.Context, addr string) (acc types.Account) {
 
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.GetAccountKey(addr))
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountPrefix))
 
-	b := store.Get(types.GetAccountKey(addr))
+	b := store.Get(types.KeyPrefix(addr))
 	if b == nil {
 		return acc
 	}
@@ -34,17 +34,38 @@ func (k Keeper) GetAccount(ctx sdk.Context, addr sdk.AccAddress) (acc types.Acco
 
 // Set Account record for an address.
 func (k Keeper) SetAccount(ctx sdk.Context, acc types.Account) {
-	address, _ := sdk.AccAddressFromBech32(acc.Address)
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.GetAccountKey(address))
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountPrefix))
 	bz := k.cdc.MustMarshalBinaryBare(&acc)
-	store.Set(types.GetAccountKey(address), bz)
+	store.Set(types.KeyPrefix(acc.Address), bz)
+}
+
+// Gets the Pending Account record associated with an address.
+func (k Keeper) GetPendingAccount(ctx sdk.Context, address string) (acc types.PendingAccount) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.PendingAccountPrefix))
+	bz := store.Get(types.KeyPrefix(address))
+
+	if bz == nil {
+		return acc
+	}
+	k.cdc.MustUnmarshalBinaryBare(bz, &acc)
+
+	return acc
 }
 
 // Sets Pending Account record for an address.
 func (k Keeper) SetPendingAccount(ctx sdk.Context, pendAcc types.PendingAccount) {
-	address, _ := sdk.AccAddressFromBech32(pendAcc.Address)
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.GetPendingAccountKey(address))
-	store.Set(types.GetPendingAccountKey(address), k.cdc.MustMarshalBinaryBare(&pendAcc))
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.PendingAccountPrefix))
+	store.Set(types.KeyPrefix(pendAcc.Address), k.cdc.MustMarshalBinaryBare(&pendAcc))
+}
+
+// Deletes the Pending Account from the store.
+func (k Keeper) DeletePendingAccount(ctx sdk.Context, address string) {
+	if !k.IsPendingAccountPresent(ctx, address) {
+		return
+	}
+
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.PendingAccountPrefix))
+	store.Delete(types.KeyPrefix(address))
 }
 
 /*
@@ -52,8 +73,8 @@ func (k Keeper) SetPendingAccount(ctx sdk.Context, pendAcc types.PendingAccount)
 */
 func (k Keeper) GetNextAccountNumber(ctx sdk.Context) (unit64Value gogotypes.UInt64Value) {
 
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.AccountNumberCounterKey)
-	bz := store.Get(types.AccountNumberCounterKey)
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountNumberCounterKey))
+	bz := store.Get(types.KeyPrefix(types.AccountNumberCounterKey))
 	var accNumber uint64
 	if bz == nil {
 		accNumber = 0
@@ -62,22 +83,22 @@ func (k Keeper) GetNextAccountNumber(ctx sdk.Context) (unit64Value gogotypes.UIn
 	}
 	bz = k.cdc.MustMarshalBinaryBare(&gogotypes.UInt64Value{Value: accNumber + 1})
 
-	store.Set(types.AccountNumberCounterKey, bz)
+	store.Set(types.KeyPrefix(types.AccountNumberCounterKey), bz)
 	return
 }
 
 // Check if the Account record associated with an address is present in the store or not.
-func (k Keeper) IsAccountPresent(ctx sdk.Context, acc sdk.AccAddress) bool {
-	store := ctx.KVStore(k.storeKey)
+func (k Keeper) IsAccountPresent(ctx sdk.Context, address string) bool {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountPrefix))
 
-	return store.Has(types.GetAccountKey(acc))
+	return store.Has(types.KeyPrefix(address))
 }
 
 // Check if the Pending Account record associated with an address is present in the store or not.
-func (k Keeper) IsPendingAccountPresent(ctx sdk.Context, address sdk.AccAddress) bool {
-	store := ctx.KVStore(k.storeKey)
+func (k Keeper) IsPendingAccountPresent(ctx sdk.Context, address string) bool {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.PendingAccountPrefix))
 
-	return store.Has(types.GetPendingAccountKey(address))
+	return store.Has(types.KeyPrefix(address))
 }
 
 // Count account with assigned role.
@@ -101,9 +122,8 @@ func (k Keeper) CountAccountsWithRole(ctx sdk.Context, roleToCount string) int {
 
 // Iterate over all stored accounts.
 func (k Keeper) IterateAccounts(ctx sdk.Context, process func(types.Account) (stop bool)) {
-	store := ctx.KVStore(k.storeKey)
-	iter := sdk.KVStorePrefixIterator(store, types.AccountPrefix)
-
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AccountPrefix))
+	iter := sdk.KVStorePrefixIterator(store, types.KeyPrefix(types.AccountPrefix))
 	defer iter.Close()
 
 	for {

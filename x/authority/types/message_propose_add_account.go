@@ -21,7 +21,7 @@ func (msg *MsgProposeAddAccountRequest) Route() string {
 }
 
 func (msg *MsgProposeAddAccountRequest) Type() string {
-	return "propose-add-account"
+	return "ProposeAddAccount"
 }
 
 func (msg *MsgProposeAddAccountRequest) GetSigners() []sdk.AccAddress {
