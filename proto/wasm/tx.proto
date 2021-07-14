@@ -1,6 +1,7 @@
 syntax = "proto3";
 package liubaninc.m0.wasm;
 
+// this line is used by starport scaffolding # proto/tx/import
 import "xmodel/xmodel.proto";
 import "utxo/input.proto";
 import "wasm/ext.proto";
@@ -11,11 +12,14 @@ option go_package = "github.com/liubaninc/m0/x/wasm/types";
 service Msg {
   // this line is used by starport scaffolding # proto/tx/rpc
   rpc Deploy(MsgDeploy) returns (MsgDeployResponse);
+  // this line is used by starport scaffolding # proto/tx/rpc
   rpc Upgrade(MsgUpgrade) returns (MsgUpgradeResponse);
+  // this line is used by starport scaffolding # proto/tx/rpc
   rpc Invoke(MsgInvoke) returns (MsgInvokeResponse);
 }
 
 
+// this line is used by starport scaffolding # proto/tx/message
 message MsgDeploy {
   string creator = 1;
   string desc = 2;
@@ -31,9 +35,11 @@ message MsgDeploy {
   repeated xmodel.ResourceLimit resource_limits = 30;
 }
 
+// this line is used by starport scaffolding # proto/tx/message
 message MsgDeployResponse {
 }
 
+// this line is used by starport scaffolding # proto/tx/message
 message MsgUpgrade {
   string creator = 1;
   string desc = 2;
@@ -47,9 +53,11 @@ message MsgUpgrade {
   repeated xmodel.ResourceLimit resource_limits = 30;
 }
 
+// this line is used by starport scaffolding # proto/tx/message
 message MsgUpgradeResponse {
 }
 
+// this line is used by starport scaffolding # proto/tx/message
 message MsgInvoke {
   string creator = 1;
   string desc = 2;
@@ -61,5 +69,6 @@ message MsgInvoke {
   repeated InvokeRequest contract_requests = 24;
 }
 
+// this line is used by starport scaffolding # proto/tx/message
 message MsgInvokeResponse {
 }
