@@ -27,6 +27,7 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/hashicorp/golang-lru v0.5.4
+	github.com/liubaninc/m0 v0.0.0-20210712085953-254913928b07 // indirect
 	github.com/magiconair/properties v1.8.5
 	github.com/mattn/go-isatty v0.0.12
 	github.com/mitchellh/mapstructure v1.3.3 // indirect
@@ -51,10 +52,10 @@ require (
 	github.com/tendermint/tendermint v0.34.10
 	github.com/tendermint/tm-db v0.6.4
 	github.com/tjfoc/gmsm v1.4.0
-	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad
+	golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2
 	golang.org/x/sys v0.0.0-20210510120138-977fb7262007 // indirect
-	google.golang.org/genproto v0.0.0-20210114201628-6edceaf6022f
-	google.golang.org/grpc v1.37.0
+	google.golang.org/genproto v0.0.0-20210617175327-b9e0b3197ced
+	google.golang.org/grpc v1.38.0
 	google.golang.org/protobuf v1.26.0
 	gopkg.in/ini.v1 v1.61.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0
