@@ -28,7 +28,7 @@ func GetTxCmd() *cobra.Command {
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
 	}
-
+	// this line is used by starport scaffolding # 1
 	cmd.AddCommand(CmdDeploy())
 	cmd.AddCommand(CmdUpgrade())
 	cmd.AddCommand(CmdInvoke())
