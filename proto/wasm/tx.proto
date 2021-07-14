@@ -1,6 +1,6 @@
 syntax = "proto3";
 package liubaninc.m0.wasm;
-
+// this line is used by starport scaffolding # 1
 // this line is used by starport scaffolding # proto/tx/import
 import "xmodel/xmodel.proto";
 import "utxo/input.proto";
