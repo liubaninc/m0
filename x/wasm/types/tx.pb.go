@@ -29,6 +29,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// this line is used by starport scaffolding # proto/tx/message
 type MsgDeploy struct {
 	Creator        string                  `protobuf:"bytes,1,opt,name=creator,proto3" json:"creator,omitempty"`
 	Desc           string                  `protobuf:"bytes,2,opt,name=desc,proto3" json:"desc,omitempty"`
@@ -153,6 +154,7 @@ func (m *MsgDeploy) GetResourceLimits() []*xmodel.ResourceLimit {
 	return nil
 }
 
+// this line is used by starport scaffolding # proto/tx/message
 type MsgDeployResponse struct {
 }
 
@@ -189,6 +191,7 @@ func (m *MsgDeployResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgDeployResponse proto.InternalMessageInfo
 
+// this line is used by starport scaffolding # proto/tx/message
 type MsgUpgrade struct {
 	Creator        string                  `protobuf:"bytes,1,opt,name=creator,proto3" json:"creator,omitempty"`
 	Desc           string                  `protobuf:"bytes,2,opt,name=desc,proto3" json:"desc,omitempty"`
@@ -297,6 +300,7 @@ func (m *MsgUpgrade) GetResourceLimits() []*xmodel.ResourceLimit {
 	return nil
 }
 
+// this line is used by starport scaffolding # proto/tx/message
 type MsgUpgradeResponse struct {
 }
 
@@ -333,6 +337,7 @@ func (m *MsgUpgradeResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgUpgradeResponse proto.InternalMessageInfo
 
+// this line is used by starport scaffolding # proto/tx/message
 type MsgInvoke struct {
 	Creator          string           `protobuf:"bytes,1,opt,name=creator,proto3" json:"creator,omitempty"`
 	Desc             string           `protobuf:"bytes,2,opt,name=desc,proto3" json:"desc,omitempty"`
@@ -425,6 +430,7 @@ func (m *MsgInvoke) GetContractRequests() []*InvokeRequest {
 	return nil
 }
 
+// this line is used by starport scaffolding # proto/tx/message
 type MsgInvokeResponse struct {
 }
 
@@ -523,8 +529,11 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
+	// this line is used by starport scaffolding # proto/tx/rpc
 	Deploy(ctx context.Context, in *MsgDeploy, opts ...grpc.CallOption) (*MsgDeployResponse, error)
+	// this line is used by starport scaffolding # proto/tx/rpc
 	Upgrade(ctx context.Context, in *MsgUpgrade, opts ...grpc.CallOption) (*MsgUpgradeResponse, error)
+	// this line is used by starport scaffolding # proto/tx/rpc
 	Invoke(ctx context.Context, in *MsgInvoke, opts ...grpc.CallOption) (*MsgInvokeResponse, error)
 }
 
@@ -565,8 +574,11 @@ func (c *msgClient) Invoke(ctx context.Context, in *MsgInvoke, opts ...grpc.Call
 
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
+	// this line is used by starport scaffolding # proto/tx/rpc
 	Deploy(context.Context, *MsgDeploy) (*MsgDeployResponse, error)
+	// this line is used by starport scaffolding # proto/tx/rpc
 	Upgrade(context.Context, *MsgUpgrade) (*MsgUpgradeResponse, error)
+	// this line is used by starport scaffolding # proto/tx/rpc
 	Invoke(context.Context, *MsgInvoke) (*MsgInvokeResponse, error)
 }
 

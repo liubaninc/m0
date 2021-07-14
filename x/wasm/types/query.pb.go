@@ -31,6 +31,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// this line is used by starport scaffolding # 3
 type InvokeRPCRequest struct {
 	Creator  string           `protobuf:"bytes,1,opt,name=creator,proto3" json:"creator,omitempty"`
 	Lock     int64            `protobuf:"varint,2,opt,name=lock,proto3" json:"lock,omitempty"`
@@ -555,6 +556,7 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
+	// this line is used by starport scaffolding # 2
 	//预执行合约
 	PreExec(ctx context.Context, in *InvokeRPCRequest, opts ...grpc.CallOption) (*InvokeRPCResponse, error)
 	Contract(ctx context.Context, in *QueryGetContractRequest, opts ...grpc.CallOption) (*QueryGetContractResponse, error)
@@ -608,6 +610,7 @@ func (c *queryClient) AccountContractAll(ctx context.Context, in *QueryGetAccoun
 
 // QueryServer is the server API for Query service.
 type QueryServer interface {
+	// this line is used by starport scaffolding # 2
 	//预执行合约
 	PreExec(context.Context, *InvokeRPCRequest) (*InvokeRPCResponse, error)
 	Contract(context.Context, *QueryGetContractRequest) (*QueryGetContractResponse, error)

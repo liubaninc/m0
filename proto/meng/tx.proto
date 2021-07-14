@@ -1,0 +1,39 @@
+syntax = "proto3";
+package liubaninc.m0.meng;
+
+// this line is used by starport scaffolding # proto/tx/import
+
+option go_package = "github.com/liubaninc/m0/x/meng/types";
+
+// Msg defines the Msg service.
+service Msg {
+    // this line is used by starport scaffolding # proto/tx/rpc
+  rpc Destroy(MsgDestroy) returns (MsgDestroyResponse);
+  rpc Unfreeze(MsgUnfreeze) returns (MsgUnfreezeResponse);
+  rpc Freeze(MsgFreeze) returns (MsgFreezeResponse);
+}
+
+// this line is used by starport scaffolding # proto/tx/message
+message MsgDestroy {
+  string creator = 1;
+  string contractName = 2;
+}
+
+message MsgDestroyResponse {
+}
+
+message MsgUnfreeze {
+  string creator = 1;
+  string contractName = 2;
+}
+
+message MsgUnfreezeResponse {
+}
+
+message MsgFreeze {
+  string creator = 1;
+  string contractName = 2;
+}
+
+message MsgFreezeResponse {
+}
