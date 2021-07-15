@@ -127,25 +127,28 @@
   </div>
 </template>
 <script>
-import { queryWalletLists, createMoreSignWallet } from "@/server/wallet";
-import { localCache } from "@/utils/utils";
+import { queryWalletLists, createMoreSignWallet } from '@/server/wallet'
+import { localCache } from '@/utils/utils'
 export default {
   data() {
     return {
       active: 1,
       keyLists: [],
-      publicKeyName: "",
+      publicKeyName: '',
       keysInput: [],
-      qmCount: "",
-      otherPrivateKey: "",
-      walletName: "",
-    };
+      qmCount: '',
+      otherPrivateKey: '',
+      walletName: '',
+    }
   },
   created() {
-    this.getKeyLists();
+    this.getKeyLists()
+  },
+  destroyed() {
+    clearTimeout(this.timer && this.timer)
   },
   methods: {
-    async toCreateMoreSignWallet() {
+    toCreateMoreSignWallet() {
       let {
         walletName,
         publicKeyName,
@@ -153,62 +156,70 @@ export default {
         keysInput,
         otherPrivateKey,
         keyLists,
-      } = this;
+      } = this
 
       if (!walletName) {
-        this.$message.error("请输入钱包名称");
-        return;
+        this.$message.error('请输入钱包名称')
+        return
       }
       if (!publicKeyName) {
-        this.$message.error("请选择公钥");
-        return;
+        this.$message.error('请选择公钥')
+        return
       }
 
       if (!otherPrivateKey) {
-        this.$message.error("请输入添加其他密钥");
-        return;
+        this.$message.error('请输入添加其他密钥')
+        return
       }
 
       if (!qmCount) {
-        this.$message.error("请输入所需签名数");
-        return;
+        this.$message.error('请输入所需签名数')
+        return
       }
 
       if (!(qmCount >= 1)) {
-        return;
+        return
       }
       let publicKey = keyLists.filter((list) => list.name == publicKeyName)[0][
-        "public_key"
-      ];
-      let multis = keysInput.map(({ value }) => value) || [];
-      let mulWalletInfo = await createMoreSignWallet.call(this, {
-        name: walletName,
-        related: publicKeyName,
-        multi_sig: [publicKey, otherPrivateKey, ...multis],
-        threshold: qmCount * 1,
-      });
-      if (mulWalletInfo) {
-        localCache.set("walletInfo", mulWalletInfo);
-        this.$router.push(`/wallet/walCreateSuccess?type=2`);
-      }
+        'public_key'
+      ]
+      let multis = keysInput.map(({ value }) => value) || []
+
+      this.timer = setTimeout(async () => {
+        let mulWalletInfo = await createMoreSignWallet.call(this, {
+          name: walletName,
+          related: publicKeyName,
+          multi_sig: [publicKey, otherPrivateKey, ...multis],
+          threshold: qmCount * 1,
+        })
+        if (mulWalletInfo) {
+          clearTimeout(this.timer)
+          localCache.set('walletInfo', mulWalletInfo)
+          this.$router.push(`/wallet/walCreateSuccess?type=2`)
+        }
+      }, 300)
     },
     addOtherKey() {
-      this.keysInput.push({ value: "" });
+      this.keysInput.push({ value: '' })
     },
     delRow(index) {
-      this.keysInput.splice(index, 1);
+      this.keysInput.splice(index, 1)
     },
     async getKeyLists() {
+      // let { accounts } = await queryWalletLists({
+      //   page_size: 1,
+      //   page_num: 1000,
+      // })
       let { accounts } = await queryWalletLists({
-        page_size: 1,
-        page_num: 1000,
-      });
+        page_size: 10000,
+        page_num: 1,
+      })
       if (accounts) {
-        this.keyLists = accounts.filter((account) => account.threshold < 1);
+        this.keyLists = accounts.filter((account) => account.threshold < 1)
       }
     },
   },
-};
+}
 </script>
 <style>
 .wallet {
@@ -263,7 +274,7 @@ export default {
   display: flex;
   align-items: center;
   justify-items: center;
-  font-family: "PingFangSC-Medium", "PingFang SC Medium", "PingFang SC",
+  font-family: 'PingFangSC-Medium', 'PingFang SC Medium', 'PingFang SC',
     sans-serif;
   font-weight: 500;
   font-style: normal;
@@ -277,7 +288,7 @@ export default {
   margin: 0 12px 0 0;
 }
 .form-rows-name {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -285,7 +296,7 @@ export default {
   margin: 10px 0;
 }
 .form-rows-desc {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -314,14 +325,14 @@ export default {
   display: block;
   margin: 0 0 0 10px;
   color: #ff5a58;
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
 }
 
 .add-private-account {
-  font-family: "PingFangSC-Medium", "PingFang SC Medium", "PingFang SC",
+  font-family: 'PingFangSC-Medium', 'PingFang SC Medium', 'PingFang SC',
     sans-serif;
   font-weight: 500;
   font-style: normal;
@@ -332,7 +343,7 @@ export default {
 }
 
 .wallet-btn-default {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;

@@ -4,17 +4,27 @@
     <div class="wallet-warpper">
       <el-breadcrumb separator="/" class="wallet-breadcrumb">
         <el-breadcrumb-item :to="{ path: '/' }">我的钱包</el-breadcrumb-item>
-        <el-breadcrumb-item class="breadcrumb-cur-page"
-          >创建钱包
+        <el-breadcrumb-item class="breadcrumb-cur-page">
+          <template v-if="curSucessType == 'importwal'"> 导入钱包 </template>
+          <template v-else> 创建钱包 </template>
         </el-breadcrumb-item>
       </el-breadcrumb>
       <div class="cm-module-bg wallet-create-main">
         <div class="wallet-steps">
-          <el-steps :active="active" align-center finish-status="wait">
-            <el-step title="选择钱包类型"></el-step>
-            <el-step title="创建钱包"></el-step>
-            <el-step title="创建成功"></el-step>
-          </el-steps>
+          <template v-if="curSucessType == 'importwal'">
+            <el-steps :active="active" align-center finish-status="wait">
+              <el-step title="选择导入类型"></el-step>
+              <el-step title="导入钱包"></el-step>
+              <el-step title="导入成功"></el-step>
+            </el-steps>
+          </template>
+          <template v-else>
+            <el-steps :active="active" align-center finish-status="wait">
+              <el-step title="选择钱包类型"></el-step>
+              <el-step title="创建钱包"></el-step>
+              <el-step title="创建成功"></el-step>
+            </el-steps>
+          </template>
         </div>
         <div class="wallet-ct-success">
           <img
@@ -22,11 +32,18 @@
             alt=""
             srcset=""
           />
-          <template v-if="!type"> 单签钱包创建成功 </template>
-          <template v-else> 多签钱包创建成功 </template>
-          <div class="more-tips">
-            温馨提示：如需进行多签签名，钱包内的每把公钥都需独立进行“创建多签钱包”的操作。
-          </div>
+          <template v-if="curSucessType == 'importwal'">
+            钱包导入成功
+          </template>
+          <template v-else>
+            <template v-if="!type"> 单签钱包创建成功 </template>
+            <template v-else> 多签钱包创建成功 </template>
+            <template v-if="walletInfo.threshold > 0">
+              <div class="more-tips">
+                温馨提示：如需进行多签签名，钱包内的每把公钥都需独立进行“创建多签钱包”的操作。
+              </div>
+            </template>
+          </template>
         </div>
         <div class="wallet-form wallet-form-mesg">
           <div class="wallet-form-title wallet-form-success">
@@ -172,55 +189,58 @@
   </div>
 </template>
 <script>
-import { localCache } from "@/utils/utils";
+import { localCache } from '@/utils/utils'
 export default {
   data() {
     return {
       active: 2,
       walletInfo: {},
       type: null,
-    };
+      curSucessType: '',
+    }
   },
   created() {
-    let walletInfo = localCache.get("walletInfo");
-    let { type } = this.$route.query;
+    let walletInfo = localCache.get('walletInfo')
+    let { type, name } = this.$route.query
     if (walletInfo) {
-      this.walletInfo = walletInfo;
-      this.type = type && type;
+      this.walletInfo = walletInfo
+      this.type = type && type
+
+      this.curSucessType = name
     }
   },
   mounted() {
     if (window.history && window.history.pushState) {
-      history.pushState(null, null, document.URL);
-      window.addEventListener("popstate", this.goBack, false);
+      history.pushState(null, null, document.URL)
+      window.addEventListener('popstate', this.goBack, false)
     }
   },
   destroyed() {
-    window.removeEventListener("popstate", this.goBack, false);
+    window.removeEventListener('popstate', this.goBack, false)
   },
   methods: {
     goBack() {
-      history.pushState(null, null, document.URL);
+      history.pushState(null, null, document.URL)
     },
     backWalletList() {
-      localCache.remove("walletInfo");
-      this.$router.replace(`/wallet`);
+      localCache.remove('walletInfo')
+      this.$router.replace(`/wallet`)
     },
     goWallet() {
-      localCache.remove("walletInfo");
-      localCache.set("wallet", this.walletInfo);
-      this.$router.replace(`/assets?address=${this.walletInfo.address}`);
+      localCache.remove('walletInfo')
+      localCache.set('wallet', this.walletInfo)
+      this.$router.replace(`/assets?address=${this.walletInfo.address}`)
     },
     onCopy(text) {
       if (text) {
-        this.$message("复制成功");
+        this.$message('复制成功')
       }
     },
     onError(e) {
-      console.log(e);
+      console.log(e)
     },
   },
-};
+}
 </script>
 <style>
 .wallet {
@@ -268,7 +288,7 @@ export default {
 }
 .form-info-row {
   display: flex;
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -291,8 +311,7 @@ export default {
   background-size: 100%;
   background-repeat: no-repeat;
   margin-left: 20px;
-    color: #22ac95;
-
+  color: #22ac95;
 }
 
 .wallet-form-mesg {
@@ -301,7 +320,7 @@ export default {
 
 .info-row-name {
   width: 100px;
-  font-family: "PingFangSC-Medium", "PingFang SC Medium", "PingFang SC",
+  font-family: 'PingFangSC-Medium', 'PingFang SC Medium', 'PingFang SC',
     sans-serif;
   font-weight: 500;
   font-style: normal;
@@ -310,7 +329,7 @@ export default {
 }
 
 .wallet-btn-default {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -325,7 +344,7 @@ export default {
 
 .wallet-ct-success {
   text-align: center;
-  font-family: "PingFangSC-Medium", "PingFang SC Medium", "PingFang SC",
+  font-family: 'PingFangSC-Medium', 'PingFang SC Medium', 'PingFang SC',
     sans-serif;
   font-weight: 500;
   font-style: normal;
@@ -375,7 +394,7 @@ export default {
   width: 80%;
 }
 .more-tips {
-  font-family: "PingFangSC-Medium", "PingFang SC Medium", "PingFang SC",
+  font-family: 'PingFangSC-Medium', 'PingFang SC Medium', 'PingFang SC',
     sans-serif;
   font-weight: 500;
   font-style: normal;

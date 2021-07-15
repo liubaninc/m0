@@ -4,11 +4,11 @@
  */
 const path = require("path");
 
+let url = "http://localhost:8080";
+
 function resolve(dir) {
   return path.join(__dirname, dir);
 }
-
-let url = "http://localhost:8080";
 
 module.exports = {
   publicPath: "./", // 打包基本路径
@@ -33,6 +33,12 @@ module.exports = {
     const entry = config.entry("app");
     entry.add("babel-polyfill").end();
     entry.add("classlist-polyfill").end();
+
+    const html = config.plugin("html");
+    html.tap((args) => {
+      args[0].title = process.env.VUE_APP_TITLE;
+      return args;
+    });
   },
   configureWebpack: (config) => {
     if (process.env.NODE_ENV === "production") {
@@ -62,13 +68,12 @@ module.exports = {
     // open: true, // 配置浏览器自动打开
     host: 'localhost', // 默认是localhost
     proxy: {
-      "^/api": {
+      "/api": {
         target: url,
         ws: false, // 需要websocket 开启
         pathRewrite: {
           "^/api": "/api",
         },
-        changeOrigin: true,
       },
     },
   },

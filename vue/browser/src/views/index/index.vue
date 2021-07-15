@@ -173,70 +173,71 @@
 </template>
 
 <script>
-import { createCategoryCharts } from "@/utils/echarts/category";
-import { queryBlockChainInfo, queryBlocks } from "@server/block/queryBlock";
-import { queryTxInfo, queryTxList } from "@server/transaction/queryTx";
+import { createCategoryCharts } from '@/utils/echarts/category'
+import { queryBlockChainInfo, queryBlocks } from '@server/block/queryBlock'
+import { queryTxInfo, queryTxList } from '@server/transaction/queryTx'
 export default {
   data() {
     return {
       chainInfo: {},
       blocks: [],
       txs: [],
-    };
+    }
   },
   async created() {
-    let chainInfo = (await queryBlockChainInfo()) || {};
-    this.chainInfo = chainInfo;
-    let { blocks } = (await queryBlocks()) || [];
-    this.blocks = this.spliceFilter(blocks, 0, 6);
-    let { txs } = (await queryTxList()) || {};
-    this.txs = this.spliceFilter(txs, 0, 6);
+    let chainInfo = (await queryBlockChainInfo()) || {}
+    this.chainInfo = chainInfo
+    let { blocks } = (await queryBlocks()) || []
+    this.blocks = this.spliceFilter(blocks, 0, 6)
+    let { txs } = (await queryTxList()) || {}
+    this.txs = this.spliceFilter(txs, 0, 6)
   },
   mounted() {
-    this.initCharts();
+    this.initCharts()
   },
   methods: {
     async initCharts() {
-      let charts = await this.queryEcharts();
-      let xAxis = [];
-      let series = [];
-      charts.forEach((item) => {
-        xAxis.push(item["time"]);
-        series.push(item["number"]);
-      });
+      let charts = await this.queryEcharts()
+      let xAxis = []
+      let series = []
+      charts &&
+        charts.reverse().forEach((item) => {
+          xAxis.push(item['time'])
+          series.push(item['number'])
+        })
       createCategoryCharts(this.$refs.blockCharts, {
         xAxis,
         series,
-      });
+      })
     },
     async queryEcharts() {
-      let { blocks: blockHeight } = (await queryTxInfo()) || {};
-      return blockHeight;
+      let { blocks: blockHeight } = (await queryTxInfo()) || {}
+      return blockHeight
     },
     toDetail(id, name) {
-      let path = name == "block" ? "/block/info" : "/block/tradeInfo";
+      let path = name == 'block' ? '/block/info' : '/block/tradeInfo'
       this.$router.push({
         path,
         query: {
           name: id,
-          from: "index",
+          from: 'index',
         },
-      });
+      })
     },
     toMore(name) {
-      let path = name == "block" ? "/block/list" : "/block/tradeList";
+      let path = name == 'block' ? '/block/list' : '/block/tradeList'
       this.$router.push({
         path,
         query: {
-          from: "index",
+          from: 'index',
         },
-      });
+      })
     },
     spliceFilter(data, start, end) {
-      return data && data.length ? data.slice(start, end) : [];
+      return data && data.length ? data.slice(start, end) : []
     },
   },
-};
+}
 </script>
 
 <style lang="scss">
@@ -309,8 +310,8 @@ export default {
   font-variant: tabular-nums;
   line-height: 1.5;
   list-style: none;
-  -webkit-font-feature-settings: "tnum";
-  font-feature-settings: "tnum";
+  -webkit-font-feature-settings: 'tnum';
+  font-feature-settings: 'tnum';
   padding: 16px 0;
 }
 .el-table thead {

@@ -7,7 +7,7 @@
           >我的钱包</el-breadcrumb-item
         >
         <el-breadcrumb-item class="breadcrumb-cur-page"
-          >创建钱包
+          >导入钱包
         </el-breadcrumb-item>
       </el-breadcrumb>
       <div class="cm-module-bg wallet-create-main">
@@ -78,19 +78,19 @@ export default {
     return {
       active: 0,
       walletType: 1,
-    };
+    }
   },
   methods: {
     toImportWallet() {
-      if (this.walletType < 1) return;
+      if (this.walletType < 1) return
       if (this.walletType == 1) {
-        this.$router.push(`/wallet/walWordImport?type=1`);
+        this.$router.push(`/wallet/walWordImport?type=1`)
       } else {
-        this.$router.push(`/wallet/walPrivateImport?type=2`);
+        this.$router.push(`/wallet/walPrivateImport?type=2`)
       }
     },
   },
-};
+}
 </script>
 <style scoped>
 .wallet {
@@ -147,7 +147,7 @@ export default {
   margin: 0 auto 10px;
 }
 .item-name {
-  font-family: "PingFangSC-Medium", "PingFang SC Medium", "PingFang SC",
+  font-family: 'PingFangSC-Medium', 'PingFang SC Medium', 'PingFang SC',
     sans-serif;
   font-weight: 500;
   font-style: normal;
@@ -156,7 +156,7 @@ export default {
 }
 
 .item-desc {
-  font-family: "PingFangSC-Medium", "PingFang SC Medium", "PingFang SC",
+  font-family: 'PingFangSC-Medium', 'PingFang SC Medium', 'PingFang SC',
     sans-serif;
   font-weight: 500;
   font-style: normal;

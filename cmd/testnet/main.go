@@ -43,6 +43,7 @@ var (
 func main() {
 	flag.StringVar(&uploadDir, "home", uploadDir, "upload data directory")
 	flag.IntVar(&port, "port", port, "listen port")
+	flag.Parse()
 
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()

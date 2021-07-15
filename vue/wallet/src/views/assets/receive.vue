@@ -1,9 +1,11 @@
 <template>
   <div class="receive">
     <el-breadcrumb separator="/" class="wallet-breadcrumb">
-      <el-breadcrumb-item :to="{ path: '/' }">我的钱包</el-breadcrumb-item>
+      <el-breadcrumb-item :to="{ path: '/assets' }"
+        >资产管理</el-breadcrumb-item
+      >
       <el-breadcrumb-item class="breadcrumb-cur-page"
-        >创建钱包
+        >接收转账
       </el-breadcrumb-item>
     </el-breadcrumb>
     <div class="cm-module-bg wallet-create-main">
@@ -64,24 +66,24 @@
   </div>
 </template>
 <script>
-import QRCode from "qrcodejs2";
+import QRCode from 'qrcodejs2'
 
 export default {
   data() {
     return {
-      name: "",
-      address: "",
-    };
+      name: '',
+      address: '',
+    }
   },
   created() {
-    let { name, address } = this.$route.query;
-    this.name = name;
-    this.address = address;
+    let { name, address } = this.$route.query
+    this.name = name
+    this.address = address
   },
   mounted() {
     this.$nextTick(() => {
-      this.bindQRCode(this.address);
-    });
+      this.bindQRCode(this.address)
+    })
   },
   methods: {
     bindQRCode(text) {
@@ -89,21 +91,21 @@ export default {
         text,
         width: 200,
         height: 200,
-        colorDark: "#333333",
-        colorLight: "#ffffff",
+        colorDark: '#333333',
+        colorLight: '#ffffff',
         correctLevel: QRCode.CorrectLevel.L,
-      });
+      })
     },
     onCopy(text) {
       if (text) {
-        this.$message("复制成功");
+        this.$message('复制成功')
       }
     },
     onError(e) {
-      console.log(e);
+      console.log(e)
     },
   },
-};
+}
 </script>
 <style>
 .wallet-create-main {
@@ -143,7 +145,7 @@ export default {
 }
 .form-info-row {
   display: flex;
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -175,7 +177,7 @@ export default {
 
 .info-row-name {
   width: 100px;
-  font-family: "PingFangSC-Medium", "PingFang SC Medium", "PingFang SC",
+  font-family: 'PingFangSC-Medium', 'PingFang SC Medium', 'PingFang SC',
     sans-serif;
   font-weight: 500;
   font-style: normal;
@@ -184,7 +186,7 @@ export default {
 }
 
 .wallet-btn-default {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -199,7 +201,7 @@ export default {
 
 .wallet-ct-success {
   text-align: center;
-  font-family: "PingFangSC-Medium", "PingFang SC Medium", "PingFang SC",
+  font-family: 'PingFangSC-Medium', 'PingFang SC Medium', 'PingFang SC',
     sans-serif;
   font-weight: 500;
   font-style: normal;

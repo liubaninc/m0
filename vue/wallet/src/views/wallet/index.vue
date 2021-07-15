@@ -66,9 +66,9 @@
   </div>
 </template>
 <script>
-import { queryWalletLists } from "@/server/wallet";
-import { localCache } from "@/utils/utils";
-import { queryPageContext } from "@/server/pageConfig";
+import { queryWalletLists } from '@/server/wallet'
+import { localCache } from '@/utils/utils'
+import { queryPageContext } from '@/server/pageConfig'
 
 export default {
   data() {
@@ -76,45 +76,41 @@ export default {
       walletLists: [],
       page_num: 1,
       page_total: 0,
-      page_size: 10,
+      page_size: 10000,
       pageContext: {},
-    };
+    }
   },
   async created() {
-    this.getWallets(this.page_num, this.page_size);
-    let pageContext = await queryPageContext();
+    this.getWallets(this.page_num, this.page_size)
+    let pageContext = await queryPageContext()
     if (pageContext) {
-      this.pageContext = pageContext;
+      this.pageContext = pageContext
     }
   },
   methods: {
     createWallet() {
-      this.$router.push(`/wallet/createTypes`);
+      this.$router.push(`/wallet/createTypes`)
     },
     loadWalletInfo(wallet) {
-      localCache.set("wallet", wallet);
-      this.$router.push(`/assets`);
+      localCache.set('wallet', wallet)
+      this.$router.push(`/assets`)
     },
     importWallet() {
-      this.$router.push(`/wallet/importTypes`);
+      this.$router.push(`/wallet/importTypes`)
     },
     async getWallets(pageNum, pageSize) {
-      let {
-        accounts,
-        page_num,
-        page_size,
-        page_total,
-      } = await queryWalletLists({
-        page_num: pageNum,
-        page_size: pageSize,
-      });
-      this.walletLists = accounts;
-      this.page_num = page_num;
-      this.page_total = page_total;
-      this.page_size = page_size;
+      let { accounts, page_num, page_size, page_total } =
+        await queryWalletLists({
+          page_num: pageNum,
+          page_size: pageSize,
+        })
+      this.walletLists = accounts
+      this.page_num = page_num
+      this.page_total = page_total
+      this.page_size = page_size
     },
   },
-};
+}
 </script>
 <style scoped>
 .wallet {
@@ -137,14 +133,14 @@ export default {
   padding: 30px 50px 30px 60px;
 }
 .tp-left-name {
-  font-family: "PingFangSC-Medium", "PingFang SC Medium", "PingFang SC",
+  font-family: 'PingFangSC-Medium', 'PingFang SC Medium', 'PingFang SC',
     sans-serif;
   font-weight: 500;
   font-style: normal;
   font-size: 24px;
 }
 .tp-left-desc {
-  font-family: "PingFangSC-Medium", "PingFang SC Medium", "PingFang SC",
+  font-family: 'PingFangSC-Medium', 'PingFang SC Medium', 'PingFang SC',
     sans-serif;
   font-weight: 500;
   font-style: normal;
@@ -167,18 +163,18 @@ export default {
   margin: 40px 0 0;
 }
 .wallet-list-main {
-  padding: 20px 0 0;
+  padding: 20px 0;
   display: grid;
-  grid-template-columns: repeat(3, 23%);
-  /* grid-gap: calc((100% - 23% * 3) / 2); */
-  column-gap: calc((100% - 23% * 3) / 2);
+  grid-template-columns: repeat(4, 20%);
+  grid-gap: calc((100% - 20% * 4) / 3);
+  column-gap: calc((100% - 20% * 4) / 3);
 }
 
 .wallet-list-title {
   display: flex;
   align-items: center;
 
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 16px;
@@ -193,7 +189,7 @@ export default {
   margin: 0 10px 0 0;
 }
 .title-right {
-  font-family: "PingFangSC-Medium", "PingFang SC Medium", "PingFang SC",
+  font-family: 'PingFangSC-Medium', 'PingFang SC Medium', 'PingFang SC',
     sans-serif;
   font-weight: 500;
   font-style: normal;
@@ -201,8 +197,11 @@ export default {
 }
 
 .list-main-card {
-  width: 274px;
+  /* width: 25%; */
+  /* width: 274px; */
   height: 196px;
+  /* display: inline-block;
+  text-align: center; */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -219,7 +218,7 @@ export default {
   transition: all 0.6s ease-in-out;
 }
 .card-name {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 18px;
@@ -235,13 +234,13 @@ export default {
   line-height: 25px;
   font-size: 10px;
   color: #ffffff;
-  background: url("../../assets/images/wallet/tag_icon.png");
+  background: url('../../assets/images/wallet/tag_icon.png');
   background-size: 100%;
   background-repeat: no-repeat;
   margin: 20px 0 30px;
 }
 .loading-btn {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
