@@ -47,20 +47,32 @@ func (msg *MsgProposeAddAccountRequest) ValidateBasic() error {
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address %s (%s)", msg.Creator, err)
 	}
+
+	if len(msg.Address) == 0 {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid account address: it cannot be empty")
+	}
+
+	if len(msg.PublicKey) == 0 {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidPubKey, "invalid publicKey: it cannot be empty")
+	}
+
 	address, err := sdk.AccAddressFromBech32(msg.Address)
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid account address (%s)", err)
 	}
-	return nil
 
-	if len(address) == 0 {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid account address: it cannot be empty")
-
+	pk, err := sdk.GetPubKeyFromBech32(sdk.Bech32PubKeyTypeAccPub, msg.PublicKey);
+	if  err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidPubKey, "invalid publicKey: %s", err)
 	}
 
-	if len(msg.PublicKey) == 0 {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidPubKey, "Invalid publicKey: it cannot be empty")
+	addr, err := sdk.AccAddressFromBech32(pk.Address().String())
+	if  err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidPubKey, "invalid publicKey: %s", err)
+	}
 
+	if !address.Equals(addr) {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidPubKey, "mismatch publicKey: %s", err)
 	}
 
 	if err := Validates(msg.GetRoles()); err != nil {

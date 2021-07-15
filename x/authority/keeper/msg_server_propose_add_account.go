@@ -2,8 +2,10 @@ package keeper
 
 import (
 	"context"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/liubaninc/m0/x/authority/types"
 )
 
@@ -25,12 +27,17 @@ func (k msgServer) ProposeAddAccount(goCtx context.Context, msg *types.MsgPropos
 		return nil, sdkerrors.Wrapf(types.ErrAccountAlreadyExists, "Pending account associated with the address=%v already exists on the ledger", msg.Address)
 	}
 
+	any, err := codectypes.NewAnyWithValue(sdk.MustGetPubKeyFromBech32(sdk.Bech32PubKeyTypeAccPub, msg.PublicKey))
+	if err == nil {
+		panic(err)
+	}
+
 	// if more than 1 trustee's approval is needed, create pending account else create an active account.
 	if AccountApprovalsCount(ctx, k.Keeper) > 1 {
 		// create and store pending account.
 		account := types.PendingAccount{
 			Address:   msg.Address,
-			PubKey:    msg.PublicKey,
+			PubKey:    any,
 			Roles:     msg.Roles,
 			Approvals: []string{msg.Creator},
 		}
@@ -39,10 +46,14 @@ func (k msgServer) ProposeAddAccount(goCtx context.Context, msg *types.MsgPropos
 		// create account, assign account number and store it
 		account := types.Account{
 			Address: msg.Address,
-			PubKey:  msg.PublicKey,
+			PubKey:  any,
 			Roles:   msg.Roles,
 		}
-		account.AccountNumber = k.Keeper.GetNextAccountNumber(ctx).Value
+		acct := k.accountKeeper.NewAccount(ctx, &authtypes.BaseAccount{
+			Address: account.Address,
+			PubKey: account.PubKey,
+		})
+		account.AccountNumber = acct.GetAccountNumber()
 		k.Keeper.SetAccount(ctx, account)
 	}
 	return &types.MsgProposeAddAccountResponse{}, nil

@@ -3,17 +3,21 @@ package liubaninc.m0.authority;
 
 option go_package = "github.com/liubaninc/m0/x/authority/types";
 
+import "gogoproto/gogo.proto";
+import "google/protobuf/any.proto";
+
 message Account {
-    string address = 2;
-    string pub_key = 3;
+    string              address = 1;
+    google.protobuf.Any pub_key = 2
+    [(gogoproto.jsontag) = "public_key,omitempty", (gogoproto.moretags) = "yaml:\"public_key\""];
     uint64 account_number = 4;
-    uint64 sequence = 5;
     repeated string roles = 6;
 }
 
 message PendingAccount {
-    string address = 2;
-    string pub_key = 3;
+    string              address = 1;
+    google.protobuf.Any pub_key = 2
+    [(gogoproto.jsontag) = "public_key,omitempty", (gogoproto.moretags) = "yaml:\"public_key\""];
     repeated string roles = 4;
     repeated string approvals = 5;
 }

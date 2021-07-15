@@ -4,6 +4,7 @@ import (
 	"context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/liubaninc/m0/x/authority/types"
 )
 
@@ -38,7 +39,11 @@ func (k msgServer) ApproveAddAccount(goCtx context.Context, msg *types.MsgApprov
 			PubKey:  pendAcc.PubKey,
 			Roles:   pendAcc.Roles,
 		}
-		account.AccountNumber = k.Keeper.GetNextAccountNumber(ctx).Value
+		acct := k.accountKeeper.NewAccount(ctx, &authtypes.BaseAccount{
+			Address: account.Address,
+			PubKey: account.PubKey,
+		})
+		account.AccountNumber = acct.GetAccountNumber()
 		k.Keeper.SetAccount(ctx, account)
 
 		// delete pending account record

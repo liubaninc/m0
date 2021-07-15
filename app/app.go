@@ -377,6 +377,7 @@ func New(
 		appCodec,
 		keys[utxotypes.StoreKey],
 		keys[utxotypes.MemStoreKey],
+		app.AccountKeeper,
 	)
 	authorityModule := authority.NewAppModule(appCodec, app.authoritykeeper)
 
