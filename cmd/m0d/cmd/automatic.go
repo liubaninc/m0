@@ -4,6 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"math"
+	"strconv"
+	"time"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -16,10 +21,6 @@ import (
 	"github.com/liubaninc/m0/x/wasm/xmodel"
 	"github.com/spf13/cobra"
 	tmrand "github.com/tendermint/tendermint/libs/rand"
-	"io/ioutil"
-	"math"
-	"strconv"
-	"time"
 )
 
 var (
@@ -128,8 +129,7 @@ func automaticCommand() *cobra.Command {
 				if err == nil && len(res.Inputs) > 0 {
 					break
 				}
-				fmt.Println("query test token", clientCtx.ChainID, clientCtx.NodeURI, err)
-				time.Sleep(5 * time.Second)
+				time.Sleep(6 * time.Second)
 			}
 
 			// 新建测试账户
@@ -149,37 +149,32 @@ func automaticCommand() *cobra.Command {
 			// 1、注册测试账户地址
 			registerMsg, err := send(utxoQueryClient, clientCtx.GetFromAddress().String(), info.GetAddress().String(), "1"+denom, "auto register")
 			if err != nil {
-				fmt.Errorf("register error %s\n", err)
-				return err
+				return fmt.Errorf("register msg error %s", err)
 			}
 			if err := sendMsg(registerMsg); err != nil {
-				fmt.Errorf("register error %s\n", err)
-				return err
+				return fmt.Errorf("register msg send error %s", err)
 			}
+
 			clientCtx = clientCtx.WithFromName(uid).WithFromAddress(info.GetAddress())
 			// 2、 初始测试账户代币及合约
 			if ok, _ := cmd.Flags().GetBool(flagModuleUTXO); ok {
 				// 2.1、初始发行资产
 				issueMsg, err := issue(clientCtx.GetFromAddress().String(), clientCtx.GetFromAddress().String(), "1000000"+uid, "auto issue")
 				if err != nil {
-					fmt.Errorf("issue error %s\n", err)
-					return err
+					return fmt.Errorf("issue msg error %s", err)
 				}
 				if err := sendMsg(issueMsg); err != nil {
-					fmt.Errorf("issue error %s\n", err)
-					return err
+					return fmt.Errorf("issue msg send error %s", err)
 				}
 			}
 			if ok, _ := cmd.Flags().GetBool(flagModuleWASM); ok {
 				// 2.2、初始部署合约
 				deployMsg, err := deploy(wasmQueryClient, clientCtx.GetFromAddress().String(), uid, contractCode, contractInitArgs, "auto deploy")
 				if err != nil {
-					fmt.Errorf("deploy error %s\n", err)
-					return err
+					return fmt.Errorf("deploy msg error %s", err)
 				}
 				if err := sendMsg(deployMsg); err != nil {
-					fmt.Errorf("deploy error %s\n", err)
-					return err
+					return fmt.Errorf("deploy msg send error %s", err)
 				}
 			}
 
@@ -198,13 +193,11 @@ func automaticCommand() *cobra.Command {
 					} else {
 						msg, err = issue(clientCtx.GetFromAddress().String(), clientCtx.GetFromAddress().String(), strconv.FormatInt(int64(n*100), 10)+uid, "auto reissue")
 					}
-					if err != nil {
-						fmt.Errorf("auto error %s\n", err)
-						return err
+					if err == nil {
+						err = sendMsg(msg)
 					}
-					if err := sendMsg(msg); err != nil {
-						fmt.Errorf("auto error %s\n", err)
-						return err
+					if err != nil {
+						fmt.Printf("error %s\n", err)
 					}
 				}
 
@@ -216,11 +209,10 @@ func automaticCommand() *cobra.Command {
 					// 调用合约 8
 					invokeMsg, err := invoke(wasmQueryClient, clientCtx.GetFromAddress().String(), uid, contractMethod, contractMethodArgs, "auto invoke")
 					if err != nil {
-						fmt.Errorf("invoke error %s\n", err)
-						return err
+						err = sendMsg(invokeMsg)
 					}
-					if err := sendMsg(invokeMsg); err != nil {
-						fmt.Errorf("invoke error %s\n", err)
+					if err != nil {
+						fmt.Printf("error %s\n", err)
 					}
 				}
 
