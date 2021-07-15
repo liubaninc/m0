@@ -9,9 +9,8 @@ import (
 
 func (k msgServer) ProposeAddAccount(goCtx context.Context, msg *types.MsgProposeAddAccountRequest) (*types.MsgProposeAddAccountResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-
 	// check if sender has enough rights to propose account.
-	if !k.Keeper.HasRole(ctx, msg.Creator, types.AUTHORITY) {
+	if ctx.BlockHeight() != 0 && !k.Keeper.HasRole(ctx, msg.Creator, types.AUTHORITY) {
 		return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "MsgProposeAddAccount transaction should be signed by an account with the %s role", types.AUTHORITY)
 
 	}

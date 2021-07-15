@@ -16,12 +16,12 @@ var _ = strconv.Itoa(0)
 func CmdProposeAddAccount() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "propose-add-account [address] [publickey] [roles]",
-		Short: "Broadcast message ProposeAddAccount",
-		Args:  cobra.ExactArgs(4),
+		Short: "Propose a new account with the given address, public key and roles",
+		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			argsAddress := string(args[0])
-			argsPublickey := string(args[1])
-			argsRoles := string(args[2])
+			argsAddress := args[0]
+			argsPublickey := args[1]
+			argsRoles := args[2]
 
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -34,13 +34,14 @@ func CmdProposeAddAccount() *cobra.Command {
 				}
 			}
 
-			msg := types.NewMsgProposeAddAccount(clientCtx.GetFromAddress().String(), string(argsAddress), string(argsPublickey), roles)
+			msg := types.NewMsgProposeAddAccount(clientCtx.GetFromAddress().String(), argsAddress, argsPublickey, roles)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
+	cmd.Flags().String("desc", "", "description of msg")
 
 	flags.AddTxFlagsToCmd(cmd)
 

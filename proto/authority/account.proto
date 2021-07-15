@@ -17,3 +17,9 @@ message PendingAccount {
     repeated string roles = 4;
     repeated string approvals = 5;
 }
+
+message PendingAccountRevocation {
+    string address = 2;
+    repeated string approvals = 3;
+}
+

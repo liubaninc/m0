@@ -18,6 +18,14 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 
 		switch msg := msg.(type) {
 		// this line is used by starport scaffolding # 1
+		case *types.MsgApproveRevokeAccountRequest:
+			res, err := msgServer.ApproveRevokeAccount(sdk.WrapSDKContext(ctx), msg)
+			return sdk.WrapServiceResult(ctx, res, err)
+
+		case *types.MsgProposeRevokeAccountRequest:
+			res, err := msgServer.ProposeRevokeAccount(sdk.WrapSDKContext(ctx), msg)
+			return sdk.WrapServiceResult(ctx, res, err)
+
 		case *types.MsgApproveAddAccountRequest:
 			res, err := msgServer.ApproveAddAccount(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)

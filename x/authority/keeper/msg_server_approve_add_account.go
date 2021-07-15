@@ -9,15 +9,15 @@ import (
 
 func (k msgServer) ApproveAddAccount(goCtx context.Context, msg *types.MsgApproveAddAccountRequest) (*types.MsgApproveAddAccountResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-
+	k.Logger(ctx).Info("+++++++++++++++" + msg.Creator + "++++++++++++++++++++")
 	// check if sender has enough rights to approve account.
 	if !k.Keeper.HasRole(ctx, msg.Creator, types.AUTHORITY) {
 		return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "MsgApproveAddAccount transaction should be signed by an account with the %s role", types.AUTHORITY)
 
 	}
 	// check if pending account exists
-	if k.Keeper.IsPendingAccountPresent(ctx, msg.Address) {
-		return nil, sdkerrors.Wrapf(types.ErrAccountAlreadyExists, "Pending account associated with the address=%v already exists on the ledger", msg.Address)
+	if !k.Keeper.IsPendingAccountPresent(ctx, msg.Address) {
+		return nil, sdkerrors.Wrapf(types.ErrAccountAlreadyExists, "No pending account associated with the address=%s on the ledger", msg.Address)
 	}
 
 	// get pending account
@@ -25,7 +25,7 @@ func (k msgServer) ApproveAddAccount(goCtx context.Context, msg *types.MsgApprov
 
 	// check if pending account already has approval from signer
 	if HasApprovalFrom(msg.Creator, pendAcc.Approvals) {
-		return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "Pending account associated with the address=%v already has approval from=%v", msg.Address, msg.Creator)
+		return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "Pending account associated with the address=%s already has approval from=%s", msg.Address, msg.Creator)
 	}
 	// append approval
 	pendAcc.Approvals = append(pendAcc.Approvals, msg.Creator)

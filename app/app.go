@@ -1,6 +1,7 @@
 package app
 
 import (
+	"github.com/liubaninc/m0/x/authority"
 	"io"
 	"os"
 	"path/filepath"
@@ -85,6 +86,8 @@ import (
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
+	authoritykeeper "github.com/liubaninc/m0/x/authority/keeper"
+	authoritytypes "github.com/liubaninc/m0/x/authority/types"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 	mibcmodule "github.com/liubaninc/m0/x/mibc"
 	mibcmodulekeeper "github.com/liubaninc/m0/x/mibc/keeper"
@@ -144,6 +147,7 @@ var (
 		mibcmodule.AppModuleBasic{},
 		wasm.AppModuleBasic{},
 		utxo.AppModuleBasic{},
+		authority.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -212,8 +216,9 @@ type App struct {
 	ScopedMibcKeeper capabilitykeeper.ScopedKeeper
 	MibcKeeper       mibcmodulekeeper.Keeper
 
-	utxoKeeper utxokeeper.Keeper
-	wasmKeeper wasmkeeper.Keeper
+	utxoKeeper      utxokeeper.Keeper
+	wasmKeeper      wasmkeeper.Keeper
+	authoritykeeper authoritykeeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -245,6 +250,7 @@ func New(
 		mibcmoduletypes.StoreKey,
 		utxotypes.StoreKey,
 		wasmtypes.StoreKey,
+		authoritytypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -367,6 +373,13 @@ func New(
 	)
 	mibcModule := mibcmodule.NewAppModule(appCodec, app.MibcKeeper)
 
+	app.authoritykeeper = *authoritykeeper.NewKeeper(
+		appCodec,
+		keys[utxotypes.StoreKey],
+		keys[utxotypes.MemStoreKey],
+	)
+	authorityModule := authority.NewAppModule(appCodec, app.authoritykeeper)
+
 	app.GovKeeper = govkeeper.NewKeeper(
 		appCodec, keys[govtypes.StoreKey], app.GetSubspace(govtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
 		&stakingKeeper, govRouter,
@@ -411,6 +424,7 @@ func New(
 		mibcModule,
 		utxoModule,
 		wasmModule,
+		authorityModule,
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -447,6 +461,7 @@ func New(
 		mibcmoduletypes.ModuleName,
 		wasmtypes.ModuleName,
 		utxotypes.ModuleName,
+		authoritytypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
