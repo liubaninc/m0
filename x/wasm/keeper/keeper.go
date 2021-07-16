@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"context"
 	"fmt"
 
 	utxokeeper "github.com/liubaninc/m0/x/utxo/keeper"
@@ -81,4 +82,27 @@ func NewKeeper(
 
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
+}
+
+const DEPLOY = "0"
+const FREEZE = "1"
+const UNFREEZE = "2"
+const DESTROY = "3"
+
+/**
+部署 	0
+冻结 	1 freeze
+解冻		2 unfreeze
+销毁		3 destroy
+*/
+func SetStatus(ctx context.Context, k msgServer, contractName string, status string) string {
+	ctx2 := sdk.UnwrapSDKContext(ctx)
+	store := ctx2.KVStore(k.storeKey)
+	nameByte := []byte(contractName)
+	statusByte := []byte(status)
+	store.Set(nameByte, statusByte)
+
+	fmt.Sprintf("change %s status to %s", contractName, status)
+
+	return ""
 }

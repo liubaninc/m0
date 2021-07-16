@@ -16,6 +16,9 @@ import (
 )
 
 func (k msgServer) Deploy(goCtx context.Context, msg *types.MsgDeploy) (*types.MsgDeployResponse, error) {
+
+	SetStatus(goCtx, k, msg.GetContractName(), DEPLOY)
+
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	msgOffset := int32(ctx.Context().Value("msg-index").(int))
 	txHash := fmt.Sprintf("%X", tmhash.Sum(ctx.TxBytes()))

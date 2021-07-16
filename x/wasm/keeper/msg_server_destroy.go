@@ -3,15 +3,12 @@ package keeper
 import (
 	"context"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/liubaninc/m0/x/wasm/types"
 )
 
 func (k msgServer) Destroy(goCtx context.Context, msg *types.MsgDestroy) (*types.MsgDestroyResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// TODO: Handling the message
-	_ = ctx
+	SetStatus(goCtx, k, msg.GetContractName(), DESTROY)
 
 	return &types.MsgDestroyResponse{}, nil
 }
