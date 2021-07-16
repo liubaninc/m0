@@ -33,6 +33,7 @@ func NewCLevelDB(name string, dir string) (*CLevelDB, error) {
 	opts := levigo.NewOptions()
 	opts.SetCache(levigo.NewLRUCache(1 << 30))
 	opts.SetCreateIfMissing(true)
+	opts.SetCompression(levigo.NoCompression)
 	db, err := levigo.Open(dbPath, opts)
 	if err != nil {
 		return nil, err

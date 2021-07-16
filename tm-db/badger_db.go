@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 
 	"github.com/dgraph-io/badger/v2"
+	"github.com/dgraph-io/badger/v2/options"
 )
 
 func init() { registerDBCreator(BadgerDBBackend, badgerDBCreator, true) }
@@ -30,6 +31,7 @@ func NewBadgerDB(dbName, dir string) (*BadgerDB, error) {
 	opts := badger.DefaultOptions(path)
 	opts.SyncWrites = false // note that we have Sync methods
 	opts.Logger = nil       // badger is too chatty by default
+	opts.Compression = options.None
 	return NewBadgerDBWithOptions(opts)
 }
 
