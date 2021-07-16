@@ -32,8 +32,6 @@ func CmdApproveAddAccount() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().String("desc", "", "description of msg")
-
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd

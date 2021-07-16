@@ -1,6 +1,7 @@
 package app
 
 import (
+	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	"github.com/liubaninc/m0/x/authority"
 	"io"
 	"os"
@@ -31,7 +32,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
-	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
@@ -478,10 +478,27 @@ func New(
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
 	app.SetAnteHandler(
-		ante.NewAnteHandler(
-			app.AccountKeeper, app.BankKeeper, ante.DefaultSigVerificationGasConsumer,
-			encodingConfig.TxConfig.SignModeHandler(),
+		sdk.ChainAnteDecorators(
+			ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
+			ante.NewRejectExtensionOptionsDecorator(),
+			ante.NewMempoolFeeDecorator(),
+			ante.NewValidateBasicDecorator(),
+			ante.TxTimeoutHeightDecorator{},
+			ante.NewValidateMemoDecorator(app.AccountKeeper),
+			ante.NewConsumeGasForTxSizeDecorator(app.AccountKeeper),
+			ante.NewRejectFeeGranterDecorator(),
+			ante.NewSetPubKeyDecorator(app.AccountKeeper), // SetPubKeyDecorator must be called before all signature verification decorators
+			ante.NewValidateSigCountDecorator(app.AccountKeeper),
+			ante.NewDeductFeeDecorator(app.AccountKeeper, app.BankKeeper),
+			ante.NewSigGasConsumeDecorator(app.AccountKeeper, ante.DefaultSigVerificationGasConsumer),
+			ante.NewSigVerificationDecorator(app.AccountKeeper, encodingConfig.TxConfig.SignModeHandler()),
+			ante.NewIncrementSequenceDecorator(app.AccountKeeper),
+			authoritykeeper.NewValidateAuthRolesDecorator(app.authoritykeeper),
 		),
+		//ante.NewAnteHandler(
+		//	app.AccountKeeper, app.BankKeeper, ante.DefaultSigVerificationGasConsumer,
+		//	encodingConfig.TxConfig.SignModeHandler(),
+		//),
 	)
 	app.SetEndBlocker(app.EndBlocker)
 

@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/liubaninc/m0/x/authority/types"
 	"math"
@@ -21,7 +20,6 @@ var _ types.MsgServer = msgServer{}
 
 func AccountApprovalsCount(ctx sdk.Context, keeper Keeper) int {
 	count := keeper.CountAccountsWithRole(ctx, types.AUTHORITY)
-	fmt.Println("ddddd count account with role : ", count)
 	return int(math.Round(types.AccountApprovalPercent * float64(count)))
 }
 

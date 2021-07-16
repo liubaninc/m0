@@ -40,7 +40,6 @@ func CmdProposeModifyAccount() *cobra.Command {
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
-	cmd.Flags().String("desc", "", "description of msg")
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd

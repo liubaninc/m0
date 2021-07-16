@@ -52,7 +52,7 @@ var (
 	flagReservedAccount = "reserved-account-mnemonic"
 	flagReservedCoin    = "reserved-coin"
 
-	flagAuthorityRole = "authority"
+	flagAuthorityRoles = authoritytypes.Roles
 )
 
 // get cmd to initialize all files for tendermint testnet and application
@@ -367,7 +367,7 @@ func InitTestnet(
 			addr.String(),
 			addr.String(),
 			pubkey,
-			[]string{flagAuthorityRole},
+			flagAuthorityRoles,
 		)
 
 		txBuilder := clientCtx.TxConfig.NewTxBuilder()

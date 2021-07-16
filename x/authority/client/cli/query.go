@@ -47,7 +47,7 @@ func GetCmdAccount() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 
-			if err := sdk.ValidateDenom(args[0]); err != nil {
+			if _, err := sdk.ValAddressFromBech32(args[0]); err != nil {
 				return fmt.Errorf("invalid address %s (%s)", args[0], err)
 			}
 
@@ -78,7 +78,7 @@ func GetCmdPendingAccount() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 
-			if err := sdk.ValidateDenom(args[0]); err != nil {
+			if _, err := sdk.ValAddressFromBech32(args[0]); err != nil {
 				return fmt.Errorf("invalid address %s (%s)", args[0], err)
 			}
 
@@ -110,7 +110,7 @@ func GetCmdPendingAccountRevocation() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 
-			if err := sdk.ValidateDenom(args[0]); err != nil {
+			if _, err := sdk.ValAddressFromBech32(args[0]); err != nil {
 				return fmt.Errorf("invalid address %s (%s)", args[0], err)
 			}
 
