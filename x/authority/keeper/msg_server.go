@@ -21,7 +21,7 @@ var _ types.MsgServer = msgServer{}
 
 func AccountApprovalsCount(ctx sdk.Context, keeper Keeper) int {
 	count := keeper.CountAccountsWithRole(ctx, types.AUTHORITY)
-	fmt.Printf("count account with role : %n/n", count)
+	fmt.Println("ddddd count account with role : ", count)
 	return int(math.Round(types.AccountApprovalPercent * float64(count)))
 }
 

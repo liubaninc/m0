@@ -3,6 +3,7 @@ package keeper
 import (
 	"context"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/liubaninc/m0/x/authority/types"
@@ -33,6 +34,12 @@ func (k msgServer) ProposeRevokeAccount(goCtx context.Context, msg *types.MsgPro
 		}
 		k.Keeper.SetPendingAccountRevocation(ctx, revoc)
 	} else {
+
+		acct := k.accountKeeper.NewAccount(ctx, &authtypes.BaseAccount{
+			Address: msg.Address,
+		})
+		k.accountKeeper.RemoveAccount(ctx, acct)
+
 		// delete account record
 		k.Keeper.DeleteAccount(ctx, msg.Address)
 	}

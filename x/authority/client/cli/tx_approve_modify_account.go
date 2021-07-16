@@ -12,19 +12,20 @@ import (
 
 var _ = strconv.Itoa(0)
 
-func CmdApproveRevokeAccount() *cobra.Command {
+func CmdApproveModifyAccount() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "approve-revoke-account [address]",
-		Short: "Approve the proposed revocation of the account with the given address",
+		Use:   "approve-modify-account [address]",
+		Short: "Approve the proposed account with the given address",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			argsAddress := args[0]
+
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
 
-			msg := types.NewMsgApproveRevokeAccountRequest(clientCtx.GetFromAddress().String(), argsAddress)
+			msg := types.NewMsgApproveModifyAccountRequest(clientCtx.GetFromAddress().String(), argsAddress)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}

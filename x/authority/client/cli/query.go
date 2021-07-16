@@ -41,8 +41,8 @@ func GetQueryCmd(queryRoute string) *cobra.Command {
 
 func GetCmdAccount() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "account [address]",
-		Short: "Get account associated with the address",
+		Use:   "show-account [address]",
+		Short: "show account associated with the address",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -72,8 +72,8 @@ func GetCmdAccount() *cobra.Command {
 }
 func GetCmdPendingAccount() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "pending-account [address]",
-		Short: "Get pending account associated with the address",
+		Use:   "show-proposed-account [address]",
+		Short: "show proposed account by the address but not approved",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -104,8 +104,8 @@ func GetCmdPendingAccount() *cobra.Command {
 
 func GetCmdPendingAccountRevocation() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "pending-account-revocation [address]",
-		Short: "Get pending account revocation associated with the address",
+		Use:   "show-proposed-account-to-revoke [address]",
+		Short: "show proposed to be revoked account by the address but not approved",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)

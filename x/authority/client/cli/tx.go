@@ -30,6 +30,10 @@ func GetTxCmd() *cobra.Command {
 	}
 
 	// this line is used by starport scaffolding # 1
+	cmd.AddCommand(CmdApproveModifyAccount())
+
+	cmd.AddCommand(CmdProposeModifyAccount())
+
 	cmd.AddCommand(CmdApproveRevokeAccount())
 
 	cmd.AddCommand(CmdProposeRevokeAccount())

@@ -3,6 +3,7 @@ package cli
 import (
 	"github.com/spf13/cobra"
 	"strconv"
+	"strings"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -12,19 +13,27 @@ import (
 
 var _ = strconv.Itoa(0)
 
-func CmdApproveRevokeAccount() *cobra.Command {
+func CmdProposeModifyAccount() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "approve-revoke-account [address]",
-		Short: "Approve the proposed revocation of the account with the given address",
-		Args:  cobra.ExactArgs(1),
+		Use:   "propose-modify-account [address] [roles]",
+		Short: "Propose modify of the account with the given address",
+		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			argsAddress := args[0]
+			argsRoles := args[1]
+
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
+			var roles []string
+			if len(argsRoles) > 0 {
+				for _, role := range strings.Split(argsRoles, ",") {
+					roles = append(roles, role)
+				}
+			}
 
-			msg := types.NewMsgApproveRevokeAccountRequest(clientCtx.GetFromAddress().String(), argsAddress)
+			msg := types.NewMsgProposeModifyAccountRequest(clientCtx.GetFromAddress().String(), argsAddress, roles)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}

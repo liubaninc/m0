@@ -41,8 +41,9 @@ func (k msgServer) ApproveAddAccount(goCtx context.Context, msg *types.MsgApprov
 		}
 		acct := k.accountKeeper.NewAccount(ctx, &authtypes.BaseAccount{
 			Address: account.Address,
-			PubKey: account.PubKey,
+			PubKey:  account.PubKey,
 		})
+		k.accountKeeper.SetAccount(ctx, acct)
 		account.AccountNumber = acct.GetAccountNumber()
 		k.Keeper.SetAccount(ctx, account)
 

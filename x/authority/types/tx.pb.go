@@ -28,6 +28,190 @@ var _ = math.Inf
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // this line is used by starport scaffolding # proto/tx/message
+type MsgApproveModifyAccountRequest struct {
+	Creator string `protobuf:"bytes,1,opt,name=creator,proto3" json:"creator,omitempty"`
+	Address string `protobuf:"bytes,2,opt,name=address,proto3" json:"address,omitempty"`
+}
+
+func (m *MsgApproveModifyAccountRequest) Reset()         { *m = MsgApproveModifyAccountRequest{} }
+func (m *MsgApproveModifyAccountRequest) String() string { return proto.CompactTextString(m) }
+func (*MsgApproveModifyAccountRequest) ProtoMessage()    {}
+func (*MsgApproveModifyAccountRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_dccbf6440c31743d, []int{0}
+}
+func (m *MsgApproveModifyAccountRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgApproveModifyAccountRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgApproveModifyAccountRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgApproveModifyAccountRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgApproveModifyAccountRequest.Merge(m, src)
+}
+func (m *MsgApproveModifyAccountRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgApproveModifyAccountRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgApproveModifyAccountRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgApproveModifyAccountRequest proto.InternalMessageInfo
+
+func (m *MsgApproveModifyAccountRequest) GetCreator() string {
+	if m != nil {
+		return m.Creator
+	}
+	return ""
+}
+
+func (m *MsgApproveModifyAccountRequest) GetAddress() string {
+	if m != nil {
+		return m.Address
+	}
+	return ""
+}
+
+type MsgApproveModifyAccountResponse struct {
+}
+
+func (m *MsgApproveModifyAccountResponse) Reset()         { *m = MsgApproveModifyAccountResponse{} }
+func (m *MsgApproveModifyAccountResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgApproveModifyAccountResponse) ProtoMessage()    {}
+func (*MsgApproveModifyAccountResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_dccbf6440c31743d, []int{1}
+}
+func (m *MsgApproveModifyAccountResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgApproveModifyAccountResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgApproveModifyAccountResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgApproveModifyAccountResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgApproveModifyAccountResponse.Merge(m, src)
+}
+func (m *MsgApproveModifyAccountResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgApproveModifyAccountResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgApproveModifyAccountResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgApproveModifyAccountResponse proto.InternalMessageInfo
+
+type MsgProposeModifyAccountRequest struct {
+	Creator string   `protobuf:"bytes,1,opt,name=creator,proto3" json:"creator,omitempty"`
+	Address string   `protobuf:"bytes,2,opt,name=address,proto3" json:"address,omitempty"`
+	Roles   []string `protobuf:"bytes,3,rep,name=roles,proto3" json:"roles,omitempty"`
+}
+
+func (m *MsgProposeModifyAccountRequest) Reset()         { *m = MsgProposeModifyAccountRequest{} }
+func (m *MsgProposeModifyAccountRequest) String() string { return proto.CompactTextString(m) }
+func (*MsgProposeModifyAccountRequest) ProtoMessage()    {}
+func (*MsgProposeModifyAccountRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_dccbf6440c31743d, []int{2}
+}
+func (m *MsgProposeModifyAccountRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgProposeModifyAccountRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgProposeModifyAccountRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgProposeModifyAccountRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgProposeModifyAccountRequest.Merge(m, src)
+}
+func (m *MsgProposeModifyAccountRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgProposeModifyAccountRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgProposeModifyAccountRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgProposeModifyAccountRequest proto.InternalMessageInfo
+
+func (m *MsgProposeModifyAccountRequest) GetCreator() string {
+	if m != nil {
+		return m.Creator
+	}
+	return ""
+}
+
+func (m *MsgProposeModifyAccountRequest) GetAddress() string {
+	if m != nil {
+		return m.Address
+	}
+	return ""
+}
+
+func (m *MsgProposeModifyAccountRequest) GetRoles() []string {
+	if m != nil {
+		return m.Roles
+	}
+	return nil
+}
+
+type MsgProposeModifyAccountResponse struct {
+}
+
+func (m *MsgProposeModifyAccountResponse) Reset()         { *m = MsgProposeModifyAccountResponse{} }
+func (m *MsgProposeModifyAccountResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgProposeModifyAccountResponse) ProtoMessage()    {}
+func (*MsgProposeModifyAccountResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_dccbf6440c31743d, []int{3}
+}
+func (m *MsgProposeModifyAccountResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgProposeModifyAccountResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgProposeModifyAccountResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgProposeModifyAccountResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgProposeModifyAccountResponse.Merge(m, src)
+}
+func (m *MsgProposeModifyAccountResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgProposeModifyAccountResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgProposeModifyAccountResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgProposeModifyAccountResponse proto.InternalMessageInfo
+
 type MsgApproveRevokeAccountRequest struct {
 	Creator string `protobuf:"bytes,1,opt,name=creator,proto3" json:"creator,omitempty"`
 	Address string `protobuf:"bytes,2,opt,name=address,proto3" json:"address,omitempty"`
@@ -37,7 +221,7 @@ func (m *MsgApproveRevokeAccountRequest) Reset()         { *m = MsgApproveRevoke
 func (m *MsgApproveRevokeAccountRequest) String() string { return proto.CompactTextString(m) }
 func (*MsgApproveRevokeAccountRequest) ProtoMessage()    {}
 func (*MsgApproveRevokeAccountRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_dccbf6440c31743d, []int{0}
+	return fileDescriptor_dccbf6440c31743d, []int{4}
 }
 func (m *MsgApproveRevokeAccountRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -87,7 +271,7 @@ func (m *MsgApproveRevokeAccountResponse) Reset()         { *m = MsgApproveRevok
 func (m *MsgApproveRevokeAccountResponse) String() string { return proto.CompactTextString(m) }
 func (*MsgApproveRevokeAccountResponse) ProtoMessage()    {}
 func (*MsgApproveRevokeAccountResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_dccbf6440c31743d, []int{1}
+	return fileDescriptor_dccbf6440c31743d, []int{5}
 }
 func (m *MsgApproveRevokeAccountResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -125,7 +309,7 @@ func (m *MsgProposeRevokeAccountRequest) Reset()         { *m = MsgProposeRevoke
 func (m *MsgProposeRevokeAccountRequest) String() string { return proto.CompactTextString(m) }
 func (*MsgProposeRevokeAccountRequest) ProtoMessage()    {}
 func (*MsgProposeRevokeAccountRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_dccbf6440c31743d, []int{2}
+	return fileDescriptor_dccbf6440c31743d, []int{6}
 }
 func (m *MsgProposeRevokeAccountRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -175,7 +359,7 @@ func (m *MsgProposeRevokeAccountResponse) Reset()         { *m = MsgProposeRevok
 func (m *MsgProposeRevokeAccountResponse) String() string { return proto.CompactTextString(m) }
 func (*MsgProposeRevokeAccountResponse) ProtoMessage()    {}
 func (*MsgProposeRevokeAccountResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_dccbf6440c31743d, []int{3}
+	return fileDescriptor_dccbf6440c31743d, []int{7}
 }
 func (m *MsgProposeRevokeAccountResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -213,7 +397,7 @@ func (m *MsgApproveAddAccountRequest) Reset()         { *m = MsgApproveAddAccoun
 func (m *MsgApproveAddAccountRequest) String() string { return proto.CompactTextString(m) }
 func (*MsgApproveAddAccountRequest) ProtoMessage()    {}
 func (*MsgApproveAddAccountRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_dccbf6440c31743d, []int{4}
+	return fileDescriptor_dccbf6440c31743d, []int{8}
 }
 func (m *MsgApproveAddAccountRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -263,7 +447,7 @@ func (m *MsgApproveAddAccountResponse) Reset()         { *m = MsgApproveAddAccou
 func (m *MsgApproveAddAccountResponse) String() string { return proto.CompactTextString(m) }
 func (*MsgApproveAddAccountResponse) ProtoMessage()    {}
 func (*MsgApproveAddAccountResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_dccbf6440c31743d, []int{5}
+	return fileDescriptor_dccbf6440c31743d, []int{9}
 }
 func (m *MsgApproveAddAccountResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -303,7 +487,7 @@ func (m *MsgProposeAddAccountRequest) Reset()         { *m = MsgProposeAddAccoun
 func (m *MsgProposeAddAccountRequest) String() string { return proto.CompactTextString(m) }
 func (*MsgProposeAddAccountRequest) ProtoMessage()    {}
 func (*MsgProposeAddAccountRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_dccbf6440c31743d, []int{6}
+	return fileDescriptor_dccbf6440c31743d, []int{10}
 }
 func (m *MsgProposeAddAccountRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -367,7 +551,7 @@ func (m *MsgProposeAddAccountResponse) Reset()         { *m = MsgProposeAddAccou
 func (m *MsgProposeAddAccountResponse) String() string { return proto.CompactTextString(m) }
 func (*MsgProposeAddAccountResponse) ProtoMessage()    {}
 func (*MsgProposeAddAccountResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_dccbf6440c31743d, []int{7}
+	return fileDescriptor_dccbf6440c31743d, []int{11}
 }
 func (m *MsgProposeAddAccountResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -397,6 +581,10 @@ func (m *MsgProposeAddAccountResponse) XXX_DiscardUnknown() {
 var xxx_messageInfo_MsgProposeAddAccountResponse proto.InternalMessageInfo
 
 func init() {
+	proto.RegisterType((*MsgApproveModifyAccountRequest)(nil), "liubaninc.m0.authority.MsgApproveModifyAccountRequest")
+	proto.RegisterType((*MsgApproveModifyAccountResponse)(nil), "liubaninc.m0.authority.MsgApproveModifyAccountResponse")
+	proto.RegisterType((*MsgProposeModifyAccountRequest)(nil), "liubaninc.m0.authority.MsgProposeModifyAccountRequest")
+	proto.RegisterType((*MsgProposeModifyAccountResponse)(nil), "liubaninc.m0.authority.MsgProposeModifyAccountResponse")
 	proto.RegisterType((*MsgApproveRevokeAccountRequest)(nil), "liubaninc.m0.authority.MsgApproveRevokeAccountRequest")
 	proto.RegisterType((*MsgApproveRevokeAccountResponse)(nil), "liubaninc.m0.authority.MsgApproveRevokeAccountResponse")
 	proto.RegisterType((*MsgProposeRevokeAccountRequest)(nil), "liubaninc.m0.authority.MsgProposeRevokeAccountRequest")
@@ -410,30 +598,34 @@ func init() {
 func init() { proto.RegisterFile("authority/tx.proto", fileDescriptor_dccbf6440c31743d) }
 
 var fileDescriptor_dccbf6440c31743d = []byte{
-	// 368 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x94, 0xbf, 0x4f, 0xc2, 0x40,
-	0x14, 0xc7, 0x39, 0x41, 0x0d, 0xb7, 0x79, 0x21, 0xa6, 0x41, 0x3d, 0x91, 0x09, 0x97, 0x96, 0x88,
-	0xd1, 0x19, 0x1d, 0x0d, 0x89, 0x36, 0x4e, 0x2e, 0xa6, 0x3f, 0x2e, 0xd0, 0x00, 0x7d, 0xe7, 0xdd,
-	0x95, 0xd0, 0xc5, 0x51, 0x57, 0x57, 0xff, 0x23, 0x47, 0x46, 0x47, 0x03, 0xff, 0x88, 0xb1, 0xad,
-	0x60, 0x42, 0x39, 0x43, 0xc2, 0xf8, 0xfa, 0x7a, 0xef, 0xf3, 0xb9, 0xbc, 0x6f, 0x0e, 0x13, 0x27,
-	0x52, 0x3d, 0x10, 0x81, 0x8a, 0x2d, 0x35, 0x36, 0xb9, 0x00, 0x05, 0x64, 0x7f, 0x10, 0x44, 0xae,
-	0x13, 0x06, 0xa1, 0x67, 0x0e, 0x9b, 0xe6, 0xfc, 0x87, 0xfa, 0x3d, 0xa6, 0x1d, 0xd9, 0x6d, 0x73,
-	0x2e, 0x60, 0xc4, 0x6c, 0x36, 0x82, 0x3e, 0x6b, 0x7b, 0x1e, 0x44, 0xa1, 0xb2, 0xd9, 0x53, 0xc4,
-	0xa4, 0x22, 0x06, 0xde, 0xf5, 0x04, 0x73, 0x14, 0x08, 0x03, 0xd5, 0x50, 0xa3, 0x6c, 0xff, 0x96,
-	0x3f, 0x1d, 0xc7, 0xf7, 0x05, 0x93, 0xd2, 0xd8, 0x4a, 0x3b, 0x59, 0x59, 0x3f, 0xc1, 0xc7, 0x2b,
-	0xa7, 0x4a, 0x0e, 0xa1, 0x64, 0x19, 0xf8, 0x56, 0x00, 0x07, 0xb9, 0x69, 0x70, 0xfe, 0xd4, 0x0c,
-	0x7c, 0x87, 0x0f, 0x16, 0x6e, 0x6d, 0xdf, 0xdf, 0x00, 0x95, 0xe2, 0xc3, 0xfc, 0x91, 0x19, 0xf2,
-	0x05, 0x25, 0xcc, 0x4c, 0x6b, 0x23, 0x4c, 0x72, 0x84, 0x31, 0x8f, 0xdc, 0x41, 0xe0, 0x3d, 0xf6,
-	0x59, 0x6c, 0x14, 0x93, 0x66, 0x39, 0xfd, 0x72, 0xc3, 0x62, 0x52, 0xc1, 0xdb, 0x02, 0x06, 0x4c,
-	0x1a, 0xa5, 0x5a, 0xb1, 0x51, 0xb6, 0xd3, 0x22, 0x13, 0xcd, 0xf1, 0x48, 0x45, 0xcf, 0xde, 0x4b,
-	0xb8, 0xd8, 0x91, 0x5d, 0xf2, 0x8a, 0x70, 0x25, 0x6f, 0x7b, 0xe4, 0xc2, 0xcc, 0xcf, 0x91, 0xa9,
-	0x0f, 0x51, 0xf5, 0x72, 0xed, 0x73, 0xa9, 0x51, 0x62, 0x92, 0xb7, 0x4e, 0xad, 0x89, 0x26, 0x55,
-	0x5a, 0x13, 0x5d, 0x6e, 0xc8, 0x33, 0xde, 0x5b, 0xda, 0x30, 0x69, 0xfd, 0x7f, 0xaf, 0xa5, 0x75,
-	0x57, 0xcf, 0xd7, 0x3b, 0xb4, 0xe0, 0x2f, 0x2d, 0x4e, 0xcb, 0x5f, 0x15, 0x37, 0x2d, 0x7f, 0x65,
-	0x36, 0xae, 0xae, 0x3f, 0xa6, 0x14, 0x4d, 0xa6, 0x14, 0x7d, 0x4d, 0x29, 0x7a, 0x9b, 0xd1, 0xc2,
-	0x64, 0x46, 0x0b, 0x9f, 0x33, 0x5a, 0x78, 0x38, 0xed, 0x06, 0xaa, 0x17, 0xb9, 0xa6, 0x07, 0x43,
-	0x6b, 0x3e, 0xd9, 0x1a, 0x36, 0xad, 0xb1, 0xf5, 0xe7, 0x25, 0x8a, 0x39, 0x93, 0xee, 0x4e, 0xf2,
-	0x1a, 0xb5, 0xbe, 0x03, 0x00, 0x00, 0xff, 0xff, 0x87, 0x06, 0xcb, 0xa4, 0xa3, 0x04, 0x00, 0x00,
+	// 431 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x95, 0x4f, 0x4f, 0xe2, 0x40,
+	0x18, 0xc6, 0xe9, 0x76, 0x97, 0x0d, 0x73, 0xdb, 0x09, 0xd9, 0x34, 0xec, 0x3a, 0x22, 0x27, 0xbc,
+	0xb4, 0x44, 0x8c, 0x9e, 0xd1, 0xa3, 0x21, 0xd1, 0xc6, 0x93, 0x17, 0xd3, 0x3f, 0x23, 0x54, 0xa0,
+	0x53, 0x67, 0xa6, 0x84, 0x5e, 0x3c, 0xea, 0xd5, 0x2f, 0xe2, 0xf7, 0xf0, 0xc8, 0xd1, 0xa3, 0x81,
+	0x2f, 0x62, 0x6c, 0x2b, 0x14, 0x19, 0xc6, 0x92, 0xf4, 0x38, 0xbc, 0xcc, 0xfb, 0xfc, 0xfa, 0xe4,
+	0x79, 0x32, 0x00, 0x5a, 0x21, 0xef, 0x13, 0xea, 0xf1, 0xc8, 0xe0, 0x13, 0x3d, 0xa0, 0x84, 0x13,
+	0xf8, 0x77, 0xe8, 0x85, 0xb6, 0xe5, 0x7b, 0xbe, 0xa3, 0x8f, 0x5a, 0xfa, 0xe2, 0x0f, 0x8d, 0x4b,
+	0x80, 0xba, 0xac, 0xd7, 0x09, 0x02, 0x4a, 0xc6, 0xb8, 0x4b, 0x5c, 0xef, 0x26, 0xea, 0x38, 0x0e,
+	0x09, 0x7d, 0x6e, 0xe2, 0xbb, 0x10, 0x33, 0x0e, 0x35, 0xf0, 0xdb, 0xa1, 0xd8, 0xe2, 0x84, 0x6a,
+	0x4a, 0x5d, 0x69, 0x56, 0xcc, 0xcf, 0xe3, 0xc7, 0xc4, 0x72, 0x5d, 0x8a, 0x19, 0xd3, 0x7e, 0x24,
+	0x93, 0xf4, 0xd8, 0xd8, 0x03, 0xbb, 0x1b, 0xb7, 0xb2, 0x80, 0xf8, 0x0c, 0x37, 0x6e, 0x63, 0xe1,
+	0x73, 0x4a, 0x02, 0xc2, 0x0a, 0x13, 0x86, 0x55, 0xf0, 0x8b, 0x92, 0x21, 0x66, 0x9a, 0x5a, 0x57,
+	0x9b, 0x15, 0x33, 0x39, 0xa4, 0x38, 0x62, 0xad, 0x14, 0x67, 0xc5, 0x07, 0x13, 0x8f, 0xc9, 0x00,
+	0x17, 0xed, 0xc3, 0x97, 0xad, 0x2b, 0xc2, 0x29, 0x5b, 0xc1, 0xc2, 0xe2, 0xad, 0xa9, 0xf0, 0x05,
+	0xf8, 0xb7, 0x64, 0xeb, 0xb8, 0x6e, 0x01, 0xaa, 0x08, 0xfc, 0x17, 0xaf, 0x4c, 0x25, 0x1f, 0x94,
+	0x58, 0x33, 0xc5, 0x2a, 0x44, 0x13, 0xee, 0x00, 0x10, 0x84, 0xf6, 0xd0, 0x73, 0xae, 0x07, 0x38,
+	0xd2, 0xd4, 0x78, 0x58, 0x49, 0x7e, 0x39, 0xc3, 0xd1, 0x32, 0x10, 0x3f, 0xb3, 0x81, 0x48, 0x40,
+	0x05, 0x1c, 0x09, 0xe8, 0xc1, 0x73, 0x19, 0xa8, 0x5d, 0xd6, 0x83, 0x8f, 0x0a, 0xa8, 0x8a, 0x52,
+	0x0c, 0x8f, 0x74, 0x71, 0x9f, 0x74, 0x79, 0x99, 0x6a, 0xc7, 0x5b, 0xdf, 0x4b, 0x88, 0x62, 0x12,
+	0x51, 0x80, 0xa5, 0x24, 0x92, 0x76, 0x49, 0x49, 0x64, 0x4d, 0xc9, 0x7a, 0xb2, 0x12, 0xac, 0x3c,
+	0x9e, 0x88, 0xf2, 0x9d, 0xc7, 0x13, 0x61, 0x82, 0xb3, 0x9e, 0xe4, 0x27, 0x91, 0x34, 0x2d, 0x8f,
+	0x27, 0x62, 0x92, 0x7b, 0xf0, 0x67, 0x2d, 0xf5, 0xb0, 0xfd, 0xfd, 0x77, 0xad, 0x55, 0xa0, 0x76,
+	0xb8, 0xdd, 0xa5, 0xa5, 0xfe, 0x5a, 0x98, 0xa5, 0xfa, 0x9b, 0x2a, 0x28, 0xd5, 0xdf, 0xd8, 0x97,
+	0x93, 0xd3, 0x97, 0x19, 0x52, 0xa6, 0x33, 0xa4, 0xbc, 0xcd, 0x90, 0xf2, 0x34, 0x47, 0xa5, 0xe9,
+	0x1c, 0x95, 0x5e, 0xe7, 0xa8, 0x74, 0xb5, 0xdf, 0xf3, 0x78, 0x3f, 0xb4, 0x75, 0x87, 0x8c, 0x8c,
+	0xc5, 0x66, 0x63, 0xd4, 0x32, 0x26, 0x46, 0xe6, 0x95, 0x8a, 0x02, 0xcc, 0xec, 0x72, 0xfc, 0x52,
+	0xb5, 0xdf, 0x03, 0x00, 0x00, 0xff, 0xff, 0x28, 0xff, 0x56, 0x02, 0xbf, 0x06, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -449,6 +641,8 @@ const _ = grpc.SupportPackageIsVersion4
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
 	// this line is used by starport scaffolding # proto/tx/rpc
+	ApproveModifyAccount(ctx context.Context, in *MsgApproveModifyAccountRequest, opts ...grpc.CallOption) (*MsgApproveModifyAccountResponse, error)
+	ProposeModifyAccount(ctx context.Context, in *MsgProposeModifyAccountRequest, opts ...grpc.CallOption) (*MsgProposeModifyAccountResponse, error)
 	ApproveRevokeAccount(ctx context.Context, in *MsgApproveRevokeAccountRequest, opts ...grpc.CallOption) (*MsgApproveRevokeAccountResponse, error)
 	ProposeRevokeAccount(ctx context.Context, in *MsgProposeRevokeAccountRequest, opts ...grpc.CallOption) (*MsgProposeRevokeAccountResponse, error)
 	ApproveAddAccount(ctx context.Context, in *MsgApproveAddAccountRequest, opts ...grpc.CallOption) (*MsgApproveAddAccountResponse, error)
@@ -461,6 +655,24 @@ type msgClient struct {
 
 func NewMsgClient(cc grpc1.ClientConn) MsgClient {
 	return &msgClient{cc}
+}
+
+func (c *msgClient) ApproveModifyAccount(ctx context.Context, in *MsgApproveModifyAccountRequest, opts ...grpc.CallOption) (*MsgApproveModifyAccountResponse, error) {
+	out := new(MsgApproveModifyAccountResponse)
+	err := c.cc.Invoke(ctx, "/liubaninc.m0.authority.Msg/ApproveModifyAccount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *msgClient) ProposeModifyAccount(ctx context.Context, in *MsgProposeModifyAccountRequest, opts ...grpc.CallOption) (*MsgProposeModifyAccountResponse, error) {
+	out := new(MsgProposeModifyAccountResponse)
+	err := c.cc.Invoke(ctx, "/liubaninc.m0.authority.Msg/ProposeModifyAccount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *msgClient) ApproveRevokeAccount(ctx context.Context, in *MsgApproveRevokeAccountRequest, opts ...grpc.CallOption) (*MsgApproveRevokeAccountResponse, error) {
@@ -502,6 +714,8 @@ func (c *msgClient) ProposeAddAccount(ctx context.Context, in *MsgProposeAddAcco
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
 	// this line is used by starport scaffolding # proto/tx/rpc
+	ApproveModifyAccount(context.Context, *MsgApproveModifyAccountRequest) (*MsgApproveModifyAccountResponse, error)
+	ProposeModifyAccount(context.Context, *MsgProposeModifyAccountRequest) (*MsgProposeModifyAccountResponse, error)
 	ApproveRevokeAccount(context.Context, *MsgApproveRevokeAccountRequest) (*MsgApproveRevokeAccountResponse, error)
 	ProposeRevokeAccount(context.Context, *MsgProposeRevokeAccountRequest) (*MsgProposeRevokeAccountResponse, error)
 	ApproveAddAccount(context.Context, *MsgApproveAddAccountRequest) (*MsgApproveAddAccountResponse, error)
@@ -512,6 +726,12 @@ type MsgServer interface {
 type UnimplementedMsgServer struct {
 }
 
+func (*UnimplementedMsgServer) ApproveModifyAccount(ctx context.Context, req *MsgApproveModifyAccountRequest) (*MsgApproveModifyAccountResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ApproveModifyAccount not implemented")
+}
+func (*UnimplementedMsgServer) ProposeModifyAccount(ctx context.Context, req *MsgProposeModifyAccountRequest) (*MsgProposeModifyAccountResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ProposeModifyAccount not implemented")
+}
 func (*UnimplementedMsgServer) ApproveRevokeAccount(ctx context.Context, req *MsgApproveRevokeAccountRequest) (*MsgApproveRevokeAccountResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ApproveRevokeAccount not implemented")
 }
@@ -527,6 +747,42 @@ func (*UnimplementedMsgServer) ProposeAddAccount(ctx context.Context, req *MsgPr
 
 func RegisterMsgServer(s grpc1.Server, srv MsgServer) {
 	s.RegisterService(&_Msg_serviceDesc, srv)
+}
+
+func _Msg_ApproveModifyAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgApproveModifyAccountRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).ApproveModifyAccount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/liubaninc.m0.authority.Msg/ApproveModifyAccount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).ApproveModifyAccount(ctx, req.(*MsgApproveModifyAccountRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Msg_ProposeModifyAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgProposeModifyAccountRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).ProposeModifyAccount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/liubaninc.m0.authority.Msg/ProposeModifyAccount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).ProposeModifyAccount(ctx, req.(*MsgProposeModifyAccountRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Msg_ApproveRevokeAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -606,6 +862,14 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*MsgServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "ApproveModifyAccount",
+			Handler:    _Msg_ApproveModifyAccount_Handler,
+		},
+		{
+			MethodName: "ProposeModifyAccount",
+			Handler:    _Msg_ProposeModifyAccount_Handler,
+		},
+		{
 			MethodName: "ApproveRevokeAccount",
 			Handler:    _Msg_ApproveRevokeAccount_Handler,
 		},
@@ -624,6 +888,135 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "authority/tx.proto",
+}
+
+func (m *MsgApproveModifyAccountRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgApproveModifyAccountRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgApproveModifyAccountRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Address) > 0 {
+		i -= len(m.Address)
+		copy(dAtA[i:], m.Address)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Address)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Creator) > 0 {
+		i -= len(m.Creator)
+		copy(dAtA[i:], m.Creator)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Creator)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgApproveModifyAccountResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgApproveModifyAccountResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgApproveModifyAccountResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgProposeModifyAccountRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgProposeModifyAccountRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgProposeModifyAccountRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Roles) > 0 {
+		for iNdEx := len(m.Roles) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.Roles[iNdEx])
+			copy(dAtA[i:], m.Roles[iNdEx])
+			i = encodeVarintTx(dAtA, i, uint64(len(m.Roles[iNdEx])))
+			i--
+			dAtA[i] = 0x1a
+		}
+	}
+	if len(m.Address) > 0 {
+		i -= len(m.Address)
+		copy(dAtA[i:], m.Address)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Address)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Creator) > 0 {
+		i -= len(m.Creator)
+		copy(dAtA[i:], m.Creator)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Creator)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgProposeModifyAccountResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgProposeModifyAccountResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgProposeModifyAccountResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
 }
 
 func (m *MsgApproveRevokeAccountRequest) Marshal() (dAtA []byte, err error) {
@@ -893,6 +1286,64 @@ func encodeVarintTx(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
+func (m *MsgApproveModifyAccountRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Creator)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.Address)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	return n
+}
+
+func (m *MsgApproveModifyAccountResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *MsgProposeModifyAccountRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Creator)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.Address)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	if len(m.Roles) > 0 {
+		for _, s := range m.Roles {
+			l = len(s)
+			n += 1 + l + sovTx(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *MsgProposeModifyAccountResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
 func (m *MsgApproveRevokeAccountRequest) Size() (n int) {
 	if m == nil {
 		return 0
@@ -1012,6 +1463,366 @@ func sovTx(x uint64) (n int) {
 }
 func sozTx(x uint64) (n int) {
 	return sovTx(uint64((x << 1) ^ uint64((int64(x) >> 63))))
+}
+func (m *MsgApproveModifyAccountRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgApproveModifyAccountRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgApproveModifyAccountRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Creator", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Creator = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Address", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Address = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgApproveModifyAccountResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgApproveModifyAccountResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgApproveModifyAccountResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgProposeModifyAccountRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgProposeModifyAccountRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgProposeModifyAccountRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Creator", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Creator = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Address", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Address = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Roles", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Roles = append(m.Roles, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgProposeModifyAccountResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgProposeModifyAccountResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgProposeModifyAccountResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
 }
 func (m *MsgApproveRevokeAccountRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)

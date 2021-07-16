@@ -61,13 +61,13 @@ func (msg *MsgProposeAddAccountRequest) ValidateBasic() error {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid account address (%s)", err)
 	}
 
-	pk, err := sdk.GetPubKeyFromBech32(sdk.Bech32PubKeyTypeAccPub, msg.PublicKey);
-	if  err != nil {
+	pk, err := sdk.GetPubKeyFromBech32(sdk.Bech32PubKeyTypeAccPub, msg.PublicKey)
+	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidPubKey, "invalid publicKey: %s", err)
 	}
 
-	addr, err := sdk.AccAddressFromBech32(pk.Address().String())
-	if  err != nil {
+	addr, err := sdk.AccAddressFromHex(pk.Address().String())
+	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidPubKey, "invalid publicKey: %s", err)
 	}
 

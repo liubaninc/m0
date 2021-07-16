@@ -3,6 +3,7 @@ package keeper
 import (
 	"context"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/liubaninc/m0/x/authority/types"
@@ -32,6 +33,11 @@ func (k msgServer) ApproveRevokeAccount(goCtx context.Context, msg *types.MsgApp
 	// check if pending account revocation has enough approvals
 	if len(revoc.Approvals) == AccountApprovalsCount(ctx, k.Keeper) {
 		// delete account record
+		acct := k.accountKeeper.NewAccount(ctx, &authtypes.BaseAccount{
+			Address: msg.Address,
+		})
+		k.accountKeeper.RemoveAccount(ctx, acct)
+
 		k.Keeper.DeleteAccount(ctx, msg.Address)
 		// delete pending account revocation record
 		k.Keeper.DeletePendingAccountRevocation(ctx, msg.Address)
