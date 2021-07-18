@@ -209,6 +209,7 @@ type App struct {
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
 	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
 
+	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 	ScopedMibcKeeper capabilitykeeper.ScopedKeeper
 	MibcKeeper       mibcmodulekeeper.Keeper
 
@@ -242,6 +243,7 @@ func New(
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
 		govtypes.StoreKey, paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey,
 		evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
+		// this line is used by starport scaffolding # stargate/app/storeKey
 		mibcmoduletypes.StoreKey,
 		utxotypes.StoreKey,
 		wasmtypes.StoreKey,
@@ -271,6 +273,7 @@ func New(
 	// grant capabilities for the ibc and ibc-transfer modules
 	scopedIBCKeeper := app.CapabilityKeeper.ScopeToModule(ibchost.ModuleName)
 	scopedTransferKeeper := app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
+	// this line is used by starport scaffolding # stargate/app/scopedKeeper
 
 	// add keepers
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
@@ -335,7 +338,6 @@ func New(
 	app.EvidenceKeeper = *evidenceKeeper
 
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
-
 	app.wasmKeeper = *wasmkeeper.NewKeeper(
 		appCodec,
 		keys[wasmtypes.StoreKey],
@@ -408,6 +410,7 @@ func New(
 		ibc.NewAppModule(app.IBCKeeper),
 		params.NewAppModule(app.ParamsKeeper),
 		transferModule,
+		// this line is used by starport scaffolding # stargate/app/appModule
 		mibcModule,
 		utxoModule,
 		wasmModule,
@@ -486,6 +489,8 @@ func New(
 	}
 
 	app.ScopedIBCKeeper = scopedIBCKeeper
+	app.ScopedTransferKeeper = scopedTransferKeeper
+	// this line is used by starport scaffolding # stargate/app/beforeInitReturn
 
 	return app
 }

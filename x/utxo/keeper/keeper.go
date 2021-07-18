@@ -19,6 +19,7 @@ type (
 		cdc           codec.Marshaler
 		storeKey      sdk.StoreKey
 		memKey        sdk.StoreKey
+		// this line is used by starport scaffolding # ibc/keeper/attribute
 		paramSubspace paramtypes.Subspace
 		accountKeeper types.AccountKeeper
 		bankKeeper    types.BankKeeper
@@ -33,6 +34,7 @@ func NewKeeper(
 	cdc codec.Marshaler,
 	storeKey,
 	memKey sdk.StoreKey,
+	// this line is used by starport scaffolding # ibc/keeper/parameter
 	paramstore paramtypes.Subspace,
 	accountKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper,

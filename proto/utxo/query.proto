@@ -4,6 +4,7 @@ package liubaninc.m0.utxo;
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
+// this line is used by starport scaffolding # 1
 import "cosmos/base/v1beta1/coin.proto";
 import "utxo/token.proto";
 import "utxo/input.proto";
@@ -12,6 +13,7 @@ option go_package = "github.com/liubaninc/m0/x/utxo/types";
 
 // Query defines the gRPC querier service.
 service Query {
+	// this line is used by starport scaffolding # 2
 	rpc Token(QueryGetTokenRequest) returns (QueryGetTokenResponse) {
 		option (google.api.http).get = "/liubaninc/m0/utxo/token/{name}";
 	}
@@ -28,6 +30,7 @@ service Query {
 	}
 }
 
+// this line is used by starport scaffolding # 3
 message QueryGetTokenRequest {
 	string name = 1;
 }
