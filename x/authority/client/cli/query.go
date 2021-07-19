@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	// "strings"
 
 	"github.com/spf13/cobra"
@@ -47,10 +45,6 @@ func GetCmdAccount() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 
-			if _, err := sdk.ValAddressFromBech32(args[0]); err != nil {
-				return fmt.Errorf("invalid address %s (%s)", args[0], err)
-			}
-
 			queryClient := types.NewQueryClient(clientCtx)
 
 			params := &types.QueryAccountRequest{
@@ -77,10 +71,6 @@ func GetCmdPendingAccount() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
-
-			if _, err := sdk.ValAddressFromBech32(args[0]); err != nil {
-				return fmt.Errorf("invalid address %s (%s)", args[0], err)
-			}
 
 			queryClient := types.NewQueryClient(clientCtx)
 
@@ -109,10 +99,6 @@ func GetCmdPendingAccountRevocation() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
-
-			if _, err := sdk.ValAddressFromBech32(args[0]); err != nil {
-				return fmt.Errorf("invalid address %s (%s)", args[0], err)
-			}
 
 			queryClient := types.NewQueryClient(clientCtx)
 

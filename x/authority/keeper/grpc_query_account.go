@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/liubaninc/m0/x/authority/types"
 	"google.golang.org/grpc/codes"
@@ -22,13 +21,9 @@ func (k Keeper) Account(c context.Context, req *types.QueryAccountRequest) (*typ
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid address")
 	}
-	if !k.IsAccountPresent(ctx, req.Address) {
-		return nil, sdkerrors.Wrapf(types.ErrAccountAlreadyExists, "No account associated with the address=%s on the ledger", req.Address)
-	}
 
 	// get account
 	acc := k.GetAccount(ctx, req.Address)
-
 	return &types.QueryAccountResponse{
 		Account: &acc,
 	}, nil
@@ -73,11 +68,6 @@ func (k Keeper) PendingAccount(c context.Context, req *types.QueryPendingAccount
 		return nil, status.Error(codes.InvalidArgument, "invalid address")
 	}
 	ctx := sdk.UnwrapSDKContext(c)
-
-	// check if pending account exists
-	if !k.IsPendingAccountPresent(ctx, req.Address) {
-		return nil, sdkerrors.Wrapf(types.ErrAccountAlreadyExists, "No pending account associated with the address=%s on the ledger", req.Address)
-	}
 
 	// get pending account
 	pendAcc := k.GetPendingAccount(ctx, req.Address)
@@ -127,9 +117,6 @@ func (k Keeper) PendingAccountRevocation(c context.Context, req *types.QueryPend
 	}
 	ctx := sdk.UnwrapSDKContext(c)
 
-	if !k.IsPendingAccountRevocationPresent(ctx, req.Address) {
-		return nil, sdkerrors.Wrapf(types.ErrAccountAlreadyExists, "No pending account revocation associated with the address=%s on the ledger", req.Address)
-	}
 	// get pending account revocation
 	revoc := k.GetPendingAccountRevocation(ctx, req.Address)
 
