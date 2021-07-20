@@ -27,6 +27,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// this line is used by starport scaffolding # proto/tx/message
 type MsgIssue struct {
 	Creator string    `protobuf:"bytes,1,opt,name=creator,proto3" json:"creator,omitempty"`
 	Desc    string    `protobuf:"bytes,2,opt,name=desc,proto3" json:"desc,omitempty"`
@@ -388,6 +389,7 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
+	// this line is used by starport scaffolding # proto/tx/rpc
 	Issue(ctx context.Context, in *MsgIssue, opts ...grpc.CallOption) (*MsgIssueResponse, error)
 	Send(ctx context.Context, in *MsgSend, opts ...grpc.CallOption) (*MsgSendResponse, error)
 	Destroy(ctx context.Context, in *MsgDestroy, opts ...grpc.CallOption) (*MsgDestroyResponse, error)
@@ -430,6 +432,7 @@ func (c *msgClient) Destroy(ctx context.Context, in *MsgDestroy, opts ...grpc.Ca
 
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
+	// this line is used by starport scaffolding # proto/tx/rpc
 	Issue(context.Context, *MsgIssue) (*MsgIssueResponse, error)
 	Send(context.Context, *MsgSend) (*MsgSendResponse, error)
 	Destroy(context.Context, *MsgDestroy) (*MsgDestroyResponse, error)

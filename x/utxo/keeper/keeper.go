@@ -16,9 +16,9 @@ import (
 
 type (
 	Keeper struct {
-		cdc           codec.Marshaler
-		storeKey      sdk.StoreKey
-		memKey        sdk.StoreKey
+		cdc      codec.Marshaler
+		storeKey sdk.StoreKey
+		memKey   sdk.StoreKey
 		// this line is used by starport scaffolding # ibc/keeper/attribute
 		paramSubspace paramtypes.Subspace
 		accountKeeper types.AccountKeeper

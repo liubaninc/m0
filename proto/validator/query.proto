@@ -1,0 +1,44 @@
+syntax = "proto3";
+package liubaninc.m0.validator;
+
+import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+// this line is used by starport scaffolding # 1
+import "validator/last_validator_power.proto";
+import "validator/validator.proto";
+
+option go_package = "github.com/liubaninc/m0/x/validator/types";
+
+// Query defines the gRPC querier service.
+service Query {
+    // this line is used by starport scaffolding # 2
+
+	// Queries a validator by id.
+	rpc Validator(QueryGetValidatorRequest) returns (QueryGetValidatorResponse) {
+		option (google.api.http).get = "/liubaninc/m0/validator/validator/{address}";
+	}
+
+	// Queries a list of validator items.
+	rpc ValidatorAll(QueryAllValidatorRequest) returns (QueryAllValidatorResponse) {
+		option (google.api.http).get = "/liubaninc/m0/validator/validator";
+	}
+
+}
+
+// this line is used by starport scaffolding # 3
+message QueryGetValidatorRequest {
+	string address = 1;
+}
+
+message QueryGetValidatorResponse {
+	Validator Validator = 1;
+}
+
+message QueryAllValidatorRequest {
+	cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryAllValidatorResponse {
+	repeated Validator Validator = 1;
+	cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}

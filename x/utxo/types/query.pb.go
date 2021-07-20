@@ -32,6 +32,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// this line is used by starport scaffolding # 3
 type QueryGetTokenRequest struct {
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 }
@@ -519,6 +520,7 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
+	// this line is used by starport scaffolding # 2
 	Token(ctx context.Context, in *QueryGetTokenRequest, opts ...grpc.CallOption) (*QueryGetTokenResponse, error)
 	TokenAll(ctx context.Context, in *QueryAllTokenRequest, opts ...grpc.CallOption) (*QueryAllTokenResponse, error)
 	Input(ctx context.Context, in *QueryInputRequest, opts ...grpc.CallOption) (*QueryInputResponse, error)
@@ -571,6 +573,7 @@ func (c *queryClient) InputAll(ctx context.Context, in *QueryAllInputRequest, op
 
 // QueryServer is the server API for Query service.
 type QueryServer interface {
+	// this line is used by starport scaffolding # 2
 	Token(context.Context, *QueryGetTokenRequest) (*QueryGetTokenResponse, error)
 	TokenAll(context.Context, *QueryAllTokenRequest) (*QueryAllTokenResponse, error)
 	Input(context.Context, *QueryInputRequest) (*QueryInputResponse, error)

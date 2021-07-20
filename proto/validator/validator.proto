@@ -1,0 +1,20 @@
+syntax = "proto3";
+package liubaninc.m0.validator;
+
+option go_package = "github.com/liubaninc/m0/x/validator/types";
+
+message Validator {
+  string creator = 1;
+  string pubKey = 2;
+  int64 power = 3;
+  bool jailed = 4;
+  string jailed_reason = 5;
+  Description description = 6;
+}
+
+message Description {
+  string moniker = 1;
+  string identity = 2;
+  string website = 3;
+  string details = 4;
+}

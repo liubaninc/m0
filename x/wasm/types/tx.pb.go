@@ -29,6 +29,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// this line is used by starport scaffolding # proto/tx/message
 type MsgDeploy struct {
 	Creator        string                  `protobuf:"bytes,1,opt,name=creator,proto3" json:"creator,omitempty"`
 	Desc           string                  `protobuf:"bytes,2,opt,name=desc,proto3" json:"desc,omitempty"`
@@ -523,6 +524,7 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
+	// this line is used by starport scaffolding # proto/tx/rpc
 	Deploy(ctx context.Context, in *MsgDeploy, opts ...grpc.CallOption) (*MsgDeployResponse, error)
 	Upgrade(ctx context.Context, in *MsgUpgrade, opts ...grpc.CallOption) (*MsgUpgradeResponse, error)
 	Invoke(ctx context.Context, in *MsgInvoke, opts ...grpc.CallOption) (*MsgInvokeResponse, error)
@@ -565,6 +567,7 @@ func (c *msgClient) Invoke(ctx context.Context, in *MsgInvoke, opts ...grpc.Call
 
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
+	// this line is used by starport scaffolding # proto/tx/rpc
 	Deploy(context.Context, *MsgDeploy) (*MsgDeployResponse, error)
 	Upgrade(context.Context, *MsgUpgrade) (*MsgUpgradeResponse, error)
 	Invoke(context.Context, *MsgInvoke) (*MsgInvokeResponse, error)
