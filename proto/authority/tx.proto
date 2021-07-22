@@ -1,0 +1,69 @@
+syntax = "proto3";
+package liubaninc.m0.authority;
+
+// this line is used by starport scaffolding # proto/tx/import
+
+option go_package = "github.com/liubaninc/m0/x/authority/types";
+
+// Msg defines the Msg service.
+service Msg {
+    // this line is used by starport scaffolding # proto/tx/rpc
+  rpc ApproveModifyAccount(MsgApproveModifyAccountRequest) returns (MsgApproveModifyAccountResponse);
+  rpc ProposeModifyAccount(MsgProposeModifyAccountRequest) returns (MsgProposeModifyAccountResponse);
+  rpc ApproveRevokeAccount(MsgApproveRevokeAccountRequest) returns (MsgApproveRevokeAccountResponse);
+  rpc ProposeRevokeAccount(MsgProposeRevokeAccountRequest) returns (MsgProposeRevokeAccountResponse);
+  rpc ApproveAddAccount(MsgApproveAddAccountRequest) returns (MsgApproveAddAccountResponse);
+  rpc ProposeAddAccount(MsgProposeAddAccountRequest) returns (MsgProposeAddAccountResponse);
+}
+
+// this line is used by starport scaffolding # proto/tx/message
+message MsgApproveModifyAccountRequest {
+  string creator = 1;
+  string address = 2;
+}
+
+message MsgApproveModifyAccountResponse {
+}
+
+message MsgProposeModifyAccountRequest {
+  string creator = 1;
+  string address = 2;
+  repeated string roles = 3;
+}
+
+message MsgProposeModifyAccountResponse {
+}
+
+message MsgApproveRevokeAccountRequest {
+  string creator = 1;
+  string address = 2;
+}
+
+message MsgApproveRevokeAccountResponse {
+}
+
+message MsgProposeRevokeAccountRequest {
+  string creator = 1;
+  string address = 2;
+}
+
+message MsgProposeRevokeAccountResponse {
+}
+
+message MsgApproveAddAccountRequest {
+  string creator = 1;
+  string address = 2;
+}
+
+message MsgApproveAddAccountResponse {
+}
+
+message MsgProposeAddAccountRequest {
+  string creator = 1;
+  string address = 2;
+  string public_key = 3;
+  repeated string roles = 4;
+}
+
+message MsgProposeAddAccountResponse {
+}

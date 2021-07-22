@@ -1,0 +1,83 @@
+syntax = "proto3";
+package liubaninc.m0.authority;
+
+import "authority/account.proto";
+import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+// this line is used by starport scaffolding # 1
+
+option go_package = "github.com/liubaninc/m0/x/authority/types";
+
+// Query defines the gRPC querier service.
+service Query {
+    rpc Account(QueryAccountRequest) returns (QueryAccountResponse) {
+    	option (google.api.http).get = "/liubaninc/m0/authority/account/{address}";
+    }
+    rpc PendingAccount(QueryPendingAccountRequest) returns (QueryPendingAccountResponse) {
+        option (google.api.http).get = "/liubaninc/m0/authority/pending/account/{address}";
+    }
+     rpc PendingAccountRevocation(QueryPendingAccountRevocationRequest) returns (QueryPendingAccountRevocationResponse) {
+         option (google.api.http).get = "/liubaninc/m0/authority/pending/account/revocation/{address}";
+     }
+     rpc AllAccount(QueryAllAccountRequest) returns (QueryAllAccountResponse) {
+     		option (google.api.http).get = "/liubaninc/m0/authority/all/account";
+     }
+     rpc AllPendingAccount(QueryAllPendingAccountRequest) returns (QueryAllPendingAccountResponse) {
+          	option (google.api.http).get = "/liubaninc/m0/authority/all/pending/account";
+     }
+      rpc AllPendingAccountRevocation(QueryAllPendingAccountRevocationRequest) returns (QueryAllPendingAccountRevocationResponse) {
+            option (google.api.http).get = "/liubaninc/m0/authority/all/pending/account/revocation";
+      }
+
+}
+
+message QueryAccountRequest {
+	string address = 1;
+}
+
+message QueryAccountResponse {
+	Account account = 1;
+}
+
+message QueryPendingAccountRequest {
+	string address = 1;
+}
+
+message QueryPendingAccountResponse {
+	PendingAccount pending_account = 1;
+}
+message QueryPendingAccountRevocationRequest {
+	string address = 1;
+}
+
+message QueryPendingAccountRevocationResponse {
+	PendingAccountRevocation pending_account_revocation = 1;
+}
+
+message QueryAllAccountRequest {
+	cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryAllAccountResponse {
+	repeated Account account = 1;
+	cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+message QueryAllPendingAccountRequest {
+	cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryAllPendingAccountResponse {
+	repeated PendingAccount pending_account = 1;
+	cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+message QueryAllPendingAccountRevocationRequest {
+	cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryAllPendingAccountRevocationResponse {
+	repeated PendingAccountRevocation pending_account_revocation = 1;
+	cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+

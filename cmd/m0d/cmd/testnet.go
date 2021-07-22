@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	authoritytypes "github.com/liubaninc/m0/x/authority/types"
 	utxotypes "github.com/liubaninc/m0/x/utxo/types"
 	"net"
 	"os"
@@ -50,6 +51,8 @@ var (
 
 	flagReservedAccount = "reserved-account-mnemonic"
 	flagReservedCoin    = "reserved-coin"
+
+	flagAuthorityRoles = authoritytypes.Roles
 )
 
 // get cmd to initialize all files for tendermint testnet and application
@@ -357,8 +360,18 @@ func InitTestnet(
 				Amount: reservedCoin,
 			},
 		}, "reserved")
+
+		in, _ := kb.KeyByAddress(addr)
+		pubkey := sdk.MustBech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, in.GetPubKey())
+		msg2 := authoritytypes.NewMsgProposeAddAccount(
+			addr.String(),
+			addr.String(),
+			pubkey,
+			flagAuthorityRoles,
+		)
+
 		txBuilder := clientCtx.TxConfig.NewTxBuilder()
-		if err := txBuilder.SetMsgs(msg); err != nil {
+		if err := txBuilder.SetMsgs(msg, msg2); err != nil {
 			return err
 		}
 
