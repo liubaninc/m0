@@ -11,12 +11,39 @@ option go_package = "github.com/liubaninc/m0/x/wasm/types";
 // Msg defines the Msg service.
 service Msg {
   // this line is used by starport scaffolding # proto/tx/rpc
+  rpc Undeploy(MsgUndeploy) returns (MsgUndeployResponse);
+  rpc Unfreeze(MsgUnfreeze) returns (MsgUnfreezeResponse);
+  rpc Freeze(MsgFreeze) returns (MsgFreezeResponse);
   rpc Deploy(MsgDeploy) returns (MsgDeployResponse);
   rpc Upgrade(MsgUpgrade) returns (MsgUpgradeResponse);
   rpc Invoke(MsgInvoke) returns (MsgInvokeResponse);
 }
 
 // this line is used by starport scaffolding # proto/tx/message
+message MsgUndeploy {
+  string creator = 1;
+  string contract_name = 2;
+}
+
+message MsgUndeployResponse {
+}
+
+message MsgUnfreeze {
+  string creator = 1;
+  string contract_name = 2;
+}
+
+message MsgUnfreezeResponse {
+}
+
+message MsgFreeze {
+  string creator = 1;
+  string contract_name = 2;
+}
+
+message MsgFreezeResponse {
+}
+
 message MsgDeploy {
   string creator = 1;
   string desc = 2;

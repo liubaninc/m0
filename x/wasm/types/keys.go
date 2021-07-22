@@ -27,4 +27,6 @@ const (
 	ExtUtxoTablePrefix      = "E-"
 	ExtUtxoDelTablePrefix   = "ED-"
 	ExtUtxoValueTablePrefix = "EV-"
+
+	StatesKey = "state-value-"
 )

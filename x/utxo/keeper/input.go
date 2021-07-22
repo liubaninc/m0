@@ -56,6 +56,22 @@ func (k Keeper) GetAllInput(ctx sdk.Context) (list []types.Input) {
 	return
 }
 
+// GetAllInput returns all input
+func (k Keeper) GetAllInputByAddress(ctx sdk.Context, addr sdk.AccAddress) (list []types.Input) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.InputKey))
+	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefix(fmt.Sprintf("%X", addr.Bytes())))
+
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		var val types.Input
+		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &val)
+		list = append(list, val)
+	}
+
+	return
+}
+
 func (k Keeper) SelectUtxos(ctx sdk.Context, addr sdk.AccAddress, totalNeed sdk.Coins, lock int64) (inputs []*types.Input, total sdk.Coins, err error) {
 	if totalNeed.IsZero() {
 		return

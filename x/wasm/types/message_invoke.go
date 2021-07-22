@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	"github.com/liubaninc/m0/x/wasm/xmodel/contract/kernel"
 
 	utxotypes "github.com/liubaninc/m0/x/utxo/types"
 
@@ -110,6 +111,12 @@ func (m *MsgInvoke) ValidateBasic() error {
 
 	if len(m.ContractRequests) == 0 {
 		return sdkerrors.Wrapf(ErrUnexpected, "contract request is empty")
+	}
+
+	for _, cr := range m.ContractRequests {
+		if err := kernel.ValidContractName(cr.ContractName); err != nil {
+			return fmt.Errorf("contract name %v, error %v", cr.ContractName, err)
+		}
 	}
 
 	if len(m.OutputsExt) != 0 {

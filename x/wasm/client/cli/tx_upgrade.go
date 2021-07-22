@@ -2,14 +2,11 @@ package cli
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"strconv"
 
 	utxotypes "github.com/liubaninc/m0/x/utxo/types"
-	"github.com/liubaninc/m0/x/wasm/xmodel"
-	"github.com/liubaninc/m0/x/wasm/xmodel/contract/kernel"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -25,19 +22,11 @@ import (
 
 var _ = strconv.Itoa(0)
 
-const (
-	flagDesc    = "desc"
-	flagLock    = "lock"
-	flagModule  = "moudle"
-	flagRuntime = "runtime"
-	flagAmount  = "amount"
-)
-
-func CmdDeploy() *cobra.Command {
+func CmdUpgrade() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "deploy [name] [code-file] [init-args]",
-		Short: "deploy an wasm contract",
-		Args:  cobra.RangeArgs(2, 3),
+		Use:   "upgrade [name] [code-file]",
+		Short: "upgrade an wasm contract",
+		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -45,21 +34,9 @@ func CmdDeploy() *cobra.Command {
 			}
 
 			name := args[0]
-			if err := kernel.ValidContractName(name); err != nil {
-				return fmt.Errorf("contract name %v, error %v", args[1], err)
-			}
 			code, err := ioutil.ReadFile(args[1])
 			if err != nil {
-				return fmt.Errorf("contract code file %v, error %v", args[2], err)
-			}
-			initArgs, err := convertToArgs(args[2])
-			if err != nil {
-				return fmt.Errorf("invoke init args, error %v", err)
-			}
-			initArgsStr, _ := json.Marshal(initArgs)
-			desc := &xmodel.WasmCodeDesc{
-				Runtime:      viper.GetString(flagRuntime),
-				ContractType: viper.GetString(flagModule),
+				return fmt.Errorf("read code file %v, error %v", args[2], err)
 			}
 
 			queryClient := types.NewQueryClient(clientCtx)
@@ -67,7 +44,7 @@ func CmdDeploy() *cobra.Command {
 				Creator: clientCtx.GetFromAddress().String(),
 				Lock:    viper.GetInt64(flagLock),
 				Requests: []*types.InvokeRequest{
-					types.NewMsgDeploy(clientCtx.GetFromAddress().String(), name, code, desc, string(initArgsStr), nil, nil, nil, nil, nil, viper.GetString(flagDesc)).ConvertInvokeRequest(),
+					types.NewMsgUpgrade(clientCtx.GetFromAddress().String(), name, code, nil, nil, nil, nil, nil, viper.GetString(flagDesc)).ConvertInvokeRequest(),
 				},
 			})
 			if err != nil {
@@ -108,7 +85,7 @@ func CmdDeploy() *cobra.Command {
 				}
 			}
 
-			msg := types.NewMsgDeploy(clientCtx.GetFromAddress().String(), name, code, desc, string(initArgsStr), resp.Requests[0].ResourceLimits, append(inputs, resp.Inputs...), append(outputs, resp.Outputs...), resp.InputsExt, resp.OutputsExt, viper.GetString(flagDesc))
+			msg := types.NewMsgUpgrade(clientCtx.GetFromAddress().String(), name, code, resp.Requests[0].ResourceLimits, append(inputs, resp.Inputs...), append(outputs, resp.Outputs...), resp.InputsExt, resp.OutputsExt, viper.GetString(flagDesc))
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -118,8 +95,6 @@ func CmdDeploy() *cobra.Command {
 
 	cmd.Flags().String(flagDesc, "", "description of msg")
 	cmd.Flags().Int64(flagLock, 60, "will lock inputs for a while. eg. 60s")
-	cmd.Flags().String(flagModule, "wasm", "contract code module, wasm")
-	cmd.Flags().String(flagRuntime, "c", "if contract code use golang, then go or if use c lang, then c")
 
 	flags.AddTxFlagsToCmd(cmd)
 

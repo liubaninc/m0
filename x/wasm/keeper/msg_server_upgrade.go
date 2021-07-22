@@ -3,6 +3,7 @@ package keeper
 import (
 	"context"
 	"fmt"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/tendermint/tendermint/crypto/tmhash"
 
@@ -14,6 +15,12 @@ import (
 
 func (k msgServer) Upgrade(goCtx context.Context, msg *types.MsgUpgrade) (*types.MsgUpgradeResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	if state, found := k.GetContractState(ctx, msg.ContractName); !found {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "contract %s not exist", msg.ContractName)
+	} else if state != types.Normarl {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "contract %s was not normal state", msg.ContractName)
+	}
 
 	msgOffset := int32(ctx.Context().Value(baseapp.KeyMsgOffset).(int))
 	txHash := fmt.Sprintf("%X", tmhash.Sum(ctx.TxBytes()))

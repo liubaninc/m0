@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"github.com/cosmos/cosmos-sdk/store/prefix"
 	"strconv"
 
 	"github.com/golang/protobuf/proto"
@@ -43,7 +44,7 @@ func (k Keeper) GetContract(ctx sdk.Context, contract string) (*types.Contract, 
 	}, nil
 }
 
-func (k Keeper) GetAllToken(ctx sdk.Context) (list []types.Contract) {
+func (k Keeper) GetAllContract(ctx sdk.Context) (list []types.Contract) {
 	store := ctx.KVStore(k.storeKey)
 	prefix := append([]byte(types.ExtUtxoTablePrefix), types.MakeRawKey(kernel.Contract2AccountBucket, nil)...)
 	iterator := sdk.KVStorePrefixIterator(store, prefix)
@@ -79,4 +80,55 @@ func (k Keeper) GetAllToken(ctx sdk.Context) (list []types.Contract) {
 		list = append(list, contract)
 	}
 	return
+}
+
+func (k Keeper) SetContractState(ctx sdk.Context, name string, state uint16) {
+	if state != types.Normarl && state != types.Freeze {
+		panic("Incorrect state")
+	}
+
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.StatesKey))
+	store.Set(types.KeyPrefix(name), []byte{byte(state)})
+}
+
+func (k Keeper) GetContractState(ctx sdk.Context, name string) (state uint16, found bool) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.StatesKey))
+
+	b := store.Get(types.KeyPrefix(name))
+	if b == nil {
+		return 0, false
+	}
+
+	state = uint16(b[0])
+	return state, true
+}
+
+func (k Keeper) RemoveContractState(ctx sdk.Context, name string) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.StatesKey))
+
+	store.Delete(types.KeyPrefix(name))
+}
+
+func (k Keeper) RemoveContract(ctx sdk.Context, name string) {
+	k.SetVersionedData(ctx, &xmodel.VersionedData{
+		PureData: &xmodel.PureData{
+			Key:    []byte(kernel.Contract2AccountBucket),
+			Value:  []byte(types.DelFlag),
+			Bucket: name,
+		},
+	})
+	k.SetVersionedData(ctx, &xmodel.VersionedData{
+		PureData: &xmodel.PureData{
+			Key:    []byte(bridge.ContractCodeDescKey(name)),
+			Value:  []byte(types.DelFlag),
+			Bucket: "contract",
+		},
+	})
+	k.SetVersionedData(ctx, &xmodel.VersionedData{
+		PureData: &xmodel.PureData{
+			Key:    []byte(bridge.ContractNumberKey(name)),
+			Value:  []byte(types.DelFlag),
+			Bucket: "contract",
+		},
+	})
 }

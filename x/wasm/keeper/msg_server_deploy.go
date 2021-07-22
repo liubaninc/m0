@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/tendermint/tendermint/crypto/tmhash"
 
@@ -16,6 +17,12 @@ import (
 func (k msgServer) Deploy(goCtx context.Context, msg *types.MsgDeploy) (*types.MsgDeployResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	if state, found := k.GetContractState(ctx, msg.ContractName); !found {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "contract %s not exist", msg.ContractName)
+	} else if state != types.Normarl {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "contract %s was not normal state", msg.ContractName)
+	}
+
 	msgOffset := int32(ctx.Context().Value(baseapp.KeyMsgOffset).(int))
 	txHash := fmt.Sprintf("%X", tmhash.Sum(ctx.TxBytes()))
 	attrs, err := k.utxoKeeper.Transfer(ctx, txHash, msgOffset, msg.Creator, msg.Inputs, msg.Outputs)
@@ -25,6 +32,8 @@ func (k msgServer) Deploy(goCtx context.Context, msg *types.MsgDeploy) (*types.M
 	if err := k.RWSet(ctx, txHash, msgOffset, msg.Creator, msg.InputsExt, msg.OutputsExt, []*types.InvokeRequest{msg.ConvertInvokeRequest()}); err != nil {
 		return nil, err
 	}
+	k.SetContractState(ctx, msg.ContractName, types.Normarl)
+
 	argsStr, _ := json.Marshal(msg.Args)
 	attrs = append(attrs,
 		sdk.NewAttribute(types.AttributeKeyName, msg.ContractName),

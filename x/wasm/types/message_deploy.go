@@ -3,6 +3,7 @@ package types
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/liubaninc/m0/x/wasm/xmodel/contract/kernel"
 
 	"github.com/gogo/protobuf/proto"
 	utxotypes "github.com/liubaninc/m0/x/utxo/types"
@@ -60,6 +61,10 @@ func (m *MsgDeploy) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(m.Creator)
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
+	}
+
+	if err := kernel.ValidContractName(m.ContractName); err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "contract name %v, error %v", m.ContractName, err)
 	}
 
 	totalIn := sdk.NewCoins()

@@ -30,3 +30,8 @@ func (m *OutputExt) ValidateBasic() error {
 	}
 	return nil
 }
+
+const (
+	Normarl uint16 = iota
+	Freeze
+)

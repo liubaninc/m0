@@ -2,12 +2,11 @@ package cli
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"strconv"
 
 	utxotypes "github.com/liubaninc/m0/x/utxo/types"
-	"github.com/liubaninc/m0/x/wasm/xmodel/contract/kernel"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -23,11 +22,11 @@ import (
 
 var _ = strconv.Itoa(0)
 
-func CmdUpgrade() *cobra.Command {
+func CmdInvoke() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "upgrade [name] [code-file]",
-		Short: "upgrade an wasm contract",
-		Args:  cobra.ExactArgs(2),
+		Use:   "invoke [name] [method] [args]",
+		Short: "invoke an wasm contract's method",
+		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -35,12 +34,22 @@ func CmdUpgrade() *cobra.Command {
 			}
 
 			name := args[0]
-			if err := kernel.ValidContractName(name); err != nil {
-				return fmt.Errorf("contract name %v, error %v", args[1], err)
+			method := args[1]
+			if len(method) == 0 {
+				return fmt.Errorf("contract method empty")
 			}
-			code, err := ioutil.ReadFile(args[1])
+			methodArgs, err := convertToArgs(args[2])
 			if err != nil {
-				return fmt.Errorf("read code file %v, error %v", args[2], err)
+				return fmt.Errorf("invoke init args, error %v", err)
+			}
+			mArgsStr, _ := json.Marshal(methodArgs)
+			amount := sdk.NewCoins()
+			if amountStr := viper.GetString(flagAmount); len(amountStr) != 0 {
+				coins, err := sdk.ParseCoinsNormalized(amountStr)
+				if err != nil {
+					return fmt.Errorf("invalid amount %v", err)
+				}
+				amount = coins
 			}
 
 			queryClient := types.NewQueryClient(clientCtx)
@@ -48,7 +57,13 @@ func CmdUpgrade() *cobra.Command {
 				Creator: clientCtx.GetFromAddress().String(),
 				Lock:    viper.GetInt64(flagLock),
 				Requests: []*types.InvokeRequest{
-					types.NewMsgUpgrade(clientCtx.GetFromAddress().String(), name, code, nil, nil, nil, nil, nil, viper.GetString(flagDesc)).ConvertInvokeRequest(),
+					{
+						Amount:       amount,
+						ModuleName:   viper.GetString(flagModule),
+						ContractName: name,
+						MethodName:   method,
+						Args:         string(mArgsStr),
+					},
 				},
 			})
 			if err != nil {
@@ -58,6 +73,13 @@ func CmdUpgrade() *cobra.Command {
 			var inputs []*utxotypes.Input
 			var outputs []*utxotypes.Output
 			neededTotal := sdk.NewCoins()
+			for _, coin := range amount {
+				outputs = append(outputs, &utxotypes.Output{
+					Amount: coin,
+					ToAddr: authtypes.NewModuleAddress(name).String(),
+				})
+				neededTotal = neededTotal.Add(coin)
+			}
 			txf := tx.NewFactoryCLI(clientCtx, cmd.Flags())
 			fees := txf.Fees()
 			for _, fee := range fees {
@@ -89,7 +111,7 @@ func CmdUpgrade() *cobra.Command {
 				}
 			}
 
-			msg := types.NewMsgUpgrade(clientCtx.GetFromAddress().String(), name, code, resp.Requests[0].ResourceLimits, append(inputs, resp.Inputs...), append(outputs, resp.Outputs...), resp.InputsExt, resp.OutputsExt, viper.GetString(flagDesc))
+			msg := types.NewMsgInvoke(clientCtx.GetFromAddress().String(), append(inputs, resp.Inputs...), append(outputs, resp.Outputs...), resp.InputsExt, resp.OutputsExt, resp.Requests, viper.GetString(flagDesc))
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -99,6 +121,8 @@ func CmdUpgrade() *cobra.Command {
 
 	cmd.Flags().String(flagDesc, "", "description of msg")
 	cmd.Flags().Int64(flagLock, 60, "will lock inputs for a while. eg. 60s")
+	cmd.Flags().String(flagModule, "wasm", "contract code moudle, wasm")
+	cmd.Flags().String(flagAmount, "", "the amount transfer to contract")
 
 	flags.AddTxFlagsToCmd(cmd)
 
