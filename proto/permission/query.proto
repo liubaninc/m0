@@ -1,0 +1,43 @@
+syntax = "proto3";
+package liubaninc.m0.permission;
+
+import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+// this line is used by starport scaffolding # 1
+import "permission/account.proto";
+
+option go_package = "github.com/liubaninc/m0/x/permission/types";
+
+// Query defines the gRPC querier service.
+service Query {
+    // this line is used by starport scaffolding # 2
+
+	// Queries a account by index.
+	rpc Account(QueryGetAccountRequest) returns (QueryGetAccountResponse) {
+		option (google.api.http).get = "/liubaninc/m0/permission/account/{address}";
+	}
+
+	// Queries a list of account items.
+	rpc AccountAll(QueryAllAccountRequest) returns (QueryAllAccountResponse) {
+		option (google.api.http).get = "/liubaninc/m0/permission/account";
+	}
+
+}
+
+// this line is used by starport scaffolding # 3
+message QueryGetAccountRequest {
+	string address = 1;
+}
+
+message QueryGetAccountResponse {
+	Account Account = 1;
+}
+
+message QueryAllAccountRequest {
+	cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryAllAccountResponse {
+	repeated Account Account = 1;
+	cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}

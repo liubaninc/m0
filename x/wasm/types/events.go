@@ -1,12 +1,13 @@
 package types
 
 const (
-	EventTypeContract = "contract"
+	EventTypeDeploy  = "deploy"
+	EventTypeUpgrade = "upgrade"
+	EventTypeInvoke  = "invoke"
 
-	AttributeKeyCreator = "creator"
-	AttributeKeyName    = "name"
-	AttributeKeyMethod  = "method"
-	AttributeKeyArg     = "arg"
+	AttributeKeyName   = "name"
+	AttributeKeyMethod = "method"
+	AttributeKeyArg    = "arg"
 
 	AttributeValueCategory = ModuleName
 )

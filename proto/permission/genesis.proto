@@ -1,0 +1,14 @@
+syntax = "proto3";
+package liubaninc.m0.permission;
+
+// this line is used by starport scaffolding # genesis/proto/import
+import "permission/account.proto";
+
+option go_package = "github.com/liubaninc/m0/x/permission/types";
+
+// GenesisState defines the permission module's genesis state.
+message GenesisState {
+    // this line is used by starport scaffolding # genesis/proto/state
+		repeated Account accountList = 1; // this line is used by starport scaffolding # genesis/proto/stateField
+    // this line is used by starport scaffolding # ibc/genesis/proto
+}

@@ -89,6 +89,9 @@ import (
 	mibcmodule "github.com/liubaninc/m0/x/mibc"
 	mibcmodulekeeper "github.com/liubaninc/m0/x/mibc/keeper"
 	mibcmoduletypes "github.com/liubaninc/m0/x/mibc/types"
+	permissionmodule "github.com/liubaninc/m0/x/permission"
+	permissionmodulekeeper "github.com/liubaninc/m0/x/permission/keeper"
+	permissionmoduletypes "github.com/liubaninc/m0/x/permission/types"
 	"github.com/liubaninc/m0/x/utxo"
 	utxokeeper "github.com/liubaninc/m0/x/utxo/keeper"
 	utxotypes "github.com/liubaninc/m0/x/utxo/types"
@@ -144,6 +147,7 @@ var (
 		transfer.AppModuleBasic{},
 		vesting.AppModuleBasic{},
 		// this line is used by starport scaffolding # stargate/app/moduleBasic
+		permissionmodule.AppModuleBasic{},
 		validatormodule.AppModuleBasic{},
 		mibcmodule.AppModuleBasic{},
 		wasm.AppModuleBasic{},
@@ -215,6 +219,8 @@ type App struct {
 
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
+	PermissionKeeper permissionmodulekeeper.Keeper
+
 	ValidatorKeeper  validatormodulekeeper.Keeper
 	ScopedMibcKeeper capabilitykeeper.ScopedKeeper
 	MibcKeeper       mibcmodulekeeper.Keeper
@@ -250,6 +256,7 @@ func New(
 		govtypes.StoreKey, paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey,
 		evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
 		// this line is used by starport scaffolding # stargate/app/storeKey
+		permissionmoduletypes.StoreKey,
 		validatormoduletypes.StoreKey,
 		mibcmoduletypes.StoreKey,
 		utxotypes.StoreKey,
@@ -346,6 +353,14 @@ func New(
 
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
 
+	app.PermissionKeeper = *permissionmodulekeeper.NewKeeper(
+		appCodec,
+		keys[permissionmoduletypes.StoreKey],
+		keys[permissionmoduletypes.MemStoreKey],
+		app.AccountKeeper,
+	)
+	permissionModule := permissionmodule.NewAppModule(appCodec, app.PermissionKeeper)
+
 	app.ValidatorKeeper = *validatormodulekeeper.NewKeeper(
 		appCodec,
 		keys[validatormoduletypes.StoreKey],
@@ -426,6 +441,7 @@ func New(
 		params.NewAppModule(app.ParamsKeeper),
 		transferModule,
 		// this line is used by starport scaffolding # stargate/app/appModule
+		permissionModule,
 		validatorModule,
 		mibcModule,
 		utxoModule,
@@ -463,6 +479,7 @@ func New(
 		evidencetypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
+		permissionmoduletypes.ModuleName,
 		validatormoduletypes.ModuleName,
 		mibcmoduletypes.ModuleName,
 		wasmtypes.ModuleName,
@@ -650,6 +667,7 @@ func initParamsKeeper(appCodec codec.BinaryMarshaler, legacyAmino *codec.LegacyA
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
+	paramsKeeper.Subspace(permissionmoduletypes.ModuleName)
 	paramsKeeper.Subspace(validatormoduletypes.ModuleName)
 	paramsKeeper.Subspace(mibcmoduletypes.ModuleName)
 	paramsKeeper.Subspace(wasmtypes.ModuleName)

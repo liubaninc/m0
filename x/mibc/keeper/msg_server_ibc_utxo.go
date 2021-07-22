@@ -3,11 +3,12 @@ package keeper
 import (
 	"context"
 	"fmt"
+	"strings"
+
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	utxotypes "github.com/liubaninc/m0/x/utxo/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
-	"strings"
-	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	clienttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/02-client/types"
@@ -18,13 +19,8 @@ func (k msgServer) SendIbcUTXO(goCtx context.Context, msg *types.MsgSendIbcUTXO)
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// TODO: logic before transmitting the packet
-	msgOffset := int32(ctx.Context().Value("msg-index").(int))
+	msgOffset := int32(ctx.Context().Value(baseapp.KeyMsgOffset).(int))
 	hash := fmt.Sprintf("%X", tmhash.Sum(ctx.TxBytes()))
-	t := time.Now()
-	defer func() {
-		k.Logger(ctx).Debug("handler", "route", msg.Route(), "msg", msg.Type(), "hash", hash, "index", msgOffset, "elapsed", time.Now().Sub(t).String(), "height", ctx.BlockHeight())
-	}()
-
 	var outputs []*utxotypes.Output
 	var iOutputs []*types.Output
 	feeAddr := authtypes.NewModuleAddress(authtypes.FeeCollectorName).String()
@@ -73,9 +69,12 @@ func (k msgServer) SendIbcUTXO(goCtx context.Context, msg *types.MsgSendIbcUTXO)
 			}
 		}
 	}
-	if err := k.utxoKeeper.Transfer(ctx, hash, msgOffset, msg.Sender, msg.Inputs, outputs); err != nil {
+
+	attrs, err := k.utxoKeeper.Transfer(ctx, hash, msgOffset, msg.Sender, msg.Inputs, outputs)
+	if err != nil {
 		return nil, err
 	}
+	_ = attrs
 
 	// Construct the packet
 	var packet types.IbcUTXOPacketData
@@ -85,7 +84,7 @@ func (k msgServer) SendIbcUTXO(goCtx context.Context, msg *types.MsgSendIbcUTXO)
 	packet.Hash = hash
 
 	// Transmit the packet
-	err := k.TransmitIbcUTXOPacket(
+	err = k.TransmitIbcUTXOPacket(
 		ctx,
 		packet,
 		msg.Port,

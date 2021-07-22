@@ -3,8 +3,8 @@ package types
 // bank module event types
 const (
 	EventTypeCreateValidator = "create-validator"
-	EventTypeEditValidator   = "edit_validator"
-	EventTypeLeaveValidator  = "leave_validator"
+	EventTypeEditValidator   = "edit-validator"
+	EventTypeLeaveValidator  = "leave-validator"
 
 	AttributeKeyValidator = "validator"
 

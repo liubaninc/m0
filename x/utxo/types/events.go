@@ -2,9 +2,10 @@ package types
 
 // bank module event types
 const (
-	EventTypeTransfer = "transfer"
+	EventTypeSend    = "send"
+	EventTypeIssue   = "issue"
+	EventTypeDestory = "destory"
 
-	AttributeKeyCreator       = "creator"
 	AttributeKeyRecipient     = "recipient"
 	AttributeKeySender        = "sender"
 	AttributeKeyAmountChanged = "changed"
