@@ -1,0 +1,71 @@
+syntax = "proto3";
+package liubaninc.m0.pki;
+
+import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+// this line is used by starport scaffolding # 1
+import "pki/certificate.proto";
+import "pki/certificates.proto";
+
+option go_package = "github.com/liubaninc/m0/x/pki/types";
+
+// Query defines the gRPC querier service.
+service Query {
+    // this line is used by starport scaffolding # 2
+
+	// Queries a certificate by index.
+	rpc Certificate(QueryGetCertificateRequest) returns (QueryGetCertificateResponse) {
+		option (google.api.http).get = "/liubaninc/m0/pki/certificate/{index}";
+	}
+
+	// Queries a list of certificate items.
+	rpc CertificateAll(QueryAllCertificateRequest) returns (QueryAllCertificateResponse) {
+		option (google.api.http).get = "/liubaninc/m0/pki/certificate";
+	}
+
+
+	// Queries a certificates by index.
+	rpc Certificates(QueryGetCertificatesRequest) returns (QueryGetCertificatesResponse) {
+		option (google.api.http).get = "/liubaninc/m0/pki/certificates/{index}";
+	}
+
+	// Queries a list of certificates items.
+	rpc CertificatesAll(QueryAllCertificatesRequest) returns (QueryAllCertificatesResponse) {
+		option (google.api.http).get = "/liubaninc/m0/pki/certificates";
+	}
+
+}
+
+// this line is used by starport scaffolding # 3
+message QueryGetCertificateRequest {
+	string index = 1;
+}
+
+message QueryGetCertificateResponse {
+	Certificate Certificate = 1;
+}
+
+message QueryAllCertificateRequest {
+	cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryAllCertificateResponse {
+	repeated Certificate Certificate = 1;
+	cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+message QueryGetCertificatesRequest {
+	string index = 1;
+}
+
+message QueryGetCertificatesResponse {
+	Certificates Certificates = 1;
+}
+
+message QueryAllCertificatesRequest {
+	cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryAllCertificatesResponse {
+	repeated Certificates Certificates = 1;
+	cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}

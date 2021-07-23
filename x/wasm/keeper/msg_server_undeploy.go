@@ -25,7 +25,6 @@ func (k msgServer) Undeploy(goCtx context.Context, msg *types.MsgUndeploy) (*typ
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "contract %s invalid owner", msg.ContractName)
 	}
 
-
 	tinputs := k.utxoKeeper.GetAllInputByAddress(ctx, authtypes.NewModuleAddress(msg.ContractName))
 	if n := len(tinputs); n > 0 {
 		totalCoins := sdk.NewCoins()

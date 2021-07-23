@@ -5,9 +5,9 @@ const (
 	EventTypeUpgrade = "upgrade"
 	EventTypeInvoke  = "invoke"
 
-	EventTypeFreeze  = "freeze"
+	EventTypeFreeze   = "freeze"
 	EventTypeUnFreeze = "unfreeze"
-	EventTypeUnDeploy  = "undeploy"
+	EventTypeUnDeploy = "undeploy"
 
 	AttributeKeyName   = "name"
 	AttributeKeyMethod = "method"

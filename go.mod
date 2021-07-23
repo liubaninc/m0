@@ -42,6 +42,7 @@ require (
 	github.com/tendermint/tendermint v0.34.10
 	github.com/tendermint/tm-db v0.6.4
 	github.com/tklauser/go-sysconf v0.3.6 // indirect
+	github.com/zigbee-alliance/distributed-compliance-ledger v0.0.0-20210628074237-9ab0d85b92c4
 	go.opencensus.io v0.22.6 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	google.golang.org/genproto v0.0.0-20210617175327-b9e0b3197ced

@@ -1,0 +1,50 @@
+syntax = "proto3";
+package liubaninc.m0.pki;
+
+// this line is used by starport scaffolding # proto/tx/import
+
+option go_package = "github.com/liubaninc/m0/x/pki/types";
+
+// Msg defines the Msg service.
+service Msg {
+    // this line is used by starport scaffolding # proto/tx/rpc
+  rpc RevokeRootCert(MsgRevokeRootCert) returns (MsgRevokeRootCertResponse);
+  rpc RevokeCert(MsgRevokeCert) returns (MsgRevokeCertResponse);
+  rpc AddCert(MsgAddCert) returns (MsgAddCertResponse);
+  rpc AddRootCert(MsgAddRootCert) returns (MsgAddRootCertResponse);
+}
+
+// this line is used by starport scaffolding # proto/tx/message
+message MsgRevokeRootCert {
+  string creator = 1;
+  string subject = 2;
+  string subjectKeyID = 3;
+}
+
+message MsgRevokeRootCertResponse {
+}
+
+message MsgRevokeCert {
+  string creator = 1;
+  string subject = 2;
+  string subjectKeyID = 3;
+}
+
+message MsgRevokeCertResponse {
+}
+
+message MsgAddCert {
+  string creator = 1;
+  string certificate = 2;
+}
+
+message MsgAddCertResponse {
+}
+
+message MsgAddRootCert {
+  string creator = 1;
+  string certificate = 2;
+}
+
+message MsgAddRootCertResponse {
+}
