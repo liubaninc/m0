@@ -13,6 +13,7 @@ func DefaultGenesis() *GenesisState {
 	return &GenesisState{
 		// this line is used by starport scaffolding # ibc/genesistype/default
 		// this line is used by starport scaffolding # genesis/types/default
+		Params:                 DefaultParams(),
 		LastValidatorPowerList: []*LastValidatorPower{},
 		ValidatorList:          []*Validator{},
 	}

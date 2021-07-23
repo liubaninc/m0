@@ -14,13 +14,13 @@ func (k msgServer) RevokeCert(goCtx context.Context, msg *types.MsgRevokeCert) (
 	// Get list of certificates for Subject / Subject Key Id combination
 	certificates, found := k.GetCertificates(ctx, msg.Subject+"/"+msg.SubjectKeyID)
 	if !found {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "no X509 certificate associated with the " +
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "no X509 certificate associated with the "+
 			"of subject=%v and subjectKeyID=%v already exists",
 			msg.Subject, msg.SubjectKeyID)
 	}
 
 	if msg.Creator != certificates.Creator {
-		return nil,  sdkerrors.Wrapf(sdkerrors.ErrUnauthorized,"Only owner can revoke certificate")
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "Only owner can revoke certificate")
 	}
 
 	certificate, found := k.GetCertificate(ctx, certificates.Items[0])
@@ -43,9 +43,9 @@ func (k msgServer) RevokeCert(goCtx context.Context, msg *types.MsgRevokeCert) (
 	issuer := certificate.Issuer
 	authorityKeyID := certificate.AuthorityKeyID
 
-	revokeChildCertificates(ctx, k.Keeper,  msg.Subject + "/" + msg.SubjectKeyID)
+	revokeChildCertificates(ctx, k.Keeper, msg.Subject+"/"+msg.SubjectKeyID)
 	k.removeChildCertificateEntry(ctx, issuer, authorityKeyID, types.CertificateIdentifier{
-		Subject: msg.Subject,
+		Subject:      msg.Subject,
 		SubjectKeyID: msg.SubjectKeyID,
 	})
 

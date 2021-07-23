@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/liubaninc/m0/x/validator/types"
@@ -12,7 +13,7 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	maxValidator := k.MaxValidators(ctx)
-	if uint16(len(k.GetAllValidator(ctx))) == maxValidator {
+	if uint32(len(k.GetAllValidator(ctx))) == maxValidator {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "the maximum number of validators has been reached")
 	}
 

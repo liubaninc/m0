@@ -136,7 +136,7 @@ func (k Keeper) GetAllChildCertificates(ctx sdk.Context) (list []types.Certifica
 }
 
 func (k Keeper) addChildCertificateEntry(ctx sdk.Context, issuer string, authorityKeyID string, certIdentifier types.CertificateIdentifier) {
-	childCertificates, _  := k.GetChildCertificates(ctx, issuer + "/" + authorityKeyID)
+	childCertificates, _ := k.GetChildCertificates(ctx, issuer+"/"+authorityKeyID)
 
 	for _, existingIdentifier := range childCertificates.Items {
 		if existingIdentifier == certIdentifier.Index() {
@@ -149,7 +149,7 @@ func (k Keeper) addChildCertificateEntry(ctx sdk.Context, issuer string, authori
 }
 
 func (k Keeper) removeChildCertificateEntry(ctx sdk.Context, issuer string, authorityKeyID string, certIdentifier types.CertificateIdentifier) {
-	childCertificates, _ := k.GetChildCertificates(ctx, issuer + "/" + authorityKeyID)
+	childCertificates, _ := k.GetChildCertificates(ctx, issuer+"/"+authorityKeyID)
 
 	certIDIndex := -1
 	for i, existingIdentifier := range childCertificates.Items {
@@ -170,6 +170,6 @@ func (k Keeper) removeChildCertificateEntry(ctx sdk.Context, issuer string, auth
 	if len(childCertificates.Items) > 0 {
 		k.SetChildCertificates(ctx, childCertificates)
 	} else {
-		k.RemoveChildCertificates(ctx, issuer + "/" + authorityKeyID)
+		k.RemoveChildCertificates(ctx, issuer+"/"+authorityKeyID)
 	}
 }

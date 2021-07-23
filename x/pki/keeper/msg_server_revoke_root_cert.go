@@ -14,13 +14,13 @@ func (k msgServer) RevokeRootCert(goCtx context.Context, msg *types.MsgRevokeRoo
 	// Get list of certificates for Subject / Subject Key Id combination
 	certificates, found := k.GetCertificates(ctx, msg.Subject+"/"+msg.SubjectKeyID)
 	if !found {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "no X509 certificate associated with the " +
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "no X509 certificate associated with the "+
 			"of subject=%v and subjectKeyID=%v already exists",
 			msg.Subject, msg.SubjectKeyID)
 	}
 
 	if msg.Creator != certificates.Creator {
-		return nil,  sdkerrors.Wrapf(sdkerrors.ErrUnauthorized,"Only owner can revoke root certificate")
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "Only owner can revoke root certificate")
 	}
 
 	certificate, found := k.GetCertificate(ctx, certificates.Items[0])
@@ -30,7 +30,7 @@ func (k msgServer) RevokeRootCert(goCtx context.Context, msg *types.MsgRevokeRoo
 
 	if !certificate.IsRoot {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "certificate with subject=%v and subjectKeyID=%v "+
-				"is not a root certificate.", msg.Subject, msg.SubjectKeyID)
+			"is not a root certificate.", msg.Subject, msg.SubjectKeyID)
 	}
 
 	revokedCertificates, _ := k.GetRevokedCertificates(ctx, msg.Subject+"/"+msg.SubjectKeyID)
@@ -40,8 +40,7 @@ func (k msgServer) RevokeRootCert(goCtx context.Context, msg *types.MsgRevokeRoo
 	k.SetRevokedCertificates(ctx, revokedCertificates)
 	k.RemoveCertificates(ctx, msg.Subject+"/"+msg.SubjectKeyID)
 
-	revokeChildCertificates(ctx, k.Keeper,  msg.Subject + "/" + msg.SubjectKeyID)
-
+	revokeChildCertificates(ctx, k.Keeper, msg.Subject+"/"+msg.SubjectKeyID)
 
 	return &types.MsgRevokeRootCertResponse{}, nil
 }

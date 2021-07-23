@@ -4,12 +4,13 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	utxotypes "github.com/liubaninc/m0/x/utxo/types"
 	"net"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	utxotypes "github.com/liubaninc/m0/x/utxo/types"
 
 	"github.com/cosmos/go-bip39"
 	"github.com/spf13/viper"
@@ -34,7 +35,8 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	permissiontypes "github.com/liubaninc/m0/x/permission/types"
+	validatortypes "github.com/liubaninc/m0/x/validator/types"
 )
 
 var (
@@ -195,9 +197,9 @@ func InitTestnet(
 	simappConfig.Telemetry.GlobalLabels = [][]string{{"chain_id", chainID}}
 
 	var (
-		genAccounts []authtypes.GenesisAccount
-		genBalances []banktypes.Balance
-		genFiles    []string
+		genAccounts    []authtypes.GenesisAccount
+		genPermissions []*permissiontypes.Account
+		genFiles       []string
 	)
 
 	inBuf := bufio.NewReader(cmd.InOrStdin())
@@ -261,26 +263,19 @@ func InitTestnet(
 			return err
 		}
 
-		// accTokens := sdk.TokensFromConsensusPower(1000)
-		accStakingTokens := sdk.TokensFromConsensusPower(500)
-		coins := sdk.Coins{
-			// sdk.NewCoin(fmt.Sprintf("%stoken", nodeDirName), accTokens),
-			sdk.NewCoin(sdk.DefaultBondDenom, accStakingTokens),
-		}
-
-		genBalances = append(genBalances, banktypes.Balance{Address: addr.String(), Coins: coins.Sort()})
 		genAccounts = append(genAccounts, authtypes.NewBaseAccount(addr, nil, 0, 0))
+		genPermissions = append(genPermissions, &permissiontypes.Account{Address: addr.String(), Perms: []string{
+			validatortypes.ModuleName,
+		}})
 
-		valTokens := sdk.TokensFromConsensusPower(100)
-		createValMsg, err := stakingtypes.NewMsgCreateValidator(
-			sdk.ValAddress(addr),
-			valPubKeys[i],
-			sdk.NewCoin(sdk.DefaultBondDenom, valTokens),
-			stakingtypes.NewDescription(nodeDirName, "", "", "", ""),
-			stakingtypes.NewCommissionRates(sdk.OneDec(), sdk.OneDec(), sdk.OneDec()),
-			sdk.OneInt(),
+		createValMsg := validatortypes.NewMsgCreateValidator(
+			addr.String(),
+			sdk.MustBech32ifyPubKey(sdk.Bech32PubKeyTypeConsPub, valPubKeys[i]),
+			&validatortypes.Description{
+				Moniker: nodeDirName,
+			},
 		)
-		if err != nil {
+		if err := createValMsg.ValidateBasic(); err != nil {
 			return err
 		}
 
@@ -314,7 +309,7 @@ func InitTestnet(
 		srvconfig.WriteConfigFile(filepath.Join(nodeDir, "config/app.toml"), simappConfig)
 	}
 
-	// reverted
+	// reverted account
 	{
 		kb, err := keyring.New(sdk.KeyringServiceName(), keyring.BackendMemory, "", nil)
 		if err != nil {
@@ -343,20 +338,17 @@ func InitTestnet(
 			return err
 		}
 
-		accStakingTokens := sdk.TokensFromConsensusPower(10000000000)
-		coins := sdk.Coins{
-			// sdk.NewCoin(fmt.Sprintf("%stoken", nodeDirName), accTokens),
-			sdk.NewCoin(sdk.DefaultBondDenom, accStakingTokens),
-		}
-		genBalances = append(genBalances, banktypes.Balance{Address: addr.String(), Coins: coins})
 		genAccounts = append(genAccounts, authtypes.NewBaseAccount(addr, nil, 0, 0))
+		genPermissions = append(genPermissions, &permissiontypes.Account{Address: addr.String(), Perms: []string{
+			"*",
+		}})
 
 		msg := utxotypes.NewMsgIssue(addr.String(), []*utxotypes.Input{}, []*utxotypes.Output{
 			{
 				ToAddr: addr.String(),
 				Amount: reservedCoin,
 			},
-		}, "reserved")
+		}, "")
 		txBuilder := clientCtx.TxConfig.NewTxBuilder()
 		if err := txBuilder.SetMsgs(msg); err != nil {
 			return err
@@ -365,7 +357,7 @@ func InitTestnet(
 		txFactory := tx.Factory{}
 		txFactory = txFactory.
 			WithChainID(chainID).
-			WithMemo("testnet").
+			WithMemo("reserved coin").
 			WithKeybase(kb).
 			WithTxConfig(clientCtx.TxConfig)
 
@@ -383,7 +375,7 @@ func InitTestnet(
 		}
 	}
 
-	if err := initGenFiles(clientCtx, mbm, chainID, genAccounts, genBalances, genFiles, numValidators, genesisTime); err != nil {
+	if err := initGenFiles(clientCtx, mbm, chainID, genAccounts, genPermissions, genFiles, numValidators, genesisTime); err != nil {
 		return err
 	}
 
@@ -401,7 +393,7 @@ func InitTestnet(
 
 func initGenFiles(
 	clientCtx client.Context, mbm module.BasicManager, chainID string,
-	genAccounts []authtypes.GenesisAccount, genBalances []banktypes.Balance,
+	genAccounts []authtypes.GenesisAccount, genPermissions []*permissiontypes.Account,
 	genFiles []string, numValidators int, genesisTime time.Time,
 ) error {
 
@@ -420,11 +412,11 @@ func initGenFiles(
 	appGenState[authtypes.ModuleName] = clientCtx.JSONMarshaler.MustMarshalJSON(&authGenState)
 
 	// set the balances in the genesis state
-	var bankGenState banktypes.GenesisState
-	clientCtx.JSONMarshaler.MustUnmarshalJSON(appGenState[banktypes.ModuleName], &bankGenState)
+	var permGenState permissiontypes.GenesisState
+	clientCtx.JSONMarshaler.MustUnmarshalJSON(appGenState[permissiontypes.ModuleName], &permGenState)
 
-	bankGenState.Balances = genBalances
-	appGenState[banktypes.ModuleName] = clientCtx.JSONMarshaler.MustMarshalJSON(&bankGenState)
+	permGenState.AccountList = genPermissions
+	appGenState[permissiontypes.ModuleName] = clientCtx.JSONMarshaler.MustMarshalJSON(&permGenState)
 
 	appGenStateJSON, err := json.MarshalIndent(appGenState, "", "  ")
 	if err != nil {

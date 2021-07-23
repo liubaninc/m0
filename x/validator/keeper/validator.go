@@ -86,7 +86,7 @@ func (k Keeper) GetAllValidator(ctx sdk.Context) (list []types.Validator) {
 	return
 }
 
-func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx sdk.Context) (updates []abci.ValidatorUpdate) {
+func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx sdk.Context) (updates []abci.ValidatorUpdate, err error) {
 	// Iterate over validators.
 	validators := k.GetAllValidator(ctx)
 	for _, validator := range validators {
@@ -115,5 +115,5 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx sdk.Context) (updates []ab
 		}
 	}
 
-	return updates
+	return updates, nil
 }

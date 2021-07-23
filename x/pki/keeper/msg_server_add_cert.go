@@ -69,7 +69,7 @@ func (k msgServer) AddCert(goCtx context.Context, msg *types.MsgAddCert) (*types
 	k.SetCertificate(ctx, certificate)
 	k.SetCertificates(ctx, certificates)
 	k.addChildCertificateEntry(ctx, certificate.Issuer, certificate.AuthorityKeyID, types.CertificateIdentifier{
-		Subject: certificate.Subject,
+		Subject:      certificate.Subject,
 		SubjectKeyID: certificate.SubjectKeyID,
 	})
 	return &types.MsgAddCertResponse{}, nil

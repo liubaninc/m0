@@ -12,7 +12,7 @@ func (k msgServer) LeaveValidator(goCtx context.Context, msg *types.MsgLeaveVali
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	minValidator := k.MinValidators(ctx)
-	if uint16(len(k.GetAllValidator(ctx))) == minValidator {
+	if uint32(len(k.GetAllValidator(ctx))) == minValidator {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "the minimum number of validators has been reached")
 	}
 

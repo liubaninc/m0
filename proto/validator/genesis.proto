@@ -2,15 +2,20 @@ syntax = "proto3";
 package liubaninc.m0.validator;
 
 // this line is used by starport scaffolding # genesis/proto/import
+import "gogoproto/gogo.proto";
 import "validator/last_validator_power.proto";
 import "validator/validator.proto";
+import "validator/params.proto";
 
 option go_package = "github.com/liubaninc/m0/x/validator/types";
 
 // GenesisState defines the validator module's genesis state.
 message GenesisState {
+		// params defines all the paramaters of related to deposit.
+		Params params = 3 [(gogoproto.nullable) = false];
+
     // this line is used by starport scaffolding # genesis/proto/state
-		repeated LastValidatorPower lastValidatorPowerList = 3; // this line is used by starport scaffolding # genesis/proto/stateField
+		repeated LastValidatorPower lastValidatorPowerList = 2; // this line is used by starport scaffolding # genesis/proto/stateField
 		repeated Validator validatorList = 1; // this line is used by starport scaffolding # genesis/proto/stateField
     // this line is used by starport scaffolding # ibc/genesis/proto
 }

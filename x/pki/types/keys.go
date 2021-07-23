@@ -26,8 +26,8 @@ func KeyPrefix(p string) []byte {
 }
 
 const (
-	CertificatesKey = "Certificates-value-"
+	CertificatesKey        = "Certificates-value-"
 	RevokedCertificatesKey = "Revoked-certificates-value-"
-	ChildCertificatesKey = "Child-certificates-value-"
-	CertificateKey = "Certificate-value-"
+	ChildCertificatesKey   = "Child-certificates-value-"
+	CertificateKey         = "Certificate-value-"
 )

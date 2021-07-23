@@ -43,7 +43,7 @@ func NewKeeper(
 		cdc:           cdc,
 		storeKey:      storeKey,
 		memKey:        memKey,
-		paramSubspace: paramstore,
+		paramSubspace: paramstore.WithKeyTable(types.ParamKeyTable()),
 		bankKeeper:    bankKeeper,
 		accountKeeper: accountKeeper,
 		lockKeys:      make(map[string]*LockedItem),

@@ -53,7 +53,7 @@ func CmdShowCertificates() *cobra.Command {
 			queryClient := types.NewQueryClient(clientCtx)
 
 			certificateIdentifier := &types.CertificateIdentifier{
-				Subject: args[0],
+				Subject:      args[0],
 				SubjectKeyID: args[1],
 			}
 			params := &types.QueryGetCertificatesRequest{

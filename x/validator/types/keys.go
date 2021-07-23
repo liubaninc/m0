@@ -27,7 +27,8 @@ func KeyPrefix(p string) []byte {
 
 const (
 	ValidatorKey         = "Validator-value-"
-	ValidatorConsAddrKey = "Validator-ConsAddr-value-"
+	ValidatorConsAddrKey = "Validator-consAddr-value-"
+	HistoricalInfoKey    = "Historical-info-value"
 )
 
 const (

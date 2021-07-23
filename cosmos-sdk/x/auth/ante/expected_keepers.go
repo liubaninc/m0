@@ -13,3 +13,7 @@ type AccountKeeper interface {
 	SetAccount(ctx sdk.Context, acc types.AccountI)
 	GetModuleAddress(moduleName string) sdk.AccAddress
 }
+
+type PermissionKeeper interface {
+	HasPerm(ctx sdk.Context, addr string, perm string) bool
+}

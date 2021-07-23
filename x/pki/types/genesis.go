@@ -13,10 +13,10 @@ func DefaultGenesis() *GenesisState {
 	return &GenesisState{
 		// this line is used by starport scaffolding # ibc/genesistype/default
 		// this line is used by starport scaffolding # genesis/types/default
-		CertificateList:  []*Certificate{},
-		ChildCertificatesList: []*ChildCertificates{},
+		CertificateList:        []*Certificate{},
+		ChildCertificatesList:  []*ChildCertificates{},
 		RevokeCertificatesList: []*Certificates{},
-		CertificatesList: []*Certificates{},
+		CertificatesList:       []*Certificates{},
 	}
 }
 
