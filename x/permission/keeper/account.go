@@ -49,8 +49,11 @@ func (k Keeper) GetAllAccount(ctx sdk.Context) (list []types.Account) {
 }
 
 func (k Keeper) HasPerm(ctx sdk.Context, addr string, perm string) bool {
-	account, _ := k.GetAccount(ctx, addr)
+	if len(k.GetAllAccount(ctx)) == 0 {
+		return true
+	}
 
+	account, _ := k.GetAccount(ctx, addr)
 	for _, role := range account.Perms {
 		if role == types.AllPermissions {
 			return true

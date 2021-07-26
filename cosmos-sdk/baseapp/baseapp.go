@@ -518,6 +518,14 @@ func (app *BaseApp) getState(mode runTxMode) *state {
 	return app.checkState
 }
 
+func (app *BaseApp) GetState(mode runTxMode) *state {
+	if mode == runTxModeDeliver {
+		return app.deliverState
+	}
+
+	return app.checkState
+}
+
 // retrieve the context for the tx w/ txBytes and other memoized values.
 func (app *BaseApp) getContextForTx(mode runTxMode, txBytes []byte) sdk.Context {
 	ctx := app.getState(mode).ctx.

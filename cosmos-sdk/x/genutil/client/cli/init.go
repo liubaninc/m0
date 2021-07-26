@@ -109,6 +109,7 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 			config.Moniker = args[0]
 			config.RPC.ListenAddress = "tcp://0.0.0.0:26657"
 			config.RPC.TimeoutBroadcastTxCommit = 60 * time.Second
+			config.FilterPeers = true
 
 			genFile := config.GenesisFile()
 			overwrite, _ := cmd.Flags().GetBool(FlagOverwrite)

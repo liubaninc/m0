@@ -62,6 +62,9 @@ import (
 	mibcmodule "github.com/liubaninc/m0/x/mibc"
 	mibcmodulekeeper "github.com/liubaninc/m0/x/mibc/keeper"
 	mibcmoduletypes "github.com/liubaninc/m0/x/mibc/types"
+	peermodule "github.com/liubaninc/m0/x/peer"
+	peermodulekeeper "github.com/liubaninc/m0/x/peer/keeper"
+	peermoduletypes "github.com/liubaninc/m0/x/peer/types"
 	permissionmodule "github.com/liubaninc/m0/x/permission"
 	permissionmodulekeeper "github.com/liubaninc/m0/x/permission/keeper"
 	permissionmoduletypes "github.com/liubaninc/m0/x/permission/types"
@@ -98,6 +101,7 @@ var (
 		params.AppModuleBasic{},
 		ibc.AppModuleBasic{},
 		// this line is used by starport scaffolding # stargate/app/moduleBasic
+		peermodule.AppModuleBasic{},
 		mibcmodule.AppModuleBasic{},
 		pkimodule.AppModuleBasic{},
 		permissionmodule.AppModuleBasic{},
@@ -156,6 +160,8 @@ type App struct {
 	ScopedIBCKeeper capabilitykeeper.ScopedKeeper
 
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
+
+	PeerKeeper       peermodulekeeper.Keeper
 	ScopedMibcKeeper capabilitykeeper.ScopedKeeper
 	MibcKeeper       mibcmodulekeeper.Keeper
 
@@ -197,6 +203,7 @@ func New(
 		govtypes.StoreKey, paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey,
 		evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
 		// this line is used by starport scaffolding # stargate/app/storeKey
+		peermoduletypes.StoreKey,
 		mibcmoduletypes.StoreKey,
 		pkimoduletypes.StoreKey,
 		permissionmoduletypes.StoreKey,
@@ -245,6 +252,13 @@ func New(
 	)
 
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
+
+	app.PeerKeeper = *peermodulekeeper.NewKeeper(
+		appCodec,
+		keys[peermoduletypes.StoreKey],
+		keys[peermoduletypes.MemStoreKey],
+	)
+	peerModule := peermodule.NewAppModule(appCodec, app.PeerKeeper)
 	scopedMibcKeeper := app.CapabilityKeeper.ScopeToModule(mibcmoduletypes.ModuleName)
 	app.ScopedMibcKeeper = scopedMibcKeeper
 	app.MibcKeeper = *mibcmodulekeeper.NewKeeper(
@@ -321,6 +335,7 @@ func New(
 		ibc.NewAppModule(app.IBCKeeper),
 		params.NewAppModule(app.ParamsKeeper),
 		// this line is used by starport scaffolding # stargate/app/appModule
+		peerModule,
 		mibcModule,
 		pkiModule,
 		permissionModule,
@@ -351,6 +366,7 @@ func New(
 		banktypes.ModuleName,
 		ibchost.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
+		peermoduletypes.ModuleName,
 		mibcmoduletypes.ModuleName,
 		pkimoduletypes.ModuleName,
 		permissionmoduletypes.ModuleName,
@@ -392,6 +408,10 @@ func New(
 		),
 	)
 	app.SetEndBlocker(app.EndBlocker)
+
+	app.SetIDPeerFilter(func(info string) abci.ResponseQuery {
+		return app.PeerKeeper.IDPeerFilter(app.GetState(0).Context(), info)
+	})
 
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {
@@ -546,6 +566,7 @@ func initParamsKeeper(appCodec codec.BinaryMarshaler, legacyAmino *codec.LegacyA
 	paramsKeeper.Subspace(banktypes.ModuleName)
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
+	paramsKeeper.Subspace(peermoduletypes.ModuleName)
 	paramsKeeper.Subspace(mibcmoduletypes.ModuleName)
 	paramsKeeper.Subspace(pkimoduletypes.ModuleName)
 	paramsKeeper.Subspace(permissionmoduletypes.ModuleName)

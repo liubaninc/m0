@@ -35,6 +35,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
+	peertypes "github.com/liubaninc/m0/x/peer/types"
 	permissiontypes "github.com/liubaninc/m0/x/permission/types"
 	validatortypes "github.com/liubaninc/m0/x/validator/types"
 )
@@ -52,6 +53,8 @@ var (
 
 	flagReservedAccount = "reserved-account-mnemonic"
 	flagReservedCoin    = "reserved-coin"
+
+	flagDevelopMode = "dev-mode"
 )
 
 // get cmd to initialize all files for tendermint testnet and application
@@ -158,6 +161,8 @@ Example:
 	cmd.Flags().String(flagReservedCoin, "100000000000m0token",
 		"Reserved coin")
 
+	cmd.Flags().Bool(flagDevelopMode, false, "develop mode, skip some module's genesis state， as peer、permission")
+
 	return cmd
 }
 
@@ -199,6 +204,7 @@ func InitTestnet(
 	var (
 		genAccounts    []authtypes.GenesisAccount
 		genPermissions []*permissiontypes.Account
+		genPeerIDs     []*peertypes.PeerID
 		genFiles       []string
 	)
 
@@ -213,6 +219,7 @@ func InitTestnet(
 		nodeConfig.Instrumentation.Prometheus = true
 		nodeConfig.RPC.ListenAddress = "tcp://0.0.0.0:26657"
 		nodeConfig.RPC.TimeoutBroadcastTxCommit = 60 * time.Second
+		nodeConfig.FilterPeers = true
 
 		err := os.MkdirAll(filepath.Join(nodeDir, "config"), nodeDirPerm)
 		if err != nil {
@@ -264,9 +271,15 @@ func InitTestnet(
 		}
 
 		genAccounts = append(genAccounts, authtypes.NewBaseAccount(addr, nil, 0, 0))
-		genPermissions = append(genPermissions, &permissiontypes.Account{Address: addr.String(), Perms: []string{
-			validatortypes.ModuleName,
-		}})
+		genPermissions = append(genPermissions, &permissiontypes.Account{
+			Address: addr.String(),
+			Perms: []string{
+				validatortypes.ModuleName,
+			},
+		})
+		genPeerIDs = append(genPeerIDs, &peertypes.PeerID{
+			Index: nodeIDs[i],
+		})
 
 		createValMsg := validatortypes.NewMsgCreateValidator(
 			addr.String(),
@@ -375,7 +388,7 @@ func InitTestnet(
 		}
 	}
 
-	if err := initGenFiles(clientCtx, mbm, chainID, genAccounts, genPermissions, genFiles, numValidators, genesisTime); err != nil {
+	if err := initGenFiles(clientCtx, mbm, chainID, genAccounts, genPermissions, genPeerIDs, genFiles, numValidators, genesisTime); err != nil {
 		return err
 	}
 
@@ -394,6 +407,7 @@ func InitTestnet(
 func initGenFiles(
 	clientCtx client.Context, mbm module.BasicManager, chainID string,
 	genAccounts []authtypes.GenesisAccount, genPermissions []*permissiontypes.Account,
+	genPeerIDs []*peertypes.PeerID,
 	genFiles []string, numValidators int, genesisTime time.Time,
 ) error {
 
@@ -411,12 +425,23 @@ func initGenFiles(
 	authGenState.Accounts = accounts
 	appGenState[authtypes.ModuleName] = clientCtx.JSONMarshaler.MustMarshalJSON(&authGenState)
 
-	// set the balances in the genesis state
-	var permGenState permissiontypes.GenesisState
-	clientCtx.JSONMarshaler.MustUnmarshalJSON(appGenState[permissiontypes.ModuleName], &permGenState)
+	if viper.GetBool(flagDevelopMode) {
 
-	permGenState.AccountList = genPermissions
-	appGenState[permissiontypes.ModuleName] = clientCtx.JSONMarshaler.MustMarshalJSON(&permGenState)
+	} else {
+		// set the account perms in the genesis state
+		var permGenState permissiontypes.GenesisState
+		clientCtx.JSONMarshaler.MustUnmarshalJSON(appGenState[permissiontypes.ModuleName], &permGenState)
+
+		permGenState.AccountList = genPermissions
+		appGenState[permissiontypes.ModuleName] = clientCtx.JSONMarshaler.MustMarshalJSON(&permGenState)
+
+		// set the peer in the genesis state
+		var peerGenState peertypes.GenesisState
+		clientCtx.JSONMarshaler.MustUnmarshalJSON(appGenState[peertypes.ModuleName], &peerGenState)
+
+		peerGenState.PeerIDList = genPeerIDs
+		appGenState[peertypes.ModuleName] = clientCtx.JSONMarshaler.MustMarshalJSON(&peerGenState)
+	}
 
 	appGenStateJSON, err := json.MarshalIndent(appGenState, "", "  ")
 	if err != nil {
