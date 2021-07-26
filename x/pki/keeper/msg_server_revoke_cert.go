@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -47,6 +48,15 @@ func (k msgServer) RevokeCert(goCtx context.Context, msg *types.MsgRevokeCert) (
 	k.removeChildCertificateEntry(ctx, issuer, authorityKeyID, types.CertificateIdentifier{
 		Subject:      msg.Subject,
 		SubjectKeyID: msg.SubjectKeyID,
+	})
+
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, msg.Route()),
+			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.Creator),
+		),
 	})
 
 	return &types.MsgRevokeCertResponse{}, nil

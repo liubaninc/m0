@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/liubaninc/m0/x/pki/x509"
 
@@ -63,5 +64,14 @@ func (k msgServer) AddRootCert(goCtx context.Context, msg *types.MsgAddRootCert)
 
 	k.SetCertificate(ctx, rootCertificate)
 	k.SetCertificates(ctx, certificates)
+
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, msg.Route()),
+			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.Creator),
+		),
+	})
 	return &types.MsgAddRootCertResponse{}, nil
 }

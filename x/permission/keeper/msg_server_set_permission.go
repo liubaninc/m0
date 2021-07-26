@@ -11,7 +11,10 @@ import (
 func (k msgServer) SetPermission(goCtx context.Context, msg *types.MsgSetPermission) (*types.MsgSetPermissionResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// TODO: Handling the message
+	acct, _ := k.GetAccount(ctx, msg.Address)
+	oldPerms := acct.Perms
+	newPerms := msg.Perms
+
 	k.SetAccount(ctx, types.Account{
 		Creator: msg.Creator,
 		Address: msg.Address,
@@ -27,6 +30,13 @@ func (k msgServer) SetPermission(goCtx context.Context, msg *types.MsgSetPermiss
 		k.accountKeeper.SetAccount(ctx, k.accountKeeper.NewAccountWithAddress(ctx, addr))
 	}
 
+	action := msg.Type()
+	if len(oldPerms) == 0 {
+		action += "/New"
+	} else if len(newPerms) == 1 && newPerms[0] == types.NonePermissions {
+		action += "/Remove"
+	}
+
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
 			types.EventTypeSetPermission,
@@ -34,7 +44,8 @@ func (k msgServer) SetPermission(goCtx context.Context, msg *types.MsgSetPermiss
 		),
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
-			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
+			sdk.NewAttribute(sdk.AttributeKeyModule, msg.Route()),
+			sdk.NewAttribute(sdk.AttributeKeyAction, action),
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.Creator),
 		),
 	})
