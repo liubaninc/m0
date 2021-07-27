@@ -2,9 +2,11 @@ package keeper
 
 import (
 	"fmt"
+
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/liubaninc/m0/x/peer/types"
+	"github.com/liubaninc/m0/x/pki/x509"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -19,10 +21,35 @@ func (k Keeper) IDPeerFilter(ctx sdk.Context, index string) abci.ResponseQuery {
 	var err error
 	peerID, found := k.GetPeerID(ctx, index)
 	if !found {
-		err = fmt.Errorf("id %s not found", index)
+		err = fmt.Errorf("peer id %s not found", index)
 		code = 1
 	}
-	_ = peerID
+
+	cert, found := k.pkiKeeper.GetCertificate(ctx, peerID.CertIssuer+"/"+peerID.CertSerialNum)
+	if !found {
+		err = fmt.Errorf("cert %s not found", peerID.CertIssuer+"/"+peerID.CertSerialNum)
+		code = 1
+	}
+
+	x509Cert, err := x509.DecodeX509Certificate(cert.PemCert)
+	if err != nil {
+		panic(err)
+	}
+
+	if x509Cert.Certificate.Subject.CommonName != "peer" {
+		err = fmt.Errorf("mismatch type")
+		code = 1
+	}
+
+	if len(x509Cert.Certificate.Subject.OrganizationalUnit) == 0 || x509Cert.Certificate.Subject.OrganizationalUnit[0] != peerID.Index {
+		err = fmt.Errorf("mismatch name")
+		code = 1
+	}
+
+	if ctx.BlockHeader().Time.After(x509Cert.Certificate.NotAfter) {
+		err = fmt.Errorf("tiemout")
+		code = 1
+	}
 
 	return abci.ResponseQuery{
 		Code: code,

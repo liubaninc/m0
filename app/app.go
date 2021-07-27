@@ -257,6 +257,7 @@ func New(
 		appCodec,
 		keys[peermoduletypes.StoreKey],
 		keys[peermoduletypes.MemStoreKey],
+		app.PkiKeeper,
 	)
 	peerModule := peermodule.NewAppModule(appCodec, app.PeerKeeper)
 	scopedMibcKeeper := app.CapabilityKeeper.ScopeToModule(mibcmoduletypes.ModuleName)

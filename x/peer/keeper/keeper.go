@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	pkimodulekeeper "github.com/liubaninc/m0/x/pki/keeper"
 
 	"github.com/tendermint/tendermint/libs/log"
 
@@ -17,6 +18,7 @@ type (
 		storeKey sdk.StoreKey
 		memKey   sdk.StoreKey
 		// this line is used by starport scaffolding # ibc/keeper/attribute
+		pkiKeeper pkimodulekeeper.Keeper
 	}
 )
 
@@ -25,12 +27,14 @@ func NewKeeper(
 	storeKey,
 	memKey sdk.StoreKey,
 	// this line is used by starport scaffolding # ibc/keeper/parameter
+	pkiKeeper pkimodulekeeper.Keeper,
 ) *Keeper {
 	return &Keeper{
 		cdc:      cdc,
 		storeKey: storeKey,
 		memKey:   memKey,
 		// this line is used by starport scaffolding # ibc/keeper/return
+		pkiKeeper: pkiKeeper,
 	}
 }
 
