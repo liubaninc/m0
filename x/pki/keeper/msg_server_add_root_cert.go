@@ -19,12 +19,12 @@ func (k msgServer) AddRootCert(goCtx context.Context, msg *types.MsgAddRootCert)
 	}
 
 	// check if certificate with Issuer/Serial Number combination already exists
-	if _, found := k.GetCertificate(ctx, x509Certificate.Issuer+"/"+x509Certificate.SerialNumber); found {
+	if _, found := k.GetCertificate(ctx, x509Certificate.Issuer, x509Certificate.SerialNumber); found {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "certificate associated with the combination of issuer=%v and serialNumber=%v already exists already exist", x509Certificate.Issuer, x509Certificate.SerialNumber)
 	}
 
 	// Get list of certificates for Subject / Subject Key Id combination
-	certificates, _ := k.GetCertificates(ctx, x509Certificate.Subject+"/"+x509Certificate.SubjectKeyID)
+	certificates, _ := k.GetCertificates(ctx, x509Certificate.Subject, x509Certificate.SubjectKeyID)
 	if len(certificates.Items) > 0 {
 		if msg.Creator != certificates.Creator {
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "Only owner of existing certificates with subject=%v and subjectKeyID=%v "+
@@ -32,7 +32,7 @@ func (k msgServer) AddRootCert(goCtx context.Context, msg *types.MsgAddRootCert)
 				x509Certificate.Subject, x509Certificate.SubjectKeyID)
 		}
 
-		cert, found := k.GetCertificate(ctx, certificates.Items[0])
+		cert, found := k.GetCertificate(ctx, certificates.Items[0].Issuer, certificates.Items[0].SerialNumber)
 		if !found {
 			panic("certificate not found")
 		}
@@ -59,8 +59,12 @@ func (k msgServer) AddRootCert(goCtx context.Context, msg *types.MsgAddRootCert)
 		x509Certificate.SerialNumber,
 		msg.Creator,
 	)
+	identifier := types.CertificateIdentifier{
+		Issuer:       rootCertificate.Issuer,
+		SerialNumber: rootCertificate.SerialNumber,
+	}
 	certificates.Creator = msg.Creator
-	certificates.Items = append(certificates.Items, rootCertificate.Index())
+	certificates.Items = append(certificates.Items, identifier)
 
 	k.SetCertificate(ctx, rootCertificate)
 	k.SetCertificates(ctx, certificates)
@@ -71,6 +75,9 @@ func (k msgServer) AddRootCert(goCtx context.Context, msg *types.MsgAddRootCert)
 			sdk.NewAttribute(sdk.AttributeKeyModule, msg.Route()),
 			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.Creator),
+		),
+		sdk.NewEvent(msg.Type(),
+			sdk.NewAttribute(types.AttributeKeyCertificate, identifier.Index()),
 		),
 	})
 	return &types.MsgAddRootCertResponse{}, nil

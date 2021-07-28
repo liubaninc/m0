@@ -45,7 +45,7 @@ func (k Keeper) Certificate(c context.Context, req *types.QueryGetCertificateReq
 	}
 	ctx := sdk.UnwrapSDKContext(c)
 
-	val, found := k.GetCertificate(ctx, req.Index)
+	val, found := k.GetCertificate(ctx, req.Issuer, req.SerialNumber)
 	if !found {
 		return nil, status.Error(codes.InvalidArgument, "not found")
 	}

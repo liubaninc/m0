@@ -9,10 +9,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func CmdListCertificates() *cobra.Command {
+func CmdListRevokeCertificates() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "list-certificates",
-		Short: "list all certificates",
+		Use:   "list-revoke-certificates",
+		Short: "list all revoke certificates",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 
@@ -42,10 +42,10 @@ func CmdListCertificates() *cobra.Command {
 	return cmd
 }
 
-func CmdShowCertificates() *cobra.Command {
+func CmdShowRevokeCertificates() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "show-certificates [subject] [subjectKeyID]",
-		Short: "shows a certificates",
+		Use:   "show-revoke-certificates [subject] [subjectKeyID]",
+		Short: "shows a revoke certificates",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)

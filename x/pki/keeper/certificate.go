@@ -10,14 +10,20 @@ import (
 func (k Keeper) SetCertificate(ctx sdk.Context, certificate types.Certificate) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.CertificateKey))
 	b := k.cdc.MustMarshalBinaryBare(&certificate)
-	store.Set(types.KeyPrefix(certificate.Index()), b)
+	store.Set(types.KeyPrefix(types.CertificateIdentifier{
+		Issuer:       certificate.Issuer,
+		SerialNumber: certificate.SerialNumber,
+	}.Index()), b)
 }
 
 // GetCertificate returns a certificate from its index
-func (k Keeper) GetCertificate(ctx sdk.Context, index string) (val types.Certificate, found bool) {
+func (k Keeper) GetCertificate(ctx sdk.Context, issuer string, serialNumber string) (val types.Certificate, found bool) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.CertificateKey))
 
-	b := store.Get(types.KeyPrefix(index))
+	b := store.Get(types.KeyPrefix(types.CertificateIdentifier{
+		Issuer:       issuer,
+		SerialNumber: serialNumber,
+	}.Index()))
 	if b == nil {
 		return val, false
 	}
@@ -27,9 +33,12 @@ func (k Keeper) GetCertificate(ctx sdk.Context, index string) (val types.Certifi
 }
 
 // DeleteCertificate removes a certificate from the store
-func (k Keeper) RemoveCertificate(ctx sdk.Context, index string) {
+func (k Keeper) RemoveCertificate(ctx sdk.Context, issuer string, serialNumber string) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.CertificateKey))
-	store.Delete(types.KeyPrefix(index))
+	store.Delete(types.KeyPrefix(types.CertificateIdentifier{
+		Issuer:       issuer,
+		SerialNumber: serialNumber,
+	}.Index()))
 }
 
 // GetAllCertificate returns all certificate

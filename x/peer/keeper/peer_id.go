@@ -25,7 +25,7 @@ func (k Keeper) IDPeerFilter(ctx sdk.Context, index string) abci.ResponseQuery {
 		code = 1
 	}
 
-	cert, found := k.pkiKeeper.GetCertificate(ctx, peerID.CertIssuer+"/"+peerID.CertSerialNum)
+	cert, found := k.pkiKeeper.GetCertificate(ctx, peerID.CertIssuer, peerID.CertSerialNum)
 	if !found {
 		err = fmt.Errorf("cert %s not found", peerID.CertIssuer+"/"+peerID.CertSerialNum)
 		code = 1

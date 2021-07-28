@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (k Keeper) CertificatesAll(c context.Context, req *types.QueryAllCertificatesRequest) (*types.QueryAllCertificatesResponse, error) {
+func (k Keeper) RevokeCertificatesAll(c context.Context, req *types.QueryAllRevokeCertificatesRequest) (*types.QueryAllRevokeCertificatesResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
@@ -20,7 +20,7 @@ func (k Keeper) CertificatesAll(c context.Context, req *types.QueryAllCertificat
 	ctx := sdk.UnwrapSDKContext(c)
 
 	store := ctx.KVStore(k.storeKey)
-	certificatesStore := prefix.NewStore(store, types.KeyPrefix(types.CertificatesKey))
+	certificatesStore := prefix.NewStore(store, types.KeyPrefix(types.RevokedCertificatesKey))
 
 	pageRes, err := query.Paginate(certificatesStore, req.Pagination, func(key []byte, value []byte) error {
 		var certificates types.Certificates
@@ -36,10 +36,10 @@ func (k Keeper) CertificatesAll(c context.Context, req *types.QueryAllCertificat
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &types.QueryAllCertificatesResponse{Certificates: certificatess, Pagination: pageRes}, nil
+	return &types.QueryAllRevokeCertificatesResponse{Certificates: certificatess, Pagination: pageRes}, nil
 }
 
-func (k Keeper) Certificates(c context.Context, req *types.QueryGetCertificatesRequest) (*types.QueryGetCertificatesResponse, error) {
+func (k Keeper) RevokeCertificates(c context.Context, req *types.QueryGetRevokeCertificatesRequest) (*types.QueryGetRevokeCertificatesResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
@@ -50,5 +50,5 @@ func (k Keeper) Certificates(c context.Context, req *types.QueryGetCertificatesR
 		return nil, status.Error(codes.InvalidArgument, "not found")
 	}
 
-	return &types.QueryGetCertificatesResponse{Certificates: &val}, nil
+	return &types.QueryGetRevokeCertificatesResponse{Certificates: &val}, nil
 }

@@ -13,7 +13,7 @@ func (k msgServer) RevokeRootCert(goCtx context.Context, msg *types.MsgRevokeRoo
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// Get list of certificates for Subject / Subject Key Id combination
-	certificates, found := k.GetCertificates(ctx, msg.Subject+"/"+msg.SubjectKeyID)
+	certificates, found := k.GetCertificates(ctx, msg.Subject, msg.SubjectKeyID)
 	if !found {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "no X509 certificate associated with the "+
 			"of subject=%v and subjectKeyID=%v already exists",
@@ -24,7 +24,7 @@ func (k msgServer) RevokeRootCert(goCtx context.Context, msg *types.MsgRevokeRoo
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "Only owner can revoke root certificate")
 	}
 
-	certificate, found := k.GetCertificate(ctx, certificates.Items[0])
+	certificate, found := k.GetCertificate(ctx, certificates.Items[0].Issuer, certificates.Items[0].SerialNumber)
 	if !found {
 		panic("certificate not found")
 	}
@@ -34,14 +34,14 @@ func (k msgServer) RevokeRootCert(goCtx context.Context, msg *types.MsgRevokeRoo
 			"is not a root certificate.", msg.Subject, msg.SubjectKeyID)
 	}
 
-	revokedCertificates, _ := k.GetRevokedCertificates(ctx, msg.Subject+"/"+msg.SubjectKeyID)
+	revokedCertificates, _ := k.GetRevokedCertificates(ctx, msg.Subject, msg.SubjectKeyID)
 	revokedCertificates.Creator = msg.Creator
 	revokedCertificates.Items = append(revokedCertificates.Items, certificates.Items...)
 
 	k.SetRevokedCertificates(ctx, revokedCertificates)
-	k.RemoveCertificates(ctx, msg.Subject+"/"+msg.SubjectKeyID)
+	k.RemoveCertificates(ctx, msg.Subject, msg.SubjectKeyID)
 
-	revokeChildCertificates(ctx, k.Keeper, msg.Subject+"/"+msg.SubjectKeyID)
+	revokeChildCertificates(ctx, k.Keeper, msg.Subject, msg.SubjectKeyID)
 
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
@@ -49,6 +49,9 @@ func (k msgServer) RevokeRootCert(goCtx context.Context, msg *types.MsgRevokeRoo
 			sdk.NewAttribute(sdk.AttributeKeyModule, msg.Route()),
 			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.Creator),
+		),
+		sdk.NewEvent(msg.Type(),
+			sdk.NewAttribute(types.AttributeKeyCertificate, certificates.Identifier.Index()),
 		),
 	})
 

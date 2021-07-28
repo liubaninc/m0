@@ -30,39 +30,43 @@ func (gs GenesisState) Validate() error {
 	certificateIndexMap := make(map[string]bool)
 
 	for _, elem := range gs.CertificateList {
-		if _, ok := certificateIndexMap[elem.Index()]; ok {
+		identifier := CertificateIdentifier{
+			Issuer:       elem.Issuer,
+			SerialNumber: elem.SerialNumber,
+		}
+		if _, ok := certificateIndexMap[identifier.Index()]; ok {
 			return fmt.Errorf("duplicated index for certificate")
 		}
-		certificateIndexMap[elem.Index()] = true
+		certificateIndexMap[identifier.Index()] = true
 	}
 	// Check for duplicated index in certificates
 	certificatesIndexMap := make(map[string]bool)
 
 	for _, elem := range gs.CertificatesList {
-		if _, ok := certificatesIndexMap[elem.Index]; ok {
+		if _, ok := certificatesIndexMap[elem.Identifier.Index()]; ok {
 			return fmt.Errorf("duplicated index for certificates")
 		}
-		certificatesIndexMap[elem.Index] = true
+		certificatesIndexMap[elem.Identifier.Index()] = true
 	}
 
 	// Check for duplicated index in certificates
 	revokeCertificatesIndexMap := make(map[string]bool)
 
 	for _, elem := range gs.RevokeCertificatesList {
-		if _, ok := revokeCertificatesIndexMap[elem.Index]; ok {
+		if _, ok := revokeCertificatesIndexMap[elem.Identifier.Index()]; ok {
 			return fmt.Errorf("duplicated index for certificates")
 		}
-		revokeCertificatesIndexMap[elem.Index] = true
+		revokeCertificatesIndexMap[elem.Identifier.Index()] = true
 	}
 
 	// Check for duplicated index in certificates
 	childCertificatesIndexMap := make(map[string]bool)
 
 	for _, elem := range gs.ChildCertificatesList {
-		if _, ok := childCertificatesIndexMap[elem.Index]; ok {
+		if _, ok := childCertificatesIndexMap[elem.Identifier.Index()]; ok {
 			return fmt.Errorf("duplicated index for certificates")
 		}
-		childCertificatesIndexMap[elem.Index] = true
+		childCertificatesIndexMap[elem.Identifier.Index()] = true
 	}
 	return nil
 }

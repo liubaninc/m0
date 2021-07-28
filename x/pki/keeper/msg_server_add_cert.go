@@ -19,12 +19,12 @@ func (k msgServer) AddCert(goCtx context.Context, msg *types.MsgAddCert) (*types
 	}
 
 	// check if certificate with Issuer/Serial Number combination already exists
-	if _, found := k.GetCertificate(ctx, x509Certificate.Issuer+"/"+x509Certificate.SerialNumber); found {
+	if _, found := k.GetCertificate(ctx, x509Certificate.Issuer, x509Certificate.SerialNumber); found {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "certificate associated with the combination of issuer=%v and serialNumber=%v already exists already exist", x509Certificate.Issuer, x509Certificate.SerialNumber)
 	}
 
 	// Get list of certificates for Subject / Subject Key Id combination
-	certificates, _ := k.GetCertificates(ctx, x509Certificate.Subject+"/"+x509Certificate.SubjectKeyID)
+	certificates, _ := k.GetCertificates(ctx, x509Certificate.Subject, x509Certificate.SubjectKeyID)
 	if len(certificates.Items) > 0 {
 		if msg.Creator != certificates.Creator {
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "Only owner of existing certificates with subject=%v and subjectKeyID=%v "+
@@ -32,7 +32,7 @@ func (k msgServer) AddCert(goCtx context.Context, msg *types.MsgAddCert) (*types
 				x509Certificate.Subject, x509Certificate.SubjectKeyID)
 		}
 
-		cert, found := k.GetCertificate(ctx, certificates.Items[0])
+		cert, found := k.GetCertificate(ctx, certificates.Items[0].Issuer, certificates.Items[0].SerialNumber)
 		if !found {
 			panic("certificate not found")
 		}
@@ -64,15 +64,17 @@ func (k msgServer) AddCert(goCtx context.Context, msg *types.MsgAddCert) (*types
 		rootCertificateSubjectKeyID,
 		msg.Creator,
 	)
+	identifier := types.CertificateIdentifier{
+		Issuer:       certificate.Issuer,
+		SerialNumber: certificate.SerialNumber,
+	}
 	certificates.Creator = msg.Creator
-	certificates.Items = append(certificates.Items, certificate.Index())
+	certificates.Items = append(certificates.Items, identifier)
 
 	k.SetCertificate(ctx, certificate)
 	k.SetCertificates(ctx, certificates)
-	k.addChildCertificateEntry(ctx, certificate.Issuer, certificate.AuthorityKeyID, types.CertificateIdentifier{
-		Subject:      certificate.Subject,
-		SubjectKeyID: certificate.SubjectKeyID,
-	})
+
+	k.addChildCertificateEntry(ctx, certificate.Issuer, certificate.AuthorityKeyID, certificates.Identifier)
 
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
@@ -80,6 +82,9 @@ func (k msgServer) AddCert(goCtx context.Context, msg *types.MsgAddCert) (*types
 			sdk.NewAttribute(sdk.AttributeKeyModule, msg.Route()),
 			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.Creator),
+		),
+		sdk.NewEvent(msg.Type(),
+			sdk.NewAttribute(types.AttributeKeyCertificate, identifier.Index()),
 		),
 	})
 	return &types.MsgAddCertResponse{}, nil

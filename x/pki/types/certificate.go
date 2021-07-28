@@ -1,11 +1,11 @@
 package types
 
-func (cert *Certificate) Index() string {
-	return cert.Issuer + "/" + cert.SerialNumber
+func (certificate CertificateIdentifier) Index() string {
+	return certificate.Issuer + "/" + certificate.SerialNumber
 }
 
-func (cert *CertificateIdentifier) Index() string {
-	return cert.Subject + "/" + cert.SubjectKeyID
+func (certificates CertificatesIdentifier) Index() string {
+	return certificates.Subject + "/" + certificates.SubjectKeyID
 }
 
 func NewRootCertificate(pemCert string, subject string, subjectKeyID string,

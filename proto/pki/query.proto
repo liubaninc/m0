@@ -15,7 +15,7 @@ service Query {
 
 	// Queries a certificate by index.
 	rpc Certificate(QueryGetCertificateRequest) returns (QueryGetCertificateResponse) {
-		option (google.api.http).get = "/liubaninc/m0/pki/certificate/{index}";
+		option (google.api.http).get = "/liubaninc/m0/pki/certificate/{issuer}/{serialNumber}";
 	}
 
 	// Queries a list of certificate items.
@@ -23,10 +23,20 @@ service Query {
 		option (google.api.http).get = "/liubaninc/m0/pki/certificate";
 	}
 
+	// Queries a certificates by index.
+	rpc RevokeCertificates(QueryGetRevokeCertificatesRequest) returns (QueryGetRevokeCertificatesResponse) {
+		option (google.api.http).get = "/liubaninc/m0/pki/revokecertificates/{subject}/{subjectKeyID}";
+	}
+
+	// Queries a list of certificates items.
+	rpc RevokeCertificatesAll(QueryAllRevokeCertificatesRequest) returns (QueryAllRevokeCertificatesResponse) {
+		option (google.api.http).get = "/liubaninc/m0/pki/revokecertificates";
+	}
+
 
 	// Queries a certificates by index.
 	rpc Certificates(QueryGetCertificatesRequest) returns (QueryGetCertificatesResponse) {
-		option (google.api.http).get = "/liubaninc/m0/pki/certificates/{index}";
+		option (google.api.http).get = "/liubaninc/m0/pki/certificates/{subject}/{subjectKeyID}";
 	}
 
 	// Queries a list of certificates items.
@@ -38,7 +48,8 @@ service Query {
 
 // this line is used by starport scaffolding # 3
 message QueryGetCertificateRequest {
-	string index = 1;
+	string issuer = 1;
+	string serialNumber = 2;
 }
 
 message QueryGetCertificateResponse {
@@ -53,8 +64,10 @@ message QueryAllCertificateResponse {
 	repeated Certificate Certificate = 1;
 	cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
+
 message QueryGetCertificatesRequest {
-	string index = 1;
+	string subject = 1;
+	string subjectKeyID = 2;
 }
 
 message QueryGetCertificatesResponse {
@@ -66,6 +79,24 @@ message QueryAllCertificatesRequest {
 }
 
 message QueryAllCertificatesResponse {
+	repeated Certificates Certificates = 1;
+	cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+message QueryGetRevokeCertificatesRequest {
+	string subject = 1;
+	string subjectKeyID = 2;
+}
+
+message QueryGetRevokeCertificatesResponse {
+	Certificates Certificates = 1;
+}
+
+message QueryAllRevokeCertificatesRequest {
+	cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryAllRevokeCertificatesResponse {
 	repeated Certificates Certificates = 1;
 	cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }

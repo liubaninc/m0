@@ -24,9 +24,9 @@ var _ = math.Inf
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 type Certificates struct {
-	Creator string   `protobuf:"bytes,1,opt,name=creator,proto3" json:"creator,omitempty"`
-	Index   string   `protobuf:"bytes,2,opt,name=index,proto3" json:"index,omitempty"`
-	Items   []string `protobuf:"bytes,3,rep,name=items,proto3" json:"items,omitempty"`
+	Creator    string                  `protobuf:"bytes,1,opt,name=creator,proto3" json:"creator,omitempty"`
+	Identifier CertificatesIdentifier  `protobuf:"bytes,2,opt,name=identifier,proto3" json:"identifier"`
+	Items      []CertificateIdentifier `protobuf:"bytes,3,rep,name=items,proto3" json:"items"`
 }
 
 func (m *Certificates) Reset()         { *m = Certificates{} }
@@ -69,82 +69,30 @@ func (m *Certificates) GetCreator() string {
 	return ""
 }
 
-func (m *Certificates) GetIndex() string {
+func (m *Certificates) GetIdentifier() CertificatesIdentifier {
 	if m != nil {
-		return m.Index
+		return m.Identifier
 	}
-	return ""
+	return CertificatesIdentifier{}
 }
 
-func (m *Certificates) GetItems() []string {
+func (m *Certificates) GetItems() []CertificateIdentifier {
 	if m != nil {
 		return m.Items
 	}
 	return nil
 }
 
-type CertificateIdentifier struct {
-	Subject      string `protobuf:"bytes,1,opt,name=subject,proto3" json:"subject,omitempty"`
-	SubjectKeyID string `protobuf:"bytes,2,opt,name=subjectKeyID,proto3" json:"subjectKeyID,omitempty"`
-}
-
-func (m *CertificateIdentifier) Reset()         { *m = CertificateIdentifier{} }
-func (m *CertificateIdentifier) String() string { return proto.CompactTextString(m) }
-func (*CertificateIdentifier) ProtoMessage()    {}
-func (*CertificateIdentifier) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c5962fe4a45c1649, []int{1}
-}
-func (m *CertificateIdentifier) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *CertificateIdentifier) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_CertificateIdentifier.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *CertificateIdentifier) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_CertificateIdentifier.Merge(m, src)
-}
-func (m *CertificateIdentifier) XXX_Size() int {
-	return m.Size()
-}
-func (m *CertificateIdentifier) XXX_DiscardUnknown() {
-	xxx_messageInfo_CertificateIdentifier.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_CertificateIdentifier proto.InternalMessageInfo
-
-func (m *CertificateIdentifier) GetSubject() string {
-	if m != nil {
-		return m.Subject
-	}
-	return ""
-}
-
-func (m *CertificateIdentifier) GetSubjectKeyID() string {
-	if m != nil {
-		return m.SubjectKeyID
-	}
-	return ""
-}
-
 type ChildCertificates struct {
-	Index string   `protobuf:"bytes,2,opt,name=index,proto3" json:"index,omitempty"`
-	Items []string `protobuf:"bytes,3,rep,name=items,proto3" json:"items,omitempty"`
+	Identifier CertificatesIdentifier   `protobuf:"bytes,2,opt,name=identifier,proto3" json:"identifier"`
+	Items      []CertificatesIdentifier `protobuf:"bytes,3,rep,name=items,proto3" json:"items"`
 }
 
 func (m *ChildCertificates) Reset()         { *m = ChildCertificates{} }
 func (m *ChildCertificates) String() string { return proto.CompactTextString(m) }
 func (*ChildCertificates) ProtoMessage()    {}
 func (*ChildCertificates) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c5962fe4a45c1649, []int{2}
+	return fileDescriptor_c5962fe4a45c1649, []int{1}
 }
 func (m *ChildCertificates) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -173,46 +121,101 @@ func (m *ChildCertificates) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_ChildCertificates proto.InternalMessageInfo
 
-func (m *ChildCertificates) GetIndex() string {
+func (m *ChildCertificates) GetIdentifier() CertificatesIdentifier {
 	if m != nil {
-		return m.Index
+		return m.Identifier
 	}
-	return ""
+	return CertificatesIdentifier{}
 }
 
-func (m *ChildCertificates) GetItems() []string {
+func (m *ChildCertificates) GetItems() []CertificatesIdentifier {
 	if m != nil {
 		return m.Items
 	}
 	return nil
 }
 
+type CertificatesIdentifier struct {
+	Subject      string `protobuf:"bytes,1,opt,name=subject,proto3" json:"subject,omitempty"`
+	SubjectKeyID string `protobuf:"bytes,2,opt,name=subjectKeyID,proto3" json:"subjectKeyID,omitempty"`
+}
+
+func (m *CertificatesIdentifier) Reset()         { *m = CertificatesIdentifier{} }
+func (m *CertificatesIdentifier) String() string { return proto.CompactTextString(m) }
+func (*CertificatesIdentifier) ProtoMessage()    {}
+func (*CertificatesIdentifier) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c5962fe4a45c1649, []int{2}
+}
+func (m *CertificatesIdentifier) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CertificatesIdentifier) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CertificatesIdentifier.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CertificatesIdentifier) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CertificatesIdentifier.Merge(m, src)
+}
+func (m *CertificatesIdentifier) XXX_Size() int {
+	return m.Size()
+}
+func (m *CertificatesIdentifier) XXX_DiscardUnknown() {
+	xxx_messageInfo_CertificatesIdentifier.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CertificatesIdentifier proto.InternalMessageInfo
+
+func (m *CertificatesIdentifier) GetSubject() string {
+	if m != nil {
+		return m.Subject
+	}
+	return ""
+}
+
+func (m *CertificatesIdentifier) GetSubjectKeyID() string {
+	if m != nil {
+		return m.SubjectKeyID
+	}
+	return ""
+}
+
 func init() {
 	proto.RegisterType((*Certificates)(nil), "liubaninc.m0.pki.Certificates")
-	proto.RegisterType((*CertificateIdentifier)(nil), "liubaninc.m0.pki.CertificateIdentifier")
 	proto.RegisterType((*ChildCertificates)(nil), "liubaninc.m0.pki.ChildCertificates")
+	proto.RegisterType((*CertificatesIdentifier)(nil), "liubaninc.m0.pki.CertificatesIdentifier")
 }
 
 func init() { proto.RegisterFile("pki/certificates.proto", fileDescriptor_c5962fe4a45c1649) }
 
 var fileDescriptor_c5962fe4a45c1649 = []byte{
-	// 251 bytes of a gzipped FileDescriptorProto
+	// 296 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x12, 0x2b, 0xc8, 0xce, 0xd4,
 	0x4f, 0x4e, 0x2d, 0x2a, 0xc9, 0x4c, 0xcb, 0x4c, 0x4e, 0x2c, 0x49, 0x2d, 0xd6, 0x2b, 0x28, 0xca,
 	0x2f, 0xc9, 0x17, 0x12, 0xc8, 0xc9, 0x2c, 0x4d, 0x4a, 0xcc, 0xcb, 0xcc, 0x4b, 0xd6, 0xcb, 0x35,
 	0xd0, 0x2b, 0xc8, 0xce, 0x94, 0x12, 0x49, 0xcf, 0x4f, 0xcf, 0x07, 0x4b, 0xea, 0x83, 0x58, 0x10,
-	0x75, 0x4a, 0x21, 0x5c, 0x3c, 0xce, 0x48, 0xba, 0x85, 0x24, 0xb8, 0xd8, 0x93, 0x8b, 0x52, 0x13,
-	0x4b, 0xf2, 0x8b, 0x24, 0x18, 0x15, 0x18, 0x35, 0x38, 0x83, 0x60, 0x5c, 0x21, 0x11, 0x2e, 0xd6,
-	0xcc, 0xbc, 0x94, 0xd4, 0x0a, 0x09, 0x26, 0xb0, 0x38, 0x84, 0x03, 0x16, 0x2d, 0x49, 0xcd, 0x2d,
-	0x96, 0x60, 0x56, 0x60, 0x06, 0x8b, 0x82, 0x38, 0x4a, 0xa1, 0x5c, 0xa2, 0x48, 0xa6, 0x7a, 0xa6,
-	0xa4, 0xe6, 0x81, 0xd8, 0xa9, 0x45, 0x20, 0xe3, 0x8b, 0x4b, 0x93, 0xb2, 0x52, 0x93, 0x4b, 0x60,
-	0xc6, 0x43, 0xb9, 0x42, 0x4a, 0x5c, 0x3c, 0x50, 0xa6, 0x77, 0x6a, 0xa5, 0xa7, 0x0b, 0xd4, 0x16,
-	0x14, 0x31, 0x25, 0x7b, 0x2e, 0x41, 0xe7, 0x8c, 0xcc, 0x9c, 0x14, 0x14, 0x17, 0x93, 0xe0, 0x2e,
-	0x27, 0xdb, 0x13, 0x8f, 0xe4, 0x18, 0x2f, 0x3c, 0x92, 0x63, 0x7c, 0xf0, 0x48, 0x8e, 0x71, 0xc2,
-	0x63, 0x39, 0x86, 0x0b, 0x8f, 0xe5, 0x18, 0x6e, 0x3c, 0x96, 0x63, 0x88, 0x52, 0x4e, 0xcf, 0x2c,
-	0xc9, 0x28, 0x4d, 0xd2, 0x4b, 0xce, 0xcf, 0xd5, 0x87, 0x07, 0x9d, 0x7e, 0xae, 0x81, 0x7e, 0x85,
-	0x3e, 0x28, 0x84, 0x4b, 0x2a, 0x0b, 0x52, 0x8b, 0x93, 0xd8, 0xc0, 0x61, 0x66, 0x0c, 0x08, 0x00,
-	0x00, 0xff, 0xff, 0xe3, 0x51, 0x37, 0x51, 0x75, 0x01, 0x00, 0x00,
+	0x75, 0x52, 0xa2, 0x68, 0xfa, 0x21, 0xc2, 0x4a, 0x7b, 0x19, 0xb9, 0x78, 0x9c, 0x91, 0x4c, 0x15,
+	0x92, 0xe0, 0x62, 0x4f, 0x2e, 0x4a, 0x4d, 0x2c, 0xc9, 0x2f, 0x92, 0x60, 0x54, 0x60, 0xd4, 0xe0,
+	0x0c, 0x82, 0x71, 0x85, 0xfc, 0xb8, 0xb8, 0x32, 0x53, 0x52, 0xf3, 0x40, 0x4a, 0x53, 0x8b, 0x24,
+	0x98, 0x14, 0x18, 0x35, 0xb8, 0x8d, 0x34, 0xf4, 0xd0, 0xad, 0xd7, 0x43, 0x36, 0xcd, 0x13, 0xae,
+	0xde, 0x89, 0xe5, 0xc4, 0x3d, 0x79, 0x86, 0x20, 0x24, 0x13, 0x84, 0x9c, 0xb9, 0x58, 0x33, 0x4b,
+	0x52, 0x73, 0x8b, 0x25, 0x98, 0x15, 0x98, 0x35, 0xb8, 0x8d, 0xd4, 0xf1, 0x1a, 0x85, 0x61, 0x12,
+	0x44, 0xaf, 0xd2, 0x4a, 0x46, 0x2e, 0x41, 0xe7, 0x8c, 0xcc, 0x9c, 0x14, 0x14, 0x4f, 0x50, 0xdb,
+	0xa9, 0x2e, 0xa8, 0x4e, 0x25, 0xd5, 0x28, 0xa8, 0x5b, 0xc3, 0xb8, 0xc4, 0xb0, 0x2b, 0x03, 0x05,
+	0x7a, 0x71, 0x69, 0x52, 0x56, 0x6a, 0x72, 0x09, 0x2c, 0xd0, 0xa1, 0x5c, 0x21, 0x25, 0x2e, 0x1e,
+	0x28, 0xd3, 0x3b, 0xb5, 0xd2, 0xd3, 0x05, 0xec, 0x17, 0xce, 0x20, 0x14, 0x31, 0x27, 0xdb, 0x13,
+	0x8f, 0xe4, 0x18, 0x2f, 0x3c, 0x92, 0x63, 0x7c, 0xf0, 0x48, 0x8e, 0x71, 0xc2, 0x63, 0x39, 0x86,
+	0x0b, 0x8f, 0xe5, 0x18, 0x6e, 0x3c, 0x96, 0x63, 0x88, 0x52, 0x4e, 0xcf, 0x2c, 0xc9, 0x28, 0x4d,
+	0xd2, 0x4b, 0xce, 0xcf, 0xd5, 0x87, 0x3b, 0x59, 0x3f, 0xd7, 0x40, 0xbf, 0x42, 0x1f, 0x94, 0x1c,
+	0x4a, 0x2a, 0x0b, 0x52, 0x8b, 0x93, 0xd8, 0xc0, 0x29, 0xc1, 0x18, 0x10, 0x00, 0x00, 0xff, 0xff,
+	0x3f, 0xc9, 0xbb, 0x0e, 0x62, 0x02, 0x00, 0x00,
 }
 
 func (m *Certificates) Marshal() (dAtA []byte, err error) {
@@ -237,61 +240,32 @@ func (m *Certificates) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = l
 	if len(m.Items) > 0 {
 		for iNdEx := len(m.Items) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.Items[iNdEx])
-			copy(dAtA[i:], m.Items[iNdEx])
-			i = encodeVarintCertificates(dAtA, i, uint64(len(m.Items[iNdEx])))
+			{
+				size, err := m.Items[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCertificates(dAtA, i, uint64(size))
+			}
 			i--
 			dAtA[i] = 0x1a
 		}
 	}
-	if len(m.Index) > 0 {
-		i -= len(m.Index)
-		copy(dAtA[i:], m.Index)
-		i = encodeVarintCertificates(dAtA, i, uint64(len(m.Index)))
-		i--
-		dAtA[i] = 0x12
+	{
+		size, err := m.Identifier.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintCertificates(dAtA, i, uint64(size))
 	}
+	i--
+	dAtA[i] = 0x12
 	if len(m.Creator) > 0 {
 		i -= len(m.Creator)
 		copy(dAtA[i:], m.Creator)
 		i = encodeVarintCertificates(dAtA, i, uint64(len(m.Creator)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *CertificateIdentifier) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *CertificateIdentifier) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *CertificateIdentifier) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.SubjectKeyID) > 0 {
-		i -= len(m.SubjectKeyID)
-		copy(dAtA[i:], m.SubjectKeyID)
-		i = encodeVarintCertificates(dAtA, i, uint64(len(m.SubjectKeyID)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.Subject) > 0 {
-		i -= len(m.Subject)
-		copy(dAtA[i:], m.Subject)
-		i = encodeVarintCertificates(dAtA, i, uint64(len(m.Subject)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -320,19 +294,64 @@ func (m *ChildCertificates) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = l
 	if len(m.Items) > 0 {
 		for iNdEx := len(m.Items) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.Items[iNdEx])
-			copy(dAtA[i:], m.Items[iNdEx])
-			i = encodeVarintCertificates(dAtA, i, uint64(len(m.Items[iNdEx])))
+			{
+				size, err := m.Items[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintCertificates(dAtA, i, uint64(size))
+			}
 			i--
 			dAtA[i] = 0x1a
 		}
 	}
-	if len(m.Index) > 0 {
-		i -= len(m.Index)
-		copy(dAtA[i:], m.Index)
-		i = encodeVarintCertificates(dAtA, i, uint64(len(m.Index)))
+	{
+		size, err := m.Identifier.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintCertificates(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x12
+	return len(dAtA) - i, nil
+}
+
+func (m *CertificatesIdentifier) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *CertificatesIdentifier) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CertificatesIdentifier) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.SubjectKeyID) > 0 {
+		i -= len(m.SubjectKeyID)
+		copy(dAtA[i:], m.SubjectKeyID)
+		i = encodeVarintCertificates(dAtA, i, uint64(len(m.SubjectKeyID)))
 		i--
 		dAtA[i] = 0x12
+	}
+	if len(m.Subject) > 0 {
+		i -= len(m.Subject)
+		copy(dAtA[i:], m.Subject)
+		i = encodeVarintCertificates(dAtA, i, uint64(len(m.Subject)))
+		i--
+		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
@@ -358,20 +377,35 @@ func (m *Certificates) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovCertificates(uint64(l))
 	}
-	l = len(m.Index)
-	if l > 0 {
-		n += 1 + l + sovCertificates(uint64(l))
-	}
+	l = m.Identifier.Size()
+	n += 1 + l + sovCertificates(uint64(l))
 	if len(m.Items) > 0 {
-		for _, s := range m.Items {
-			l = len(s)
+		for _, e := range m.Items {
+			l = e.Size()
 			n += 1 + l + sovCertificates(uint64(l))
 		}
 	}
 	return n
 }
 
-func (m *CertificateIdentifier) Size() (n int) {
+func (m *ChildCertificates) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.Identifier.Size()
+	n += 1 + l + sovCertificates(uint64(l))
+	if len(m.Items) > 0 {
+		for _, e := range m.Items {
+			l = e.Size()
+			n += 1 + l + sovCertificates(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *CertificatesIdentifier) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -384,25 +418,6 @@ func (m *CertificateIdentifier) Size() (n int) {
 	l = len(m.SubjectKeyID)
 	if l > 0 {
 		n += 1 + l + sovCertificates(uint64(l))
-	}
-	return n
-}
-
-func (m *ChildCertificates) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.Index)
-	if l > 0 {
-		n += 1 + l + sovCertificates(uint64(l))
-	}
-	if len(m.Items) > 0 {
-		for _, s := range m.Items {
-			l = len(s)
-			n += 1 + l + sovCertificates(uint64(l))
-		}
 	}
 	return n
 }
@@ -476,9 +491,9 @@ func (m *Certificates) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Index", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Identifier", wireType)
 			}
-			var stringLen uint64
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowCertificates
@@ -488,29 +503,30 @@ func (m *Certificates) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
+			if msglen < 0 {
 				return ErrInvalidLengthCertificates
 			}
-			postIndex := iNdEx + intStringLen
+			postIndex := iNdEx + msglen
 			if postIndex < 0 {
 				return ErrInvalidLengthCertificates
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Index = string(dAtA[iNdEx:postIndex])
+			if err := m.Identifier.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
 			iNdEx = postIndex
 		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Items", wireType)
 			}
-			var stringLen uint64
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowCertificates
@@ -520,23 +536,25 @@ func (m *Certificates) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
+			if msglen < 0 {
 				return ErrInvalidLengthCertificates
 			}
-			postIndex := iNdEx + intStringLen
+			postIndex := iNdEx + msglen
 			if postIndex < 0 {
 				return ErrInvalidLengthCertificates
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Items = append(m.Items, string(dAtA[iNdEx:postIndex]))
+			m.Items = append(m.Items, CertificateIdentifier{})
+			if err := m.Items[len(m.Items)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -559,7 +577,7 @@ func (m *Certificates) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *CertificateIdentifier) Unmarshal(dAtA []byte) error {
+func (m *ChildCertificates) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -582,10 +600,127 @@ func (m *CertificateIdentifier) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: CertificateIdentifier: wiretype end group for non-group")
+			return fmt.Errorf("proto: ChildCertificates: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: CertificateIdentifier: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: ChildCertificates: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Identifier", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowCertificates
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthCertificates
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthCertificates
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Identifier.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Items", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowCertificates
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthCertificates
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthCertificates
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Items = append(m.Items, CertificatesIdentifier{})
+			if err := m.Items[len(m.Items)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipCertificates(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthCertificates
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *CertificatesIdentifier) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowCertificates
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: CertificatesIdentifier: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: CertificatesIdentifier: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -651,120 +786,6 @@ func (m *CertificateIdentifier) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.SubjectKeyID = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipCertificates(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthCertificates
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *ChildCertificates) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowCertificates
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: ChildCertificates: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: ChildCertificates: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Index", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowCertificates
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthCertificates
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthCertificates
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Index = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Items", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowCertificates
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthCertificates
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthCertificates
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Items = append(m.Items, string(dAtA[iNdEx:postIndex]))
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

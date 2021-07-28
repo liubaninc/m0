@@ -5,18 +5,20 @@ option go_package = "github.com/liubaninc/m0/x/pki/types";
 
 import "gogoproto/gogo.proto";
 
+import "pki/certificate.proto";
+
 message Certificates {
   string creator = 1;
-  string index = 2;
-  repeated string items = 3;
-}
-
-message CertificateIdentifier {
-  string subject = 1;
-  string subjectKeyID = 2;
+  CertificatesIdentifier identifier = 2 [(gogoproto.nullable) = false];
+  repeated CertificateIdentifier items = 3 [(gogoproto.nullable) = false];
 }
 
 message ChildCertificates {
-  string index = 2;
-  repeated string items = 3;
+  CertificatesIdentifier identifier = 2 [(gogoproto.nullable) = false];
+  repeated CertificatesIdentifier items = 3 [(gogoproto.nullable) = false];
+}
+
+message CertificatesIdentifier {
+  string subject = 1;
+  string subjectKeyID = 2;
 }
