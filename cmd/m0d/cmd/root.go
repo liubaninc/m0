@@ -100,6 +100,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		debug.Cmd(),
 		// this line is used by starport scaffolding # stargate/root/commands
 		automaticCommand(),
+		caCommands(app.DefaultNodeHome),
 	)
 
 	a := appCreator{encodingConfig}
