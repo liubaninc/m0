@@ -57,11 +57,12 @@ func (k msgServer) AddRootCert(goCtx context.Context, msg *types.MsgAddRootCert)
 		x509Certificate.Subject,
 		x509Certificate.SubjectKeyID,
 		x509Certificate.SerialNumber,
+		x509Certificate.Issuer,
 		msg.Creator,
 	)
 	identifier := types.CertificateIdentifier{
-		Issuer:       rootCertificate.Issuer,
-		SerialNumber: rootCertificate.SerialNumber,
+		Issuer:       x509Certificate.Issuer,
+		SerialNumber: x509Certificate.SerialNumber,
 	}
 	certificates.Creator = msg.Creator
 	certificates.Items = append(certificates.Items, identifier)

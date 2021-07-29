@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/liubaninc/m0/x/pki/x509"
 
@@ -47,24 +48,32 @@ func (k Keeper) verifyCertificate(ctx sdk.Context, x509Certificate *x509.X509Cer
 			return x509Certificate.Subject, x509Certificate.SubjectKeyID, nil
 		}
 	} else {
-		//parentCertificates := keeper.GetApprovedCertificates(ctx, x509Certificate.Issuer, x509Certificate.AuthorityKeyID)
-		//
-		//for _, cert := range parentCertificates.Items {
-		//	parentX509Certificate, err := x509.DecodeX509Certificate(cert.PemCert)
-		//	if err != nil {
-		//		continue
-		//	}
-		//
-		//	// verify certificate against parent
-		//	if err := x509Certificate.Verify(parentX509Certificate); err != nil {
-		//		continue
-		//	}
-		//
-		//	// verify parent certificate
-		//	if subject, subjectKeyID, err := verifyCertificate(ctx, keeper, parentX509Certificate); err == nil {
-		//		return subject, subjectKeyID, nil
-		//	}
-		//}
+		parentCertificates, _ := k.GetCertificates(ctx, x509Certificate.Issuer, x509Certificate.AuthorityKeyID)
+		fmt.Println("chaogaofeng1", x509Certificate.Issuer, x509Certificate.AuthorityKeyID)
+		for _, identifier := range parentCertificates.Items {
+			cert, found := k.GetCertificate(ctx, identifier.Issuer, identifier.SerialNumber)
+			fmt.Println("chaogaofeng2", identifier.Issuer, identifier.SerialNumber, found)
+			if !found {
+				continue
+			}
+
+			parentX509Certificate, err := x509.DecodeX509Certificate(cert.PemCert)
+			if err != nil {
+				continue
+			}
+
+			// verify certificate against parent
+			if err := x509Certificate.Verify(parentX509Certificate); err != nil {
+				continue
+			}
+
+			// verify parent certificate
+			if subject, subjectKeyID, err := k.verifyCertificate(ctx, parentX509Certificate); err == nil {
+				return subject, subjectKeyID, nil
+			} else {
+				fmt.Println("chaogaofeng3", identifier.Issuer, identifier.SerialNumber, err)
+			}
+		}
 	}
 
 	return "", "", sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "Certificate verification failed for certificate with subject=%v and subjectKeyID=%v",

@@ -9,12 +9,13 @@ func (certificates CertificatesIdentifier) Index() string {
 }
 
 func NewRootCertificate(pemCert string, subject string, subjectKeyID string,
-	serialNumber string, creator string) Certificate {
+	serialNumber string, issuer string, creator string) Certificate {
 	return Certificate{
 		PemCert:      pemCert,
 		Subject:      subject,
 		SubjectKeyID: subjectKeyID,
 		SerialNumber: serialNumber,
+		Issuer:       issuer,
 		IsRoot:       true,
 		Creator:      creator,
 	}

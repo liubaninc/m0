@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	pkimoduletypes "github.com/liubaninc/m0/x/pki/types"
+	"io/ioutil"
 	"net"
 	"os"
 	"path/filepath"
@@ -272,13 +274,15 @@ func InitTestnet(
 
 		genAccounts = append(genAccounts, authtypes.NewBaseAccount(addr, nil, 0, 0))
 		genPermissions = append(genPermissions, &permissiontypes.Account{
+			Creator: addr.String(),
 			Address: addr.String(),
 			Perms: []string{
 				validatortypes.ModuleName,
 			},
 		})
 		genPeerIDs = append(genPeerIDs, &peertypes.PeerID{
-			Index: nodeIDs[i],
+			Creator: addr.String(),
+			Index:   nodeIDs[i],
 		})
 
 		createValMsg := validatortypes.NewMsgCreateValidator(
@@ -352,39 +356,79 @@ func InitTestnet(
 		}
 
 		genAccounts = append(genAccounts, authtypes.NewBaseAccount(addr, nil, 0, 0))
-		genPermissions = append(genPermissions, &permissiontypes.Account{Address: addr.String(), Perms: []string{
-			"*",
-		}})
+		genPermissions = append(genPermissions, &permissiontypes.Account{
+			Creator: addr.String(),
+			Address: addr.String(),
+			Perms: []string{
+				"*",
+			},
+		})
 
-		msg := utxotypes.NewMsgIssue(addr.String(), []*utxotypes.Input{}, []*utxotypes.Output{
+		msgs := []sdk.Msg{}
+		// certificates
+		cadir := filepath.Join(outputDir, "ca")
+		tmos.EnsureDir(cadir, 0755)
+		caCertFile := filepath.Join(cadir, "ca.cert")
+		caKeyFile := filepath.Join(cadir, "ca.key")
+		// ca
+		caCert, caKey, err := generateCA(nil)
+		if err != nil {
+			return err
+		}
+		if err := saveCert(caCertFile, caKeyFile, caCert, caKey, caCert, caKey); err != nil {
+			return err
+		}
+		caCert, _ = parseCert(caCertFile)
+		certBytes, _ := ioutil.ReadFile(caCertFile)
+		msgs = append(msgs, pkimoduletypes.NewMsgAddRootCert(addr.String(), string(certBytes)))
+		// peer certificates
+		for i := 0; i < numValidators; i++ {
+			cert, key, err := generateCertificate(nil, []string{nodeIDs[i]}, caCert)
+			if err != nil {
+				return err
+			}
+			certFile := filepath.Join(cadir, fmt.Sprintf("%s.cert", nodeIDs[i]))
+			keyFile := filepath.Join(cadir, fmt.Sprintf("%s.key", nodeIDs[i]))
+			if err := saveCert(certFile, keyFile, caCert, caKey, cert, key); err != nil {
+				return err
+			}
+			certBytes, _ := ioutil.ReadFile(certFile)
+			msgs = append(msgs, pkimoduletypes.NewMsgAddCert(addr.String(), string(certBytes)))
+		}
+
+		msgs = append(msgs, utxotypes.NewMsgIssue(addr.String(), []*utxotypes.Input{}, []*utxotypes.Output{
 			{
 				ToAddr: addr.String(),
 				Amount: reservedCoin,
 			},
-		}, "")
-		txBuilder := clientCtx.TxConfig.NewTxBuilder()
-		if err := txBuilder.SetMsgs(msg); err != nil {
-			return err
-		}
+		}, ""))
 
-		txFactory := tx.Factory{}
-		txFactory = txFactory.
-			WithChainID(chainID).
-			WithMemo("reserved coin").
-			WithKeybase(kb).
-			WithTxConfig(clientCtx.TxConfig)
+		for i, msg := range msgs {
+			txBuilder := clientCtx.TxConfig.NewTxBuilder()
+			if err := txBuilder.SetMsgs(msg); err != nil {
+				return err
+			}
 
-		if err := tx.Sign(txFactory, "reserved", txBuilder, true); err != nil {
-			return err
-		}
+			txFactory := tx.Factory{}
+			txFactory = txFactory.
+				WithChainID(chainID).
+				WithMemo("reserved coin").
+				WithKeybase(kb).
+				WithTxConfig(clientCtx.TxConfig).
+				WithSequence(uint64(i))
 
-		txBz, err := clientCtx.TxConfig.TxJSONEncoder()(txBuilder.GetTx())
-		if err != nil {
-			return err
-		}
+			if err := tx.Sign(txFactory, "reserved", txBuilder, true); err != nil {
+				return err
+			}
 
-		if err := writeFile(fmt.Sprintf("%v.json", "reserved"), filepath.Join(outputDir, "gentxs"), txBz); err != nil {
-			return err
+			txBz, err := clientCtx.TxConfig.TxJSONEncoder()(txBuilder.GetTx())
+			if err != nil {
+				return err
+			}
+
+			if err := writeFile(fmt.Sprintf("%v-%d.json", "reserved", i), filepath.Join(outputDir, "gentxs"), txBz); err != nil {
+				return err
+			}
 		}
 	}
 

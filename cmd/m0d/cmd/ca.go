@@ -61,6 +61,7 @@ func generateCA(serial *big.Int) (*x509.Certificate, *rsa.PrivateKey, error) {
 		NotBefore:             time.Now(),
 		NotAfter:              time.Now().Add(20 * 365 * 24 * time.Hour), // 20 years
 		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageCRLSign | x509.KeyUsageCertSign,
+		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
 		IsCA:                  true,
 		BasicConstraintsValid: true,
 	}
@@ -95,11 +96,13 @@ func generateCertificate(
 			OrganizationalUnit: OrganizationalUnit,
 			CommonName:         domains[0],
 		},
-		NotBefore:   time.Now(),
-		NotAfter:    time.Now().Add(10 * 365 * 24 * time.Hour), // 10 years
-		KeyUsage:    x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment,
-		ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
-		DNSNames:    domains,
+		NotBefore:             time.Now(),
+		NotAfter:              time.Now().Add(10 * 365 * 24 * time.Hour), // 10 years
+		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign,
+		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
+		DNSNames:              domains,
+		BasicConstraintsValid: true,
+		IsCA:                  true,
 	}
 
 	return &serverCertTemplate, key, nil
