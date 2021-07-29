@@ -31,6 +31,11 @@ func (k Keeper) IDPeerFilter(ctx sdk.Context, index string) abci.ResponseQuery {
 		code = 1
 	}
 
+	if certs, _ := k.pkiKeeper.GetCertificates(ctx, cert.Subject, cert.SubjectKeyID); certs.Disable {
+		err = fmt.Errorf("cert %s freezed", peerID.CertIssuer+"/"+peerID.CertSerialNum)
+		code = 1
+	}
+
 	x509Cert, err := x509.DecodeX509Certificate(cert.PemCert)
 	if err != nil {
 		panic(err)

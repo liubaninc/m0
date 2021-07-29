@@ -8,6 +8,8 @@ option go_package = "github.com/liubaninc/m0/x/pki/types";
 // Msg defines the Msg service.
 service Msg {
     // this line is used by starport scaffolding # proto/tx/rpc
+  rpc UnfreezeCert(MsgUnfreezeCert) returns (MsgUnfreezeCertResponse);
+  rpc FreezeCert(MsgFreezeCert) returns (MsgFreezeCertResponse);
   rpc RevokeRootCert(MsgRevokeRootCert) returns (MsgRevokeRootCertResponse);
   rpc RevokeCert(MsgRevokeCert) returns (MsgRevokeCertResponse);
   rpc AddCert(MsgAddCert) returns (MsgAddCertResponse);
@@ -15,6 +17,24 @@ service Msg {
 }
 
 // this line is used by starport scaffolding # proto/tx/message
+message MsgUnfreezeCert {
+  string creator = 1;
+  string subject = 2;
+  string subjectKeyID = 3;
+}
+
+message MsgUnfreezeCertResponse {
+}
+
+message MsgFreezeCert {
+  string creator = 1;
+  string subject = 2;
+  string subjectKeyID = 3;
+}
+
+message MsgFreezeCertResponse {
+}
+
 message MsgRevokeRootCert {
   string creator = 1;
   string subject = 2;

@@ -9,6 +9,10 @@ import (
 
 func RegisterCodec(cdc *codec.LegacyAmino) {
 	// this line is used by starport scaffolding # 2
+	cdc.RegisterConcrete(&MsgUnfreezeCert{}, "pki/UnfreezeCert", nil)
+
+	cdc.RegisterConcrete(&MsgFreezeCert{}, "pki/FreezeCert", nil)
+
 	cdc.RegisterConcrete(&MsgRevokeRootCert{}, "pki/RevokeRootCert", nil)
 
 	cdc.RegisterConcrete(&MsgRevokeCert{}, "pki/RevokeCert", nil)
@@ -21,6 +25,12 @@ func RegisterCodec(cdc *codec.LegacyAmino) {
 
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	// this line is used by starport scaffolding # 3
+	registry.RegisterImplementations((*sdk.Msg)(nil),
+		&MsgUnfreezeCert{},
+	)
+	registry.RegisterImplementations((*sdk.Msg)(nil),
+		&MsgFreezeCert{},
+	)
 	registry.RegisterImplementations((*sdk.Msg)(nil),
 		&MsgRevokeRootCert{},
 	)

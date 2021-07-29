@@ -365,35 +365,43 @@ func InitTestnet(
 		})
 
 		msgs := []sdk.Msg{}
-		// certificates
-		cadir := filepath.Join(outputDir, "ca")
-		tmos.EnsureDir(cadir, 0755)
-		caCertFile := filepath.Join(cadir, "ca.cert")
-		caKeyFile := filepath.Join(cadir, "ca.key")
-		// ca
-		caCert, caKey, err := generateCA(nil)
-		if err != nil {
-			return err
-		}
-		if err := saveCert(caCertFile, caKeyFile, caCert, caKey, caCert, caKey); err != nil {
-			return err
-		}
-		caCert, _ = parseCert(caCertFile)
-		certBytes, _ := ioutil.ReadFile(caCertFile)
-		msgs = append(msgs, pkimoduletypes.NewMsgAddRootCert(addr.String(), string(certBytes)))
-		// peer certificates
-		for i := 0; i < numValidators; i++ {
-			cert, key, err := generateCertificate(nil, []string{nodeIDs[i]}, caCert)
+
+		if viper.GetBool(flagDevelopMode) {
+
+		} else {
+			// certificates
+			cadir := filepath.Join(outputDir, "ca")
+			tmos.EnsureDir(cadir, 0755)
+			caCertFile := filepath.Join(cadir, "ca.cert")
+			caKeyFile := filepath.Join(cadir, "ca.key")
+			// ca
+			caCert, caKey, err := generateCA(nil)
 			if err != nil {
 				return err
 			}
-			certFile := filepath.Join(cadir, fmt.Sprintf("%s.cert", nodeIDs[i]))
-			keyFile := filepath.Join(cadir, fmt.Sprintf("%s.key", nodeIDs[i]))
-			if err := saveCert(certFile, keyFile, caCert, caKey, cert, key); err != nil {
+			if err := saveCert(caCertFile, caKeyFile, caCert, caKey, caCert, caKey); err != nil {
 				return err
 			}
-			certBytes, _ := ioutil.ReadFile(certFile)
-			msgs = append(msgs, pkimoduletypes.NewMsgAddCert(addr.String(), string(certBytes)))
+			caCert, _ = parseCert(caCertFile)
+			certBytes, _ := ioutil.ReadFile(caCertFile)
+			msgs = append(msgs, pkimoduletypes.NewMsgAddRootCert(addr.String(), string(certBytes)))
+			// peer certificates
+			for i := 0; i < numValidators; i++ {
+				cert, key, err := generateCertificate(nil, []string{nodeIDs[i]}, caCert)
+				if err != nil {
+					return err
+				}
+				certFile := filepath.Join(cadir, fmt.Sprintf("%s.cert", nodeIDs[i]))
+				keyFile := filepath.Join(cadir, fmt.Sprintf("%s.key", nodeIDs[i]))
+				if err := saveCert(certFile, keyFile, caCert, caKey, cert, key); err != nil {
+					return err
+				}
+				certBytes, _ := ioutil.ReadFile(certFile)
+				msgs = append(msgs, pkimoduletypes.NewMsgAddCert(addr.String(), string(certBytes)))
+
+				genPeerIDs[i].CertIssuer = cert.Issuer.String()
+				genPeerIDs[i].CertSerialNum = cert.SerialNumber.String()
+			}
 		}
 
 		msgs = append(msgs, utxotypes.NewMsgIssue(addr.String(), []*utxotypes.Input{}, []*utxotypes.Output{
