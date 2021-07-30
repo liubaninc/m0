@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	pkimodulekeeper "github.com/liubaninc/m0/x/pki/keeper"
 
 	"github.com/tendermint/tendermint/libs/log"
@@ -18,7 +19,8 @@ type (
 		storeKey sdk.StoreKey
 		memKey   sdk.StoreKey
 		// this line is used by starport scaffolding # ibc/keeper/attribute
-		pkiKeeper pkimodulekeeper.Keeper
+		paramspace paramtypes.Subspace
+		pkiKeeper  pkimodulekeeper.Keeper
 	}
 )
 
@@ -27,6 +29,7 @@ func NewKeeper(
 	storeKey,
 	memKey sdk.StoreKey,
 	// this line is used by starport scaffolding # ibc/keeper/parameter
+	paramspace paramtypes.Subspace,
 	pkiKeeper pkimodulekeeper.Keeper,
 ) *Keeper {
 	return &Keeper{
@@ -34,7 +37,8 @@ func NewKeeper(
 		storeKey: storeKey,
 		memKey:   memKey,
 		// this line is used by starport scaffolding # ibc/keeper/return
-		pkiKeeper: pkiKeeper,
+		paramspace: paramspace.WithKeyTable(types.ParamKeyTable()),
+		pkiKeeper:  pkiKeeper,
 	}
 }
 

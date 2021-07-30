@@ -257,6 +257,7 @@ func New(
 		appCodec,
 		keys[peermoduletypes.StoreKey],
 		keys[peermoduletypes.MemStoreKey],
+		app.GetSubspace(peermoduletypes.ModuleName),
 		app.PkiKeeper,
 	)
 	peerModule := peermodule.NewAppModule(appCodec, app.PeerKeeper)
@@ -284,6 +285,7 @@ func New(
 		appCodec,
 		keys[permissionmoduletypes.StoreKey],
 		keys[permissionmoduletypes.MemStoreKey],
+		app.GetSubspace(permissionmoduletypes.ModuleName),
 		app.AccountKeeper,
 	)
 	permissionModule := permissionmodule.NewAppModule(appCodec, app.PermissionKeeper)

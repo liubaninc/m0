@@ -33,13 +33,12 @@ func (k msgServer) EditValidator(goCtx context.Context, msg *types.MsgEditValida
 
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
-			types.EventTypeEditValidator,
+			msg.Type(),
 			sdk.NewAttribute(types.AttributeKeyValidator, validator.GetConsAddr().String()),
 		),
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, msg.Route()),
-			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.Creator),
 		),
 	})

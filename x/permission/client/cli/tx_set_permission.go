@@ -14,7 +14,7 @@ var _ = strconv.Itoa(0)
 
 func CmdSetPermission() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "set-permission [address] [perms]",
+		Use:   "set-permission [address] [perm] [[perm]]",
 		Short: "modify the permissions of account",
 		Args:  cobra.MinimumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {

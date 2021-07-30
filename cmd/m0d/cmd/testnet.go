@@ -360,48 +360,44 @@ func InitTestnet(
 			Creator: addr.String(),
 			Address: addr.String(),
 			Perms: []string{
-				"*",
+				permissiontypes.AllPermissions,
 			},
 		})
 
 		msgs := []sdk.Msg{}
 
-		if viper.GetBool(flagDevelopMode) {
-
-		} else {
-			// certificates
-			cadir := filepath.Join(outputDir, "ca")
-			tmos.EnsureDir(cadir, 0755)
-			caCertFile := filepath.Join(cadir, "ca.cert")
-			caKeyFile := filepath.Join(cadir, "ca.key")
-			// ca
-			caCert, caKey, err := generateCA(nil)
+		// certificates
+		cadir := filepath.Join(outputDir, "ca")
+		tmos.EnsureDir(cadir, 0755)
+		caCertFile := filepath.Join(cadir, "ca.cert")
+		caKeyFile := filepath.Join(cadir, "ca.key")
+		// ca
+		caCert, caKey, err := generateCA(nil)
+		if err != nil {
+			return err
+		}
+		if err := saveCert(caCertFile, caKeyFile, caCert, caKey, caCert, caKey); err != nil {
+			return err
+		}
+		caCert, _ = parseCert(caCertFile)
+		certBytes, _ := ioutil.ReadFile(caCertFile)
+		msgs = append(msgs, pkimoduletypes.NewMsgAddRootCert(addr.String(), string(certBytes)))
+		// peer certificates
+		for i := 0; i < numValidators; i++ {
+			cert, key, err := generateCertificate(nil, []string{nodeIDs[i]}, caCert)
 			if err != nil {
 				return err
 			}
-			if err := saveCert(caCertFile, caKeyFile, caCert, caKey, caCert, caKey); err != nil {
+			certFile := filepath.Join(cadir, fmt.Sprintf("%s.cert", nodeIDs[i]))
+			keyFile := filepath.Join(cadir, fmt.Sprintf("%s.key", nodeIDs[i]))
+			if err := saveCert(certFile, keyFile, caCert, caKey, cert, key); err != nil {
 				return err
 			}
-			caCert, _ = parseCert(caCertFile)
-			certBytes, _ := ioutil.ReadFile(caCertFile)
-			msgs = append(msgs, pkimoduletypes.NewMsgAddRootCert(addr.String(), string(certBytes)))
-			// peer certificates
-			for i := 0; i < numValidators; i++ {
-				cert, key, err := generateCertificate(nil, []string{nodeIDs[i]}, caCert)
-				if err != nil {
-					return err
-				}
-				certFile := filepath.Join(cadir, fmt.Sprintf("%s.cert", nodeIDs[i]))
-				keyFile := filepath.Join(cadir, fmt.Sprintf("%s.key", nodeIDs[i]))
-				if err := saveCert(certFile, keyFile, caCert, caKey, cert, key); err != nil {
-					return err
-				}
-				certBytes, _ := ioutil.ReadFile(certFile)
-				msgs = append(msgs, pkimoduletypes.NewMsgAddCert(addr.String(), string(certBytes)))
+			certBytes, _ := ioutil.ReadFile(certFile)
+			msgs = append(msgs, pkimoduletypes.NewMsgAddCert(addr.String(), string(certBytes)))
 
-				genPeerIDs[i].CertIssuer = cert.Issuer.String()
-				genPeerIDs[i].CertSerialNum = cert.SerialNumber.String()
-			}
+			genPeerIDs[i].CertIssuer = cert.Issuer.String()
+			genPeerIDs[i].CertSerialNum = cert.SerialNumber.String()
 		}
 
 		msgs = append(msgs, utxotypes.NewMsgIssue(addr.String(), []*utxotypes.Input{}, []*utxotypes.Output{
@@ -477,23 +473,21 @@ func initGenFiles(
 	authGenState.Accounts = accounts
 	appGenState[authtypes.ModuleName] = clientCtx.JSONMarshaler.MustMarshalJSON(&authGenState)
 
-	if viper.GetBool(flagDevelopMode) {
+	// set the account perms in the genesis state
+	var permGenState permissiontypes.GenesisState
+	clientCtx.JSONMarshaler.MustUnmarshalJSON(appGenState[permissiontypes.ModuleName], &permGenState)
 
-	} else {
-		// set the account perms in the genesis state
-		var permGenState permissiontypes.GenesisState
-		clientCtx.JSONMarshaler.MustUnmarshalJSON(appGenState[permissiontypes.ModuleName], &permGenState)
+	permGenState.Params.Enabled = !viper.GetBool(flagDevelopMode)
+	permGenState.AccountList = genPermissions
+	appGenState[permissiontypes.ModuleName] = clientCtx.JSONMarshaler.MustMarshalJSON(&permGenState)
 
-		permGenState.AccountList = genPermissions
-		appGenState[permissiontypes.ModuleName] = clientCtx.JSONMarshaler.MustMarshalJSON(&permGenState)
+	// set the peer in the genesis state
+	var peerGenState peertypes.GenesisState
+	clientCtx.JSONMarshaler.MustUnmarshalJSON(appGenState[peertypes.ModuleName], &peerGenState)
 
-		// set the peer in the genesis state
-		var peerGenState peertypes.GenesisState
-		clientCtx.JSONMarshaler.MustUnmarshalJSON(appGenState[peertypes.ModuleName], &peerGenState)
-
-		peerGenState.PeerIDList = genPeerIDs
-		appGenState[peertypes.ModuleName] = clientCtx.JSONMarshaler.MustMarshalJSON(&peerGenState)
-	}
+	peerGenState.Params.Enabled = !viper.GetBool(flagDevelopMode)
+	peerGenState.PeerIDList = genPeerIDs
+	appGenState[peertypes.ModuleName] = clientCtx.JSONMarshaler.MustMarshalJSON(&peerGenState)
 
 	appGenStateJSON, err := json.MarshalIndent(appGenState, "", "  ")
 	if err != nil {

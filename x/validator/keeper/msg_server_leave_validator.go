@@ -27,13 +27,12 @@ func (k msgServer) LeaveValidator(goCtx context.Context, msg *types.MsgLeaveVali
 
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
-			types.EventTypeLeaveValidator,
+			msg.Type(),
 			sdk.NewAttribute(types.AttributeKeyValidator, validator.GetConsAddr().String()),
 		),
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, msg.Route()),
-			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.Creator),
 		),
 	})

@@ -2,5 +2,5 @@ package types
 
 // bank module event types
 const (
-	AttributeKeyValidator = "validator"
+	AttributeKeyPeer = "peer-id"
 )

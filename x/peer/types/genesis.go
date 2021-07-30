@@ -21,7 +21,9 @@ func DefaultGenesis() *GenesisState {
 // failure.
 func (gs GenesisState) Validate() error {
 	// this line is used by starport scaffolding # ibc/genesistype/validate
-
+	if err := gs.Params.Validate(); err != nil {
+		return err
+	}
 	// this line is used by starport scaffolding # genesis/types/validate
 	// Check for duplicated index in peerID
 	peerIDIndexMap := make(map[string]bool)

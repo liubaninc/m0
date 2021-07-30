@@ -43,11 +43,10 @@ func (k msgServer) Deploy(goCtx context.Context, msg *types.MsgDeploy) (*types.M
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, msg.Route()),
-			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.Creator),
 		),
 		sdk.NewEvent(
-			types.EventTypeDeploy,
+			msg.Type(),
 			attrs...,
 		),
 	})

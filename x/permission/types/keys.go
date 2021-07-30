@@ -30,6 +30,6 @@ const (
 )
 
 const (
-	AllPermissions  = "*"
-	NonePermissions = "-"
+	AllPermissions  = "all"
+	NonePermissions = "none"
 )

@@ -92,11 +92,11 @@ func (msg *MsgUpdatePeerID) ValidateBasic() error {
 	}
 
 	if len(msg.CertIssuer) == 0 {
-		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid cert issuer: it cannot be empty")
+		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid cert issuer (it cannot be empty)")
 	}
 
 	if len(msg.CertSerialNum) == 0 {
-		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid cert serialNum: it cannot be empty")
+		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid cert serialNum (it cannot be empty)")
 	}
 	return nil
 }

@@ -41,5 +41,19 @@ func (msg *MsgSetPermission) ValidateBasic() error {
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
 	}
+
+	if len(msg.Perms) == 0 {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid perms (it cannot be empty)", err)
+	}
+
+	for _, perm := range msg.Perms {
+		if perm == AllPermissions || perm == NonePermissions {
+			if len(msg.Perms) != 1 {
+				return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid perms %s (perm %s not allow other perms)", msg.Perms, perm)
+			}
+			continue
+		}
+	}
+
 	return nil
 }

@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -11,7 +12,14 @@ import (
 func (k msgServer) SetPermission(goCtx context.Context, msg *types.MsgSetPermission) (*types.MsgSetPermissionResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	acct, _ := k.GetAccount(ctx, msg.Address)
+	acct, found := k.GetAccount(ctx, msg.Address)
+
+	if found {
+		if msg.Creator != acct.Creator {
+			return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
+		}
+	}
+
 	oldPerms := acct.Perms
 	newPerms := msg.Perms
 
@@ -30,22 +38,22 @@ func (k msgServer) SetPermission(goCtx context.Context, msg *types.MsgSetPermiss
 		k.accountKeeper.SetAccount(ctx, k.accountKeeper.NewAccountWithAddress(ctx, addr))
 	}
 
-	action := msg.Type()
+	action := "modify"
 	if len(oldPerms) == 0 {
-		action += "/New"
+		action = "add"
 	} else if len(newPerms) == 1 && newPerms[0] == types.NonePermissions {
-		action += "/Remove"
+		action = "remove"
 	}
 
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
-			types.EventTypeSetPermission,
+			msg.Type(),
 			sdk.NewAttribute(types.AttributeKeyAddress, msg.Address),
+			sdk.NewAttribute(types.AttributeKeyAction, action),
 		),
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, msg.Route()),
-			sdk.NewAttribute(sdk.AttributeKeyAction, action),
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.Creator),
 		),
 	})

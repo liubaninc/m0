@@ -12,10 +12,14 @@ import (
 func (k msgServer) CreatePeerID(goCtx context.Context, msg *types.MsgCreatePeerID) (*types.MsgCreatePeerIDResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	if _, found := k.pkiKeeper.GetCertificate(ctx, msg.CertIssuer, msg.CertSerialNum); !found {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, fmt.Sprintf("certificate %s/%s not found in pki module", msg.CertIssuer, msg.CertSerialNum))
+	}
+
 	// Check if the value already exists
 	_, isFound := k.GetPeerID(ctx, msg.Index)
 	if isFound {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, fmt.Sprintf("index %v already set", msg.Index))
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, fmt.Sprintf("nodeID %v already set", msg.Index))
 	}
 
 	var peerID = types.PeerID{
@@ -29,6 +33,19 @@ func (k msgServer) CreatePeerID(goCtx context.Context, msg *types.MsgCreatePeerI
 		ctx,
 		peerID,
 	)
+
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			msg.Type(),
+			sdk.NewAttribute(types.AttributeKeyPeer, msg.Index),
+		),
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, msg.Route()),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.Creator),
+		),
+	})
+
 	return &types.MsgCreatePeerIDResponse{}, nil
 }
 
@@ -38,12 +55,16 @@ func (k msgServer) UpdatePeerID(goCtx context.Context, msg *types.MsgUpdatePeerI
 	// Check if the value exists
 	valFound, isFound := k.GetPeerID(ctx, msg.Index)
 	if !isFound {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("index %v not set", msg.Index))
+		return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("nodeID %v not set", msg.Index))
 	}
 
 	// Checks if the the msg sender is the same as the current owner
 	if msg.Creator != valFound.Creator {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
+	}
+
+	if _, found := k.pkiKeeper.GetCertificate(ctx, msg.CertIssuer, msg.CertSerialNum); !found {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, fmt.Sprintf("certificate %s/%s not found in pki module", msg.CertIssuer, msg.CertSerialNum))
 	}
 
 	var peerID = types.PeerID{
@@ -55,6 +76,18 @@ func (k msgServer) UpdatePeerID(goCtx context.Context, msg *types.MsgUpdatePeerI
 
 	k.SetPeerID(ctx, peerID)
 
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			msg.Type(),
+			sdk.NewAttribute(types.AttributeKeyPeer, msg.Index),
+		),
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, msg.Route()),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.Creator),
+		),
+	})
+
 	return &types.MsgUpdatePeerIDResponse{}, nil
 }
 
@@ -64,7 +97,7 @@ func (k msgServer) DeletePeerID(goCtx context.Context, msg *types.MsgDeletePeerI
 	// Check if the value exists
 	valFound, isFound := k.GetPeerID(ctx, msg.Index)
 	if !isFound {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("index %v not set", msg.Index))
+		return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("nodeID %v not set", msg.Index))
 	}
 
 	// Checks if the the msg sender is the same as the current owner
@@ -73,6 +106,18 @@ func (k msgServer) DeletePeerID(goCtx context.Context, msg *types.MsgDeletePeerI
 	}
 
 	k.RemovePeerID(ctx, msg.Index)
+
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			msg.Type(),
+			sdk.NewAttribute(types.AttributeKeyPeer, msg.Index),
+		),
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, msg.Route()),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.Creator),
+		),
+	})
 
 	return &types.MsgDeletePeerIDResponse{}, nil
 }

@@ -32,11 +32,10 @@ func (k msgServer) Freeze(goCtx context.Context, msg *types.MsgFreeze) (*types.M
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, msg.Route()),
-			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.Creator),
 		),
 		sdk.NewEvent(
-			types.EventTypeFreeze,
+			msg.Type(),
 			sdk.NewAttribute(types.AttributeKeyName, msg.ContractName),
 		),
 	})

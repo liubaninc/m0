@@ -49,7 +49,7 @@ func (k Keeper) GetAllAccount(ctx sdk.Context) (list []types.Account) {
 }
 
 func (k Keeper) HasPerm(ctx sdk.Context, addr string, perm string) bool {
-	if len(k.GetAllAccount(ctx)) == 0 {
+	if !k.GetParams(ctx).Enabled {
 		return true
 	}
 

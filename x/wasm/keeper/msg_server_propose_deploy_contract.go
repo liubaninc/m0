@@ -38,14 +38,14 @@ func (k msgServer) ProposeDeployContract(goCtx context.Context, msg *types.MsgPr
 		if proposer == msg.Creator {
 			proposeDeploy.Approved = append(proposeDeploy.Approved, msg.Creator)
 		}
-		attrs[i] = sdk.NewAttribute(types.AttributeProposerName, proposer)
+		attrs[i] = sdk.NewAttribute(types.AttributeProposer, proposer)
 	}
+	attrs = append(attrs, sdk.NewAttribute(types.AttributeProposeID, proposeDeploy.Index))
 
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, msg.Route()),
-			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.Creator),
 		),
 		sdk.NewEvent(

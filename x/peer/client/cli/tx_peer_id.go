@@ -13,7 +13,7 @@ import (
 
 func CmdCreatePeerID() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create-peer-id [index] [certIssuer] [certSerialNum]",
+		Use:   "create-peer-id [nodeID] [certIssuer] [certSerialNum]",
 		Short: "Create a new peerID",
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -47,7 +47,7 @@ func CmdCreatePeerID() *cobra.Command {
 
 func CmdUpdatePeerID() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "update-peer-id [index] [certIssuer] [certSerialNum]",
+		Use:   "update-peer-id [nodeID] [certIssuer] [certSerialNum]",
 		Short: "Update a peerID",
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -82,7 +82,7 @@ func CmdUpdatePeerID() *cobra.Command {
 
 func CmdDeletePeerID() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "delete-peer-id [index]",
+		Use:   "delete-peer-id [nodeID]",
 		Short: "Delete a peerID",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {

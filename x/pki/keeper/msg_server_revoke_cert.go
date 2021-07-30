@@ -52,7 +52,6 @@ func (k msgServer) RevokeCert(goCtx context.Context, msg *types.MsgRevokeCert) (
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, msg.Route()),
-			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.Creator),
 		),
 		sdk.NewEvent(msg.Type(),

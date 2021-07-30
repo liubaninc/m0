@@ -11,29 +11,33 @@ import (
 )
 
 func (k Keeper) IDPeerFilter(ctx sdk.Context, index string) abci.ResponseQuery {
-	if len(k.GetAllPeerID(ctx)) == 0 {
+	if !k.GetParams(ctx).Enabled {
 		return abci.ResponseQuery{
 			Code: abci.CodeTypeOK,
 		}
 	}
 
-	code := abci.CodeTypeOK
-	var err error
 	peerID, found := k.GetPeerID(ctx, index)
 	if !found {
-		err = fmt.Errorf("peer id %s not found", index)
-		code = 1
+		return abci.ResponseQuery{
+			Code: 1,
+			Log:  fmt.Sprintf("node id %s not found in peer module", index),
+		}
 	}
 
 	cert, found := k.pkiKeeper.GetCertificate(ctx, peerID.CertIssuer, peerID.CertSerialNum)
 	if !found {
-		err = fmt.Errorf("cert %s not found", peerID.CertIssuer+"/"+peerID.CertSerialNum)
-		code = 1
+		return abci.ResponseQuery{
+			Code: 1,
+			Log:  fmt.Sprintf("certificate %s/%s not found in pki module", peerID.CertIssuer, peerID.CertSerialNum),
+		}
 	}
 
 	if certs, _ := k.pkiKeeper.GetCertificates(ctx, cert.Subject, cert.SubjectKeyID); certs.Disable {
-		err = fmt.Errorf("cert %s freezed", peerID.CertIssuer+"/"+peerID.CertSerialNum)
-		code = 1
+		return abci.ResponseQuery{
+			Code: 1,
+			Log:  fmt.Sprintf("certificate %s/%s is frozen in pki module", peerID.CertIssuer, peerID.CertSerialNum),
+		}
 	}
 
 	x509Cert, err := x509.DecodeX509Certificate(cert.PemCert)
@@ -41,24 +45,22 @@ func (k Keeper) IDPeerFilter(ctx sdk.Context, index string) abci.ResponseQuery {
 		panic(err)
 	}
 
-	if x509Cert.Certificate.Subject.CommonName != "peer" {
-		err = fmt.Errorf("mismatch type")
-		code = 1
-	}
-
-	if len(x509Cert.Certificate.Subject.OrganizationalUnit) == 0 || x509Cert.Certificate.Subject.OrganizationalUnit[0] != peerID.Index {
-		err = fmt.Errorf("mismatch name")
-		code = 1
+	if x509Cert.Certificate.Subject.CommonName != index {
+		return abci.ResponseQuery{
+			Code: 1,
+			Log:  fmt.Sprintf("invalid certificate, mismatch CommonName"),
+		}
 	}
 
 	if ctx.BlockHeader().Time.After(x509Cert.Certificate.NotAfter) {
-		err = fmt.Errorf("tiemout")
-		code = 1
+		return abci.ResponseQuery{
+			Code: 1,
+			Log:  fmt.Sprintf("certificate %s/%s has expired in pki module", peerID.CertIssuer, peerID.CertSerialNum),
+		}
 	}
 
 	return abci.ResponseQuery{
-		Code: code,
-		Log:  err.Error(),
+		Code: abci.CodeTypeOK,
 	}
 }
 
