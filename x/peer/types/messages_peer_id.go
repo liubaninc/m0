@@ -42,6 +42,14 @@ func (msg *MsgCreatePeerID) ValidateBasic() error {
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
 	}
+
+	if len(msg.CertIssuer) == 0 {
+		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid cert issuer: it cannot be empty")
+	}
+
+	if len(msg.CertSerialNum) == 0 {
+		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid cert serialNum: it cannot be empty")
+	}
 	return nil
 }
 
@@ -81,6 +89,14 @@ func (msg *MsgUpdatePeerID) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Creator)
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
+	}
+
+	if len(msg.CertIssuer) == 0 {
+		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid cert issuer: it cannot be empty")
+	}
+
+	if len(msg.CertSerialNum) == 0 {
+		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid cert serialNum: it cannot be empty")
 	}
 	return nil
 }

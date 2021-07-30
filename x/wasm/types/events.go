@@ -13,5 +13,8 @@ const (
 	AttributeKeyMethod = "method"
 	AttributeKeyArg    = "arg"
 
+	AttributeProposerName = "proposer"
+	AttributeIndexName    = "index"
+
 	AttributeValueCategory = ModuleName
 )

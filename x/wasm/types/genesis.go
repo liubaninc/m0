@@ -1,6 +1,9 @@
 package types
 
-// this line is used by starport scaffolding # genesis/types/import
+import (
+	"fmt"
+)
+
 // this line is used by starport scaffolding # ibc/genesistype/import
 
 // DefaultIndex is the default capability global index
@@ -11,6 +14,8 @@ func DefaultGenesis() *GenesisState {
 	return &GenesisState{
 		// this line is used by starport scaffolding # ibc/genesistype/default
 		// this line is used by starport scaffolding # genesis/types/default
+		ApproveDeployList: []*ApproveDeploy{},
+		ProposeDeployList: []*ProposeDeploy{},
 	}
 }
 
@@ -20,6 +25,24 @@ func (gs GenesisState) Validate() error {
 	// this line is used by starport scaffolding # ibc/genesistype/validate
 
 	// this line is used by starport scaffolding # genesis/types/validate
+	// Check for duplicated index in approveDeploy
+	approveDeployIndexMap := make(map[string]bool)
+
+	for _, elem := range gs.ApproveDeployList {
+		if _, ok := approveDeployIndexMap[elem.Index]; ok {
+			return fmt.Errorf("duplicated index for approveDeploy")
+		}
+		approveDeployIndexMap[elem.Index] = true
+	}
+	// Check for duplicated index in proposeDeploy
+	proposeDeployIndexMap := make(map[string]bool)
+
+	for _, elem := range gs.ProposeDeployList {
+		if _, ok := proposeDeployIndexMap[elem.Index]; ok {
+			return fmt.Errorf("duplicated index for proposeDeploy")
+		}
+		proposeDeployIndexMap[elem.Index] = true
+	}
 
 	return nil
 }

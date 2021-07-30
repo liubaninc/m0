@@ -30,3 +30,11 @@ const (
 
 	StatesKey = "state-value-"
 )
+
+const (
+	ProposeDeployKey = "ProposeDeploy-value-"
+)
+
+const (
+	ApproveDeployKey = "ApproveDeploy-value-"
+)

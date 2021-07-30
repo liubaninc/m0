@@ -2,11 +2,15 @@ syntax = "proto3";
 package liubaninc.m0.wasm;
 
 // this line is used by starport scaffolding # genesis/proto/import
+import "wasm/approve_deploy.proto";
+import "wasm/propose_deploy.proto";
 
 option go_package = "github.com/liubaninc/m0/x/wasm/types";
 
 // GenesisState defines the wasm module's genesis state.
 message GenesisState {
     // this line is used by starport scaffolding # genesis/proto/state
+		repeated ApproveDeploy approveDeployList = 2; // this line is used by starport scaffolding # genesis/proto/stateField
+		repeated ProposeDeploy proposeDeployList = 1; // this line is used by starport scaffolding # genesis/proto/stateField
     // this line is used by starport scaffolding # ibc/genesis/proto
 }

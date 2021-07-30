@@ -4,6 +4,8 @@ package liubaninc.m0.wasm;
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 // this line is used by starport scaffolding # 1
+import "wasm/approve_deploy.proto";
+import "wasm/propose_deploy.proto";
 import "wasm/ext.proto";
 import "wasm/contract.proto";
 import "utxo/input.proto";
@@ -15,6 +17,28 @@ option go_package = "github.com/liubaninc/m0/x/wasm/types";
 // Query defines the gRPC querier service.
 service Query {
   // this line is used by starport scaffolding # 2
+
+	// Queries a approveDeploy by index.
+	rpc ApproveDeploy(QueryGetApproveDeployRequest) returns (QueryGetApproveDeployResponse) {
+		option (google.api.http).get = "/liubaninc/m0/wasm/approveDeploy/{index}";
+	}
+
+	// Queries a list of approveDeploy items.
+	rpc ApproveDeployAll(QueryAllApproveDeployRequest) returns (QueryAllApproveDeployResponse) {
+		option (google.api.http).get = "/liubaninc/m0/wasm/approveDeploy";
+	}
+
+
+	// Queries a proposeDeploy by index.
+	rpc ProposeDeploy(QueryGetProposeDeployRequest) returns (QueryGetProposeDeployResponse) {
+		option (google.api.http).get = "/liubaninc/m0/wasm/proposeDeploy/{index}";
+	}
+
+	// Queries a list of proposeDeploy items.
+	rpc ProposeDeployAll(QueryAllProposeDeployRequest) returns (QueryAllProposeDeployResponse) {
+		option (google.api.http).get = "/liubaninc/m0/wasm/proposeDeploy";
+	}
+
   //预执行合约
   rpc PreExec(InvokeRPCRequest) returns (InvokeRPCResponse) {
     option (google.api.http) = {
@@ -37,6 +61,38 @@ service Query {
 }
 
 // this line is used by starport scaffolding # 3
+message QueryGetApproveDeployRequest {
+	string index = 1;
+}
+
+message QueryGetApproveDeployResponse {
+	ApproveDeploy ApproveDeploy = 1;
+}
+
+message QueryAllApproveDeployRequest {
+	cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryAllApproveDeployResponse {
+	repeated ApproveDeploy ApproveDeploy = 1;
+	cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+message QueryGetProposeDeployRequest {
+	string index = 1;
+}
+
+message QueryGetProposeDeployResponse {
+	ProposeDeploy ProposeDeploy = 1;
+}
+
+message QueryAllProposeDeployRequest {
+	cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryAllProposeDeployResponse {
+	repeated ProposeDeploy ProposeDeploy = 1;
+	cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
 message InvokeRPCRequest {
   string creator = 1;
   int64  lock = 2;
