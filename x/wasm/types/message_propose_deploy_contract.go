@@ -3,6 +3,7 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/liubaninc/m0/x/wasm/xmodel/contract/kernel"
 )
 
 var _ sdk.Msg = &MsgProposeDeployContract{}
@@ -48,6 +49,11 @@ func (msg *MsgProposeDeployContract) ValidateBasic() error {
 		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid contract name: it cannot be empty")
 	}
 
+	if err := kernel.ValidContractName(msg.ContractName); err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "contract name %v, error %v", msg.ContractName, err)
+	}
+
+
 	if len(msg.ContractCode) == 0 {
 		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid contract code: it cannot be empty")
 	}
@@ -60,8 +66,8 @@ func (msg *MsgProposeDeployContract) ValidateBasic() error {
 		approval[proposer] = true
 	}
 
-	if len(approval) <= 1 {
-		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid contract approval: it cannot be empty")
+	if len(approval) < 2 {
+		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid contract approval: (num must greater 1)")
 	}
 
 	return nil

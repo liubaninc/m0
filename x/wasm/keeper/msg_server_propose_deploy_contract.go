@@ -31,8 +31,6 @@ func (k msgServer) ProposeDeployContract(goCtx context.Context, msg *types.MsgPr
 		Approval:     msg.Approval,
 	}
 
-	k.SetProposeDeploy(ctx, proposeDeploy)
-
 	attrs := make([]sdk.Attribute, len(msg.Approval))
 	for i, proposer := range msg.Approval {
 		if proposer == msg.Creator {
@@ -41,6 +39,8 @@ func (k msgServer) ProposeDeployContract(goCtx context.Context, msg *types.MsgPr
 		attrs[i] = sdk.NewAttribute(types.AttributeProposer, proposer)
 	}
 	attrs = append(attrs, sdk.NewAttribute(types.AttributeProposeID, proposeDeploy.Index))
+
+	k.SetProposeDeploy(ctx, proposeDeploy)
 
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
