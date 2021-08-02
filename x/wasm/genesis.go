@@ -10,6 +10,7 @@ import (
 // InitGenesis initializes the capability module's state from a provided genesis
 // state.
 func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) {
+	k.SetParams(ctx, genState.Params)
 	// this line is used by starport scaffolding # genesis/module/init
 	// Set all the approveDeploy
 	for _, elem := range genState.ApproveDeployList {
@@ -28,6 +29,7 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) 
 func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	genesis := types.DefaultGenesis()
 
+	genesis.Params = k.GetParams(ctx)
 	// this line is used by starport scaffolding # genesis/module/export
 	// Get all approveDeploy
 	approveDeployList := k.GetAllApproveDeploy(ctx)

@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-
 	"github.com/tendermint/tendermint/crypto/tmhash"
 
 	"github.com/liubaninc/m0/x/wasm/types"
@@ -17,10 +16,12 @@ import (
 func (k msgServer) Deploy(goCtx context.Context, msg *types.MsgDeploy) (*types.MsgDeployResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	hash := tmhash.Sum(append(msg.ContractCode, append([]byte(msg.ContractName), []byte(msg.ContractName)...)...))
-	index := fmt.Sprintf("%X", hash)
-	if _, found := k.GetProposeDeploy(ctx, index); found {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "contract is proposing")
+	if k.GetParams(ctx).Enabled {
+		hash := tmhash.Sum(append(msg.ContractCode, append([]byte(msg.ContractName), []byte(msg.ContractName)...)...))
+		index := fmt.Sprintf("%X", hash)
+		if _, found := k.GetApproveDeploy(ctx, index); !found {
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "contract was not approved")
+		}
 	}
 
 	msgOffset := int32(ctx.Context().Value(baseapp.KeyMsgOffset).(int))

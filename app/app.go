@@ -302,6 +302,7 @@ func New(
 		appCodec,
 		keys[wasmtypes.StoreKey],
 		keys[wasmtypes.MemStoreKey],
+		app.GetSubspace(wasmtypes.ModuleName),
 		app.UtxoKeeper,
 	)
 	wasmModule := wasm.NewAppModule(appCodec, app.WasmKeeper)

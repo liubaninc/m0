@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 	utxokeeper "github.com/liubaninc/m0/x/utxo/keeper"
 	"github.com/liubaninc/m0/x/wasm/xmodel/contract"
@@ -27,7 +28,7 @@ type (
 		storeKey sdk.StoreKey
 		memKey   sdk.StoreKey
 		// this line is used by starport scaffolding # ibc/keeper/attribute
-
+		paramspace paramtypes.Subspace
 		utxoKeeper utxokeeper.Keeper
 		vmMgr      *contract.VMManager
 		Ctx        sdk.Context
@@ -38,13 +39,15 @@ func NewKeeper(
 	cdc codec.Marshaler,
 	storeKey,
 	memKey sdk.StoreKey,
+	paramspace paramtypes.Subspace,
 	// this line is used by starport scaffolding # ibc/keeper/parameter
 	utxoKeeper utxokeeper.Keeper,
 ) *Keeper {
 	keeper := &Keeper{
-		cdc:      cdc,
-		storeKey: storeKey,
-		memKey:   memKey,
+		cdc:        cdc,
+		storeKey:   storeKey,
+		memKey:     memKey,
+		paramspace: paramspace.WithKeyTable(types.ParamKeyTable()),
 		// this line is used by starport scaffolding # ibc/keeper/return
 		utxoKeeper: utxoKeeper,
 		vmMgr:      contract.NewVMManager(),

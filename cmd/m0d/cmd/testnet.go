@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	pkimoduletypes "github.com/liubaninc/m0/x/pki/types"
+	wasmtypes "github.com/liubaninc/m0/x/wasm/types"
 	"io/ioutil"
 	"net"
 	"os"
@@ -488,6 +489,13 @@ func initGenFiles(
 	peerGenState.Params.Enabled = !viper.GetBool(flagDevelopMode)
 	peerGenState.PeerIDList = genPeerIDs
 	appGenState[peertypes.ModuleName] = clientCtx.JSONMarshaler.MustMarshalJSON(&peerGenState)
+
+	// set the wasm in the genesis state
+	var wasmGenState wasmtypes.GenesisState
+	clientCtx.JSONMarshaler.MustUnmarshalJSON(appGenState[wasmtypes.ModuleName], &wasmGenState)
+
+	wasmGenState.Params.Enabled = !viper.GetBool(flagDevelopMode)
+	appGenState[wasmtypes.ModuleName] = clientCtx.JSONMarshaler.MustMarshalJSON(&wasmGenState)
 
 	appGenStateJSON, err := json.MarshalIndent(appGenState, "", "  ")
 	if err != nil {

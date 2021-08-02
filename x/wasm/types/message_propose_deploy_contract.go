@@ -53,7 +53,6 @@ func (msg *MsgProposeDeployContract) ValidateBasic() error {
 		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "contract name %v, error %v", msg.ContractName, err)
 	}
 
-
 	if len(msg.ContractCode) == 0 {
 		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid contract code: it cannot be empty")
 	}
