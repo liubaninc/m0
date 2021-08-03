@@ -306,6 +306,51 @@ func (c Client) InvokeMsg(from string, name string, method string, args string, 
 	return msg, nil
 }
 
+func (c Client) FreezeMsg(from string, name string) (sdk.Msg, error) {
+	if _, err := sdk.AccAddressFromBech32(from); err != nil {
+		return nil, fmt.Errorf("invalid from %s (%s)", from, err)
+	}
+	if err := kernel.ValidContractName(name); err != nil {
+		return nil, fmt.Errorf("invalid name %v (%v)", name, err)
+	}
+
+	msg := wasmtypes.NewMsgFreeze(from, name)
+	if err := msg.ValidateBasic(); err != nil {
+		return nil, err
+	}
+	return msg, nil
+}
+
+func (c Client) UnfreezeMsg(from string, name string) (sdk.Msg, error) {
+	if _, err := sdk.AccAddressFromBech32(from); err != nil {
+		return nil, fmt.Errorf("invalid from %s (%s)", from, err)
+	}
+	if err := kernel.ValidContractName(name); err != nil {
+		return nil, fmt.Errorf("invalid name %v (%v)", name, err)
+	}
+
+	msg := wasmtypes.NewMsgUnfreeze(from, name)
+	if err := msg.ValidateBasic(); err != nil {
+		return nil, err
+	}
+	return msg, nil
+}
+
+func (c Client) UndeployMsg(from string, name string) (sdk.Msg, error) {
+	if _, err := sdk.AccAddressFromBech32(from); err != nil {
+		return nil, fmt.Errorf("invalid from %s (%s)", from, err)
+	}
+	if err := kernel.ValidContractName(name); err != nil {
+		return nil, fmt.Errorf("invalid name %v (%v)", name, err)
+	}
+
+	msg := wasmtypes.NewMsgUndeploy(from, name)
+	if err := msg.ValidateBasic(); err != nil {
+		return nil, err
+	}
+	return msg, nil
+}
+
 func convertToArgs(args string) (map[string][]byte, error) {
 	args1 := make(map[string]string)
 	if err := json.Unmarshal([]byte(args), &args1); err != nil {
@@ -334,6 +379,27 @@ func (c Client) BroadcastUpgradeTx(from string, name string, codeFile string, de
 }
 func (c Client) BroadcastInvokeTx(from string, name string, method string, args string, amounts string, desc string, fees string, memo string) (*sdk.TxResponse, error) {
 	msg, err := c.InvokeMsg(from, name, method, args, desc, fees, amounts)
+	if err != nil {
+		return nil, err
+	}
+	return c.GenerateAndBroadcastTx(from, fees, memo, 0, msg)
+}
+func (c Client) BroadcastFreezeTx(from string, name string, fees string, memo string) (*sdk.TxResponse, error) {
+	msg, err := c.FreezeMsg(from, name)
+	if err != nil {
+		return nil, err
+	}
+	return c.GenerateAndBroadcastTx(from, fees, memo, 0, msg)
+}
+func (c Client) BroadcastUnfreezeTx(from string, name string, fees string, memo string) (*sdk.TxResponse, error) {
+	msg, err := c.UnfreezeMsg(from, name)
+	if err != nil {
+		return nil, err
+	}
+	return c.GenerateAndBroadcastTx(from, fees, memo, 0, msg)
+}
+func (c Client) BroadcastUndeployTx(from string, name string, fees string, memo string) (*sdk.TxResponse, error) {
+	msg, err := c.UndeployMsg(from, name)
 	if err != nil {
 		return nil, err
 	}

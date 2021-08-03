@@ -20,6 +20,30 @@ func TestUpgrade(t *testing.T) {
 	t.Log("upgrade", "result", string(testClient.JSONMarshaler.MustMarshalJSON(res)))
 }
 
+func TestFreeze(t *testing.T) {
+	res, err := testClient.BroadcastFreezeTx(address, "ccc", "", "")
+	if err != nil {
+		t.Fatal("freeze", "tx", err)
+	}
+	t.Log("freeze", "result", string(testClient.JSONMarshaler.MustMarshalJSON(res)))
+}
+
+func TestUnfreeze(t *testing.T) {
+	res, err := testClient.BroadcastUnfreezeTx(address, "ccc", "", "")
+	if err != nil {
+		t.Fatal("unfreeze", "tx", err)
+	}
+	t.Log("unfreeze", "result", string(testClient.JSONMarshaler.MustMarshalJSON(res)))
+}
+
+func TestUndeploy(t *testing.T) {
+	res, err := testClient.BroadcastUndeployTx(address, "ccc", "", "")
+	if err != nil {
+		t.Fatal("undeploy", "tx", err)
+	}
+	t.Log("undeploy", "result", string(testClient.JSONMarshaler.MustMarshalJSON(res)))
+}
+
 func TestInvoke(t *testing.T) {
 	res, err := testClient.BroadcastInvokeTx(address, "ccc", "increase", "{\"key\":\"someone\"}", "", "test", "", "")
 	if err != nil {
