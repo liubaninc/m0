@@ -26,6 +26,9 @@ func (k msgServer) Undeploy(goCtx context.Context, msg *types.MsgUndeploy) (*typ
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "contract %s invalid owner", msg.ContractName)
 	}
 
+	msgOffset := int32(ctx.Context().Value(baseapp.KeyMsgOffset).(int))
+	txHash := fmt.Sprintf("%X", tmhash.Sum(ctx.TxBytes()))
+
 	tinputs := k.utxoKeeper.GetAllInputByAddress(ctx, authtypes.NewModuleAddress(msg.ContractName))
 	if n := len(tinputs); n > 0 {
 		totalCoins := sdk.NewCoins()
@@ -42,12 +45,10 @@ func (k msgServer) Undeploy(goCtx context.Context, msg *types.MsgUndeploy) (*typ
 				Amount: coin,
 			}
 		}
-		msgOffset := int32(ctx.Context().Value(baseapp.KeyMsgOffset).(int))
-		txHash := fmt.Sprintf("%X", tmhash.Sum(ctx.TxBytes()))
 		k.utxoKeeper.Transfer(ctx, txHash, msgOffset, msg.Creator, inputs, outputs)
 	}
 
-	k.RemoveContract(ctx, msg.ContractName)
+	k.RemoveContract(ctx, c, txHash, msgOffset)
 	k.RemoveContractState(ctx, msg.ContractName)
 
 	ctx.EventManager().EmitEvents(sdk.Events{

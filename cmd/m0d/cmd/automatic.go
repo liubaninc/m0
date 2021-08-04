@@ -16,6 +16,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	permissiontypes "github.com/liubaninc/m0/x/permission/types"
 	utxotypes "github.com/liubaninc/m0/x/utxo/types"
 	wasmtypes "github.com/liubaninc/m0/x/wasm/types"
 	"github.com/liubaninc/m0/x/wasm/xmodel"
@@ -118,6 +119,7 @@ func automaticCommand() *cobra.Command {
 				WithFromAddress(info.GetAddress()).
 				WithFromName(rid)
 
+			permQueryClient := permissiontypes.NewQueryClient(clientCtx)
 			utxoQueryClient := utxotypes.NewQueryClient(clientCtx)
 			wasmQueryClient := wasmtypes.NewQueryClient(clientCtx)
 			for i := 0; i < 10; i++ {
@@ -147,7 +149,7 @@ func automaticCommand() *cobra.Command {
 			}
 
 			// 1、注册测试账户地址
-			registerMsg, err := send(utxoQueryClient, clientCtx.GetFromAddress().String(), info.GetAddress().String(), "1"+denom, "auto register")
+			registerMsg, err := setperms(permQueryClient, clientCtx.GetFromAddress().String(), info.GetAddress().String())
 			if err != nil {
 				return fmt.Errorf("register msg error %s", err)
 			}
@@ -257,6 +259,11 @@ func issue(from, to string, amounts string, desc string) (sdk.Msg, error) {
 		})
 	}
 	return utxotypes.NewMsgIssue(from, inputs, outputs, desc), nil
+}
+
+func setperms(queryClient permissiontypes.QueryClient, from string, to string) (sdk.Msg, error) {
+	msg := permissiontypes.NewMsgSetPermission(from, to, []string{utxotypes.ModuleName, wasmtypes.ModuleName})
+	return msg, nil
 }
 
 func send(queryClient utxotypes.QueryClient, from string, to string, amounts string, desc string) (sdk.Msg, error) {

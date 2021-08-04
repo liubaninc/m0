@@ -252,15 +252,16 @@ func New(
 	)
 
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
-
-	app.PeerKeeper = *peermodulekeeper.NewKeeper(
+	app.UtxoKeeper = *utxokeeper.NewKeeper(
 		appCodec,
-		keys[peermoduletypes.StoreKey],
-		keys[peermoduletypes.MemStoreKey],
-		app.GetSubspace(peermoduletypes.ModuleName),
-		app.PkiKeeper,
+		keys[utxotypes.StoreKey],
+		keys[utxotypes.MemStoreKey],
+		app.GetSubspace(utxotypes.ModuleName),
+		app.AccountKeeper,
+		app.BankKeeper,
 	)
-	peerModule := peermodule.NewAppModule(appCodec, app.PeerKeeper)
+	utxoModule := utxo.NewAppModule(appCodec, app.UtxoKeeper)
+
 	scopedMibcKeeper := app.CapabilityKeeper.ScopeToModule(mibcmoduletypes.ModuleName)
 	app.ScopedMibcKeeper = scopedMibcKeeper
 	app.MibcKeeper = *mibcmodulekeeper.NewKeeper(
@@ -280,6 +281,15 @@ func New(
 		keys[pkimoduletypes.MemStoreKey],
 	)
 	pkiModule := pkimodule.NewAppModule(appCodec, app.PkiKeeper)
+
+	app.PeerKeeper = *peermodulekeeper.NewKeeper(
+		appCodec,
+		keys[peermoduletypes.StoreKey],
+		keys[peermoduletypes.MemStoreKey],
+		app.GetSubspace(peermoduletypes.ModuleName),
+		app.PkiKeeper,
+	)
+	peerModule := peermodule.NewAppModule(appCodec, app.PeerKeeper)
 
 	app.PermissionKeeper = *permissionmodulekeeper.NewKeeper(
 		appCodec,
@@ -306,16 +316,6 @@ func New(
 		app.UtxoKeeper,
 	)
 	wasmModule := wasm.NewAppModule(appCodec, app.WasmKeeper)
-
-	app.UtxoKeeper = *utxokeeper.NewKeeper(
-		appCodec,
-		keys[utxotypes.StoreKey],
-		keys[utxotypes.MemStoreKey],
-		app.GetSubspace(utxotypes.ModuleName),
-		app.AccountKeeper,
-		app.BankKeeper,
-	)
-	utxoModule := utxo.NewAppModule(appCodec, app.UtxoKeeper)
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()

@@ -1,8 +1,9 @@
 package keeper
 
 import (
-	"github.com/cosmos/cosmos-sdk/store/prefix"
 	"strconv"
+
+	"github.com/cosmos/cosmos-sdk/store/prefix"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/liubaninc/m0/x/wasm/types"
@@ -18,7 +19,7 @@ func (k Keeper) GetContract(ctx sdk.Context, contract string) (*types.Contract, 
 	if err != nil {
 		return nil, err
 	}
-	if verData == nil {
+	if verData == nil || types.IsDelFlag(verData.PureData.Value) {
 		return nil, nil
 	}
 
@@ -109,24 +110,43 @@ func (k Keeper) RemoveContractState(ctx sdk.Context, name string) {
 	store.Delete(types.KeyPrefix(name))
 }
 
-func (k Keeper) RemoveContract(ctx sdk.Context, name string) {
+func (k Keeper) RemoveContract(ctx sdk.Context, contract *types.Contract, hash string, msgOffset int32) {
 	k.SetVersionedData(ctx, &xmodel.VersionedData{
+		RefTxid:      []byte(hash),
+		RefMsgOffset: msgOffset,
+		RefOffset:    0,
 		PureData: &xmodel.PureData{
-			Key:    []byte(kernel.Contract2AccountBucket),
+			Key:    []byte(contract.Name),
 			Value:  []byte(types.DelFlag),
-			Bucket: name,
+			Bucket: kernel.Contract2AccountBucket,
 		},
 	})
 	k.SetVersionedData(ctx, &xmodel.VersionedData{
+		RefTxid:      []byte(hash),
+		RefMsgOffset: msgOffset,
+		RefOffset:    0,
 		PureData: &xmodel.PureData{
-			Key:    []byte(bridge.ContractCodeDescKey(name)),
+			Key:    []byte(contract.Initiator + kernel.Account2ContractSeparator + contract.Name),
+			Value:  []byte(types.DelFlag),
+			Bucket: kernel.Account2ContractBucket,
+		},
+	})
+	k.SetVersionedData(ctx, &xmodel.VersionedData{
+		RefTxid:      []byte(hash),
+		RefMsgOffset: msgOffset,
+		RefOffset:    0,
+		PureData: &xmodel.PureData{
+			Key:    []byte(bridge.ContractCodeDescKey(contract.Name)),
 			Value:  []byte(types.DelFlag),
 			Bucket: "contract",
 		},
 	})
 	k.SetVersionedData(ctx, &xmodel.VersionedData{
+		RefTxid:      []byte(hash),
+		RefMsgOffset: msgOffset,
+		RefOffset:    0,
 		PureData: &xmodel.PureData{
-			Key:    []byte(bridge.ContractNumberKey(name)),
+			Key:    []byte(bridge.ContractNumberKey(contract.Name)),
 			Value:  []byte(types.DelFlag),
 			Bucket: "contract",
 		},

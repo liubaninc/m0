@@ -260,9 +260,9 @@ func GenCertCommand() *cobra.Command {
 				return fmt.Errorf("certificate already exist")
 			}
 
-			caKeyFile := filepath.Join(dir, fmt.Sprintf("%s.cert", "ca"))
-			caCertFile := filepath.Join(dir, fmt.Sprintf("%s.key", "ca"))
-			if tmos.FileExists(caKeyFile) || tmos.FileExists(caCertFile) {
+			caKeyFile := filepath.Join(dir, fmt.Sprintf("%s.key", "ca"))
+			caCertFile := filepath.Join(dir, fmt.Sprintf("%s.cert", "ca"))
+			if !tmos.FileExists(caKeyFile) || !tmos.FileExists(caCertFile) {
 				return fmt.Errorf("ca certificate not exist")
 			}
 
@@ -287,6 +287,7 @@ func GenCertCommand() *cobra.Command {
 				if err := saveCert(certFile, keyFile, caCert, caKey, cert, key); err != nil {
 					return fmt.Errorf("cannot save custom ca certificate : %s", err)
 				}
+				fmt.Println(fmt.Sprintf("\"%s\" %s", cert.Issuer, cert.SerialNumber))
 			} else {
 				cert, err := parseCert(rCertFile)
 				if err != nil {
@@ -301,6 +302,7 @@ func GenCertCommand() *cobra.Command {
 				if err := saveCert(certFile, keyFile, caCert, caKey, cert, key); err != nil {
 					return fmt.Errorf("cannot save custom certificate : %s", err)
 				}
+				fmt.Println(fmt.Sprintf("\"%s\" %s", cert.Issuer, cert.SerialNumber))
 			}
 			return nil
 		},
