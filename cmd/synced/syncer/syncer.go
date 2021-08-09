@@ -497,23 +497,29 @@ func (synced *Syncer) processTxEvents(hash []byte, time string, db *gorm.DB) err
 	e.Hash = resultTx.Hash.String()
 	e.Height = resultTx.Height
 	e.Time = time
-	bts, _ := json.Marshal(resultTx.TxResult.Events)
-	e.Detail = string(bts)
+
+	attrs := make([]sdk.Attribute, 0)
 	for _, event := range resultTx.TxResult.Events {
 		if event.Type == "message" {
 			for _, attr := range event.Attributes {
 				switch key := string(attr.Key); key {
 				case "creator":
-					e.Operator = key
+					e.Operator = string(attr.Value)
 				case "module":
-					e.Route = key
+					e.Route = string(attr.Value)
 				case "action":
-					e.Type = key
+					e.Type = string(attr.Value)
 				default:
 				}
 			}
+		} else {
+			for _, attr := range event.Attributes {
+				attrs = append(attrs, sdk.NewAttribute(string(attr.Key), string(attr.Value)))
+			}
 		}
 	}
+	bts, _ := json.Marshal(attrs)
+	e.Detail = string(bts)
 	db.Save(&e)
 	return nil
 }

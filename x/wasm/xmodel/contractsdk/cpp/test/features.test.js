@@ -3,7 +3,7 @@ var assert = require("assert");
 var codePath = "../build/features.wasm";
 
 function deploy() {
-    return xchain.Deploy({
+    return mchain.Deploy({
         name: "features",
         code: codePath,
         lang: "c",
@@ -15,7 +15,7 @@ function deploy() {
 Test("deploy", function (t) {
     t.Run("file_not_found", function (tt) {
         assert.throws(function () {
-            xchain.Deploy({
+            mchain.Deploy({
                 name: "features",
                 code: "./not_exists.wasm",
                 lang: "c",
@@ -26,7 +26,7 @@ Test("deploy", function (t) {
 
     t.Run("bad_runtime", function (tt) {
         assert.throws(function () {
-            xchain.Deploy({
+            mchain.Deploy({
                 name: "features",
                 code: codePath,
                 lang: "go",
@@ -89,7 +89,7 @@ Test("call", function (t) {
     })
 
     t.Run("ok", function (tt) {
-        c1 = xchain.Deploy({
+        c1 = mchain.Deploy({
             name: "c1",
             code: codePath,
             lang: "c",
@@ -97,7 +97,7 @@ Test("call", function (t) {
         });
         c1.Invoke("put", { "k1": "v1" })
 
-        c2 = xchain.Deploy({
+        c2 = mchain.Deploy({
             name: "c2",
             code: codePath,
             lang: "c",

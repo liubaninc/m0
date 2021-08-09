@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/liubaninc/m0/cmd/xdev/internal/jstest"
-	"github.com/liubaninc/m0/cmd/xdev/internal/jstest/xchain"
+	"github.com/liubaninc/m0/cmd/xdev/internal/jstest/mchain"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/tendermint/libs/log"
 )
@@ -52,7 +52,7 @@ func (c *testCommand) testFiles(wd string, files []string) error {
 	runner, err := jstest.NewRunner(&jstest.RunOption{
 		Quiet:  c.quiet,
 		Patten: c.runPatten,
-	}, xchain.NewAdapter())
+	}, mchain.NewAdapter())
 
 	if err != nil {
 		return err

@@ -4,7 +4,7 @@ var assert = require("assert");
 Test("naming", function (t) {
     var contract;
     t.Run("deploy", function (tt) {
-        contract = xchain.Deploy({
+        contract = mchain.Deploy({
             name: "naming",
             code: "../naming.wasm",
             lang: "c",

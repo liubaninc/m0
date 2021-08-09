@@ -1,4 +1,4 @@
-#include "xchain/xchain.h"
+#include "mchain/mchain.h"
 
 const std::string BALANCEPRE = "balanceOf_";
 const std::string ALLOWANCEPRE = "allowanceOf_";
@@ -6,7 +6,7 @@ const std::string MASTERPRE = "owner";
 
 // 积分管理合约的基类
 // 积分管理合约需要实现基类中指定的方法
-// 参数由xchain::Contract中的context提供
+// 参数由mchain::Contract中的context提供
 class AwardBasic {
 public:
     /*
@@ -60,10 +60,10 @@ public:
     virtual void approve() = 0;
 };
 
-struct Award : public AwardBasic, public xchain::Contract {
+struct Award : public AwardBasic, public mchain::Contract {
 public:
     void initialize() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         const std::string& caller = ctx->initiator();
         if (caller.empty()) {
             ctx->error("missing caller");
@@ -88,7 +88,7 @@ public:
         ctx->ok("initialize success");
     }
     void addAward() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         const std::string& caller = ctx->initiator();
         if (caller.empty()) {
             ctx->error("missing caller");
@@ -144,7 +144,7 @@ public:
         ctx->ok(buf);
     }
     void totalSupply() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         std::string value;
         if (ctx->get_object("totalSupply", &value)) {
             ctx->ok(value);
@@ -153,7 +153,7 @@ public:
         }
     }
     void balance() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         const std::string& caller = ctx->arg("caller");
         if (caller.empty()) {
             ctx->error("missing caller");
@@ -169,7 +169,7 @@ public:
         }
     }
     void allowance() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         const std::string& from = ctx->arg("from");
         if (from.empty()) {
             ctx->error("missing from");
@@ -191,7 +191,7 @@ public:
         }
     }
     void transfer() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         const std::string& from = ctx->arg("from");
         if (from.empty()) {
             ctx->error("missing from");
@@ -252,7 +252,7 @@ public:
         ctx->ok("transfer success");
     }
     void transferFrom() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         const std::string& from = ctx->arg("from");
         if (from.empty()) {
             ctx->error("missing from");
@@ -335,7 +335,7 @@ public:
         ctx->ok("transferFrom success");
     }
     void approve() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         const std::string& from = ctx->arg("from");
         if (from.empty()) {
             ctx->error("missing from");

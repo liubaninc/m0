@@ -95,7 +95,7 @@ func (v *XBridge) GetVirtualMachine(name string) (contract.VirtualMachine, bool)
 	return vm, ok
 }
 
-// RegisterToXCore register VirtualMachines to xchain core
+// RegisterToXCore register VirtualMachines to mchain core
 func (v *XBridge) RegisterToXCore(regfunc func(name string, vm contract.VirtualMachine) error) {
 	for _, vm := range v.vms {
 		err := regfunc(vm.GetName(), vm)

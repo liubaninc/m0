@@ -112,13 +112,13 @@ func (c *buildCommand) xdevRoot() (string, error) {
 	if xroot != "" {
 		return filepath.Abs(xroot)
 	}
-	xchainRoot := os.Getenv("XCHAIN_ROOT")
-	if xchainRoot == "" {
-		return "", errors.New(`XDEV_ROOT and XCHAIN_ROOT must be set one.
-XCHAIN_ROOT is the path of $m0_project_root.
+	mchainRoot := os.Getenv("MCHAIN_ROOT")
+	if mchainRoot == "" {
+		return "", errors.New(`XDEV_ROOT and MCHAIN_ROOT must be set one.
+MCHAIN_ROOT is the path of $m0_project_root.
 XDEV_ROOT is the path of $m0_project_root/xmodel/contractsdk/cpp`)
 	}
-	xroot = filepath.Join(xchainRoot, "xmodel", "contractsdk", "cpp")
+	xroot = filepath.Join(mchainRoot, "xmodel", "contractsdk", "cpp")
 	return filepath.Abs(xroot)
 }
 
@@ -138,7 +138,7 @@ func (c *buildCommand) initCompileFlags(xroot string) error {
 	c.cxxFlags = append([]string{}, defaultCxxFlags...)
 	c.ldflags = append([]string{}, defaultLDFlags...)
 
-	exportJsPath := filepath.Join(xroot, "src", "xchain", "exports.js")
+	exportJsPath := filepath.Join(xroot, "src", "mchain", "exports.js")
 	c.ldflags = append(c.ldflags, "--js-library "+exportJsPath)
 	return nil
 }
@@ -163,12 +163,12 @@ func (c *buildCommand) build(args []string) error {
 	return c.buildFiles(args)
 }
 
-func xchainModule(xroot string) mkfile.DependencyDesc {
+func mchainModule(xroot string) mkfile.DependencyDesc {
 	return mkfile.DependencyDesc{
-		Name: "xchain",
+		Name: "mchain",
 		Path: xroot,
 		Modules: []string{
-			"xchain",
+			"mchain",
 		},
 	}
 }
@@ -181,7 +181,7 @@ func addonModules(xroot, pkgpath string) ([]mkfile.DependencyDesc, error) {
 	if desc.Package.Name != mkfile.MainPackage {
 		return nil, nil
 	}
-	return []mkfile.DependencyDesc{xchainModule(xroot)}, nil
+	return []mkfile.DependencyDesc{mchainModule(xroot)}, nil
 }
 
 func (c *buildCommand) buildPackage(root string) error {

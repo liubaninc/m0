@@ -1,9 +1,9 @@
 #include <string>
 #include <vector>
 
-#include "xchain/xchain.h"
+#include "mchain/mchain.h"
 
-class Identity : public xchain::Contract {};
+class Identity : public mchain::Contract {};
 
 const char delimiter_authrequire = ',';
 const char delimiter_account = '/';
@@ -24,7 +24,7 @@ void split_str(const std::string& aks, std::vector<std::string>& ak_sets,
 }
 
 DEFINE_METHOD(Identity, initialize) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& creator = ctx->arg("creator");
     if (creator.empty()) {
         ctx->error("missing creator");
@@ -36,7 +36,7 @@ DEFINE_METHOD(Identity, initialize) {
 
 // register_aks method register aks to identify contract
 DEFINE_METHOD(Identity, register_aks) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
 
     // aks register to identity contract
     const std::string aks = ctx->arg("aks");
@@ -56,7 +56,7 @@ DEFINE_METHOD(Identity, register_aks) {
 
 // unregister_aks method unregister aks from identify contract
 DEFINE_METHOD(Identity, unregister_aks) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
 
     // aks unregister form identity contract
     const std::string aks = ctx->arg("aks");
@@ -76,7 +76,7 @@ DEFINE_METHOD(Identity, unregister_aks) {
 
 // verify method verify whether the ak were identified
 DEFINE_METHOD(Identity, verify) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     std::string value;
 
     const std::string ak = ctx->arg("address");

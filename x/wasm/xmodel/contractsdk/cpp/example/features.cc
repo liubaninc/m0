@@ -1,21 +1,21 @@
-#include "xchain/json/json.h"
-#include "xchain/xchain.h"
+#include "mchain/json/json.h"
+#include "mchain/mchain.h"
 
-struct Features : xchain::Contract {};
+struct Features : mchain::Contract {};
 
 DEFINE_METHOD(Features, initialize) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     ctx->ok("init");
 }
 
 DEFINE_METHOD(Features, logging) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     ctx->logf("log from contract");
     ctx->ok("ok");
 }
 
 DEFINE_METHOD(Features, put) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     for (const auto& elem : ctx->args()) {
         ctx->put_object(elem.first, elem.second);
     }
@@ -23,7 +23,7 @@ DEFINE_METHOD(Features, put) {
 }
 
 DEFINE_METHOD(Features, get) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& key = ctx->arg("key");
     std::string value;
     if (ctx->get_object(key, &value)) {
@@ -34,12 +34,12 @@ DEFINE_METHOD(Features, get) {
 }
 
 DEFINE_METHOD(Features, iterator) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& start = ctx->arg("start");
     const std::string& limit = ctx->arg("limit");
     std::string ret;
     auto iter = ctx->new_iterator(start, limit);
-    xchain::ElemType elem;
+    mchain::ElemType elem;
     while (iter->next()) {
         iter->get(&elem);
         ret += elem.first + ":" + elem.second + ", ";
@@ -48,13 +48,13 @@ DEFINE_METHOD(Features, iterator) {
 }
 
 DEFINE_METHOD(Features, caller) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     ctx->ok(ctx->sender().get_name());
 }
 
 DEFINE_METHOD(Features, call) {
-    xchain::Context* ctx = self.context();
-    xchain::Response resp;
+    mchain::Context* ctx = self.context();
+    mchain::Response resp;
     const std::string contract = ctx->arg("contract");
     const std::string method = ctx->arg("method");
     bool ret = ctx->call("wasm", contract, method, ctx->args(), &resp);
@@ -66,15 +66,15 @@ DEFINE_METHOD(Features, call) {
 }
 
 DEFINE_METHOD(Features, json_load_dump) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string v = ctx->arg("value");
-    auto j = xchain::json::parse(v);
+    auto j = mchain::json::parse(v);
     ctx->ok(j.dump());
 }
 
 DEFINE_METHOD(Features, json_literal) {
-    xchain::Context* ctx = self.context();
-    xchain::json j = {
+    mchain::Context* ctx = self.context();
+    mchain::json j = {
         {"int", 3},
         {"float", 3.14},
         {"string", "hello"},

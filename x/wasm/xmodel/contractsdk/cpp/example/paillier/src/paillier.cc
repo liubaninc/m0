@@ -1,11 +1,11 @@
 #include "paillier.pb.h"
-#include "xchain/table/table.tpl.h"
-#include "xchain/table/types.h"
-#include "xchain/trust_operators/trust_operators.h"
-#include "xchain/xchain.h"
+#include "mchain/table/table.tpl.h"
+#include "mchain/table/types.h"
+#include "mchain/trust_operators/trust_operators.h"
+#include "mchain/mchain.h"
 #include <inttypes.h>
 
-struct PaillierData : public xchain::Contract {
+struct PaillierData : public mchain::Contract {
 public:
   PaillierData() : _data(this->context(), "paillier_data") {}
 
@@ -17,20 +17,20 @@ public:
   };
 
 private:
-  xchain::cdt::Table<data> _data;
+  mchain::cdt::Table<data> _data;
 
 public:
   decltype(_data) &get_data() { return _data; }
 };
 
 DEFINE_METHOD(PaillierData, initialize) {
-  xchain::Context *ctx = self.context();
+  mchain::Context *ctx = self.context();
   ctx->ok("initialize succeed");
 }
 
 // store encrypted data with content and expire_time
 DEFINE_METHOD(PaillierData, store) {
-  xchain::Context *ctx = self.context();
+  mchain::Context *ctx = self.context();
   const std::string &dataid = ctx->arg("dataid");
   const std::string &content = ctx->arg("content");
   const std::string &pubkey = ctx->arg("pubkey");
@@ -51,7 +51,7 @@ DEFINE_METHOD(PaillierData, store) {
 
 // get a record from table
 DEFINE_METHOD(PaillierData, get) {
-  xchain::Context *ctx = self.context();
+  mchain::Context *ctx = self.context();
   const std::string &dataid = ctx->arg("dataid");
   const std::string &user = ctx->initiator();
   PaillierData::data dat;
@@ -64,7 +64,7 @@ DEFINE_METHOD(PaillierData, get) {
 
 // modify user's one record
 DEFINE_METHOD(PaillierData, modify) {
-  xchain::Context *ctx = self.context();
+  mchain::Context *ctx = self.context();
   const std::string &dataid = ctx->arg("dataid");
   const std::string &content = ctx->arg("content");
   const std::string &pubkey = ctx->arg("pubkey");
@@ -87,7 +87,7 @@ DEFINE_METHOD(PaillierData, modify) {
 // delete user's record
 // TODO: owner can delete every owned record
 DEFINE_METHOD(PaillierData, del) {
-  xchain::Context *ctx = self.context();
+  mchain::Context *ctx = self.context();
   const std::string &dataid = ctx->arg("dataid");
   PaillierData::data dat;
   if (!self.get_data().find({{"dataid", dataid}, {"user", ctx->initiator()}},
@@ -107,7 +107,7 @@ DEFINE_METHOD(PaillierData, del) {
 
 // authorize user to use data
 DEFINE_METHOD(PaillierData, authorize) {
-  xchain::Context *ctx = self.context();
+  mchain::Context *ctx = self.context();
   const std::string &dataid = ctx->arg("dataid");
   const std::string &user = ctx->arg("user");
   const std::string &commitment = ctx->arg("commitment");
@@ -141,7 +141,7 @@ DEFINE_METHOD(PaillierData, authorize) {
 
 // share plain data to others, create a new record
 DEFINE_METHOD(PaillierData, share) {
-  xchain::Context *ctx = self.context();
+  mchain::Context *ctx = self.context();
   const std::string &dataid = ctx->arg("dataid");
   const std::string &addr = ctx->arg("toaddr");
   const std::string &newid = ctx->arg("newid");
@@ -176,7 +176,7 @@ DEFINE_METHOD(PaillierData, share) {
 
 // add two ciphertext and create a new record
 DEFINE_METHOD(PaillierData, add) {
-  xchain::Context *ctx = self.context();
+  mchain::Context *ctx = self.context();
   const std::string &data1 = ctx->arg("data1");
   const std::string &data2 = ctx->arg("data2");
   const std::string &newid = ctx->arg("newid");
@@ -239,7 +239,7 @@ DEFINE_METHOD(PaillierData, add) {
 
 // mul a ciphertext with a number and create a new record
 DEFINE_METHOD(PaillierData, mul) {
-  xchain::Context *ctx = self.context();
+  mchain::Context *ctx = self.context();
   const std::string &dataid = ctx->arg("dataid");
   const std::string &scalar = ctx->arg("scalar");
   const std::string &newid = ctx->arg("newid");

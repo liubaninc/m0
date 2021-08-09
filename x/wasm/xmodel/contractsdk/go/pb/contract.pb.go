@@ -674,7 +674,7 @@ type IteratorRequest struct {
 	// start和limit为[start, limit)
 	Start []byte `protobuf:"bytes,2,opt,name=start,proto3" json:"start,omitempty"`
 	Limit []byte `protobuf:"bytes,3,opt,name=limit,proto3" json:"limit,omitempty"`
-	// cap代表一次请求的最大IteratorItem个数，如果为0则采用xchain的默认配置
+	// cap代表一次请求的最大IteratorItem个数，如果为0则采用mchain的默认配置
 	Cap int32 `protobuf:"varint,4,opt,name=cap,proto3" json:"cap,omitempty"`
 }
 
@@ -2518,73 +2518,73 @@ func file_contract_proto_rawDescGZIP() []byte {
 
 var file_contract_proto_msgTypes = make([]protoimpl.MessageInfo, 40)
 var file_contract_proto_goTypes = []interface{}{
-	(*PingRequest)(nil),                 // 0: xchain.contract.sdk.PingRequest
-	(*PingResponse)(nil),                // 1: xchain.contract.sdk.PingResponse
-	(*NativeCallRequest)(nil),           // 2: xchain.contract.sdk.NativeCallRequest
-	(*NativeCallResponse)(nil),          // 3: xchain.contract.sdk.NativeCallResponse
-	(*ArgPair)(nil),                     // 4: xchain.contract.sdk.ArgPair
-	(*CallArgs)(nil),                    // 5: xchain.contract.sdk.CallArgs
-	(*SyscallHeader)(nil),               // 6: xchain.contract.sdk.SyscallHeader
-	(*PutRequest)(nil),                  // 7: xchain.contract.sdk.PutRequest
-	(*PutResponse)(nil),                 // 8: xchain.contract.sdk.PutResponse
-	(*GetRequest)(nil),                  // 9: xchain.contract.sdk.GetRequest
-	(*GetResponse)(nil),                 // 10: xchain.contract.sdk.GetResponse
-	(*DeleteRequest)(nil),               // 11: xchain.contract.sdk.DeleteRequest
-	(*DeleteResponse)(nil),              // 12: xchain.contract.sdk.DeleteResponse
-	(*IteratorRequest)(nil),             // 13: xchain.contract.sdk.IteratorRequest
-	(*IteratorItem)(nil),                // 14: xchain.contract.sdk.IteratorItem
-	(*IteratorResponse)(nil),            // 15: xchain.contract.sdk.IteratorResponse
-	(*QueryTxRequest)(nil),              // 16: xchain.contract.sdk.QueryTxRequest
-	(*QueryTxResponse)(nil),             // 17: xchain.contract.sdk.QueryTxResponse
-	(*QueryBlockRequest)(nil),           // 18: xchain.contract.sdk.QueryBlockRequest
-	(*QueryBlockResponse)(nil),          // 19: xchain.contract.sdk.QueryBlockResponse
-	(*TransferRequest)(nil),             // 20: xchain.contract.sdk.TransferRequest
-	(*TransferResponse)(nil),            // 21: xchain.contract.sdk.TransferResponse
-	(*ContractCallRequest)(nil),         // 22: xchain.contract.sdk.ContractCallRequest
-	(*ContractCallResponse)(nil),        // 23: xchain.contract.sdk.ContractCallResponse
-	(*CrossContractQueryRequest)(nil),   // 24: xchain.contract.sdk.CrossContractQueryRequest
-	(*CrossContractQueryResponse)(nil),  // 25: xchain.contract.sdk.CrossContractQueryResponse
-	(*Response)(nil),                    // 26: xchain.contract.sdk.Response
-	(*SetOutputRequest)(nil),            // 27: xchain.contract.sdk.SetOutputRequest
-	(*SetOutputResponse)(nil),           // 28: xchain.contract.sdk.SetOutputResponse
-	(*GetCallArgsRequest)(nil),          // 29: xchain.contract.sdk.GetCallArgsRequest
-	(*TxInput)(nil),                     // 30: xchain.contract.sdk.TxInput
-	(*TxOutput)(nil),                    // 31: xchain.contract.sdk.TxOutput
-	(*Transaction)(nil),                 // 32: xchain.contract.sdk.Transaction
-	(*Block)(nil),                       // 33: xchain.contract.sdk.Block
-	(*GetAccountAddressesRequest)(nil),  // 34: xchain.contract.sdk.GetAccountAddressesRequest
-	(*GetAccountAddressesResponse)(nil), // 35: xchain.contract.sdk.GetAccountAddressesResponse
-	(*PostLogRequest)(nil),              // 36: xchain.contract.sdk.PostLogRequest
-	(*PostLogResponse)(nil),             // 37: xchain.contract.sdk.PostLogResponse
-	(*EmitEventRequest)(nil),            // 38: xchain.contract.sdk.EmitEventRequest
-	(*EmitEventResponse)(nil),           // 39: xchain.contract.sdk.EmitEventResponse
+	(*PingRequest)(nil),                 // 0: mchain.contract.sdk.PingRequest
+	(*PingResponse)(nil),                // 1: mchain.contract.sdk.PingResponse
+	(*NativeCallRequest)(nil),           // 2: mchain.contract.sdk.NativeCallRequest
+	(*NativeCallResponse)(nil),          // 3: mchain.contract.sdk.NativeCallResponse
+	(*ArgPair)(nil),                     // 4: mchain.contract.sdk.ArgPair
+	(*CallArgs)(nil),                    // 5: mchain.contract.sdk.CallArgs
+	(*SyscallHeader)(nil),               // 6: mchain.contract.sdk.SyscallHeader
+	(*PutRequest)(nil),                  // 7: mchain.contract.sdk.PutRequest
+	(*PutResponse)(nil),                 // 8: mchain.contract.sdk.PutResponse
+	(*GetRequest)(nil),                  // 9: mchain.contract.sdk.GetRequest
+	(*GetResponse)(nil),                 // 10: mchain.contract.sdk.GetResponse
+	(*DeleteRequest)(nil),               // 11: mchain.contract.sdk.DeleteRequest
+	(*DeleteResponse)(nil),              // 12: mchain.contract.sdk.DeleteResponse
+	(*IteratorRequest)(nil),             // 13: mchain.contract.sdk.IteratorRequest
+	(*IteratorItem)(nil),                // 14: mchain.contract.sdk.IteratorItem
+	(*IteratorResponse)(nil),            // 15: mchain.contract.sdk.IteratorResponse
+	(*QueryTxRequest)(nil),              // 16: mchain.contract.sdk.QueryTxRequest
+	(*QueryTxResponse)(nil),             // 17: mchain.contract.sdk.QueryTxResponse
+	(*QueryBlockRequest)(nil),           // 18: mchain.contract.sdk.QueryBlockRequest
+	(*QueryBlockResponse)(nil),          // 19: mchain.contract.sdk.QueryBlockResponse
+	(*TransferRequest)(nil),             // 20: mchain.contract.sdk.TransferRequest
+	(*TransferResponse)(nil),            // 21: mchain.contract.sdk.TransferResponse
+	(*ContractCallRequest)(nil),         // 22: mchain.contract.sdk.ContractCallRequest
+	(*ContractCallResponse)(nil),        // 23: mchain.contract.sdk.ContractCallResponse
+	(*CrossContractQueryRequest)(nil),   // 24: mchain.contract.sdk.CrossContractQueryRequest
+	(*CrossContractQueryResponse)(nil),  // 25: mchain.contract.sdk.CrossContractQueryResponse
+	(*Response)(nil),                    // 26: mchain.contract.sdk.Response
+	(*SetOutputRequest)(nil),            // 27: mchain.contract.sdk.SetOutputRequest
+	(*SetOutputResponse)(nil),           // 28: mchain.contract.sdk.SetOutputResponse
+	(*GetCallArgsRequest)(nil),          // 29: mchain.contract.sdk.GetCallArgsRequest
+	(*TxInput)(nil),                     // 30: mchain.contract.sdk.TxInput
+	(*TxOutput)(nil),                    // 31: mchain.contract.sdk.TxOutput
+	(*Transaction)(nil),                 // 32: mchain.contract.sdk.Transaction
+	(*Block)(nil),                       // 33: mchain.contract.sdk.Block
+	(*GetAccountAddressesRequest)(nil),  // 34: mchain.contract.sdk.GetAccountAddressesRequest
+	(*GetAccountAddressesResponse)(nil), // 35: mchain.contract.sdk.GetAccountAddressesResponse
+	(*PostLogRequest)(nil),              // 36: mchain.contract.sdk.PostLogRequest
+	(*PostLogResponse)(nil),             // 37: mchain.contract.sdk.PostLogResponse
+	(*EmitEventRequest)(nil),            // 38: mchain.contract.sdk.EmitEventRequest
+	(*EmitEventResponse)(nil),           // 39: mchain.contract.sdk.EmitEventResponse
 }
 var file_contract_proto_depIdxs = []int32{
-	4,  // 0: xchain.contract.sdk.CallArgs.args:type_name -> xchain.contract.sdk.ArgPair
-	6,  // 1: xchain.contract.sdk.PutRequest.header:type_name -> xchain.contract.sdk.SyscallHeader
-	6,  // 2: xchain.contract.sdk.GetRequest.header:type_name -> xchain.contract.sdk.SyscallHeader
-	6,  // 3: xchain.contract.sdk.DeleteRequest.header:type_name -> xchain.contract.sdk.SyscallHeader
-	6,  // 4: xchain.contract.sdk.IteratorRequest.header:type_name -> xchain.contract.sdk.SyscallHeader
-	14, // 5: xchain.contract.sdk.IteratorResponse.items:type_name -> xchain.contract.sdk.IteratorItem
-	6,  // 6: xchain.contract.sdk.QueryTxRequest.header:type_name -> xchain.contract.sdk.SyscallHeader
-	32, // 7: xchain.contract.sdk.QueryTxResponse.tx:type_name -> xchain.contract.sdk.Transaction
-	6,  // 8: xchain.contract.sdk.QueryBlockRequest.header:type_name -> xchain.contract.sdk.SyscallHeader
-	33, // 9: xchain.contract.sdk.QueryBlockResponse.block:type_name -> xchain.contract.sdk.Block
-	6,  // 10: xchain.contract.sdk.TransferRequest.header:type_name -> xchain.contract.sdk.SyscallHeader
-	6,  // 11: xchain.contract.sdk.ContractCallRequest.header:type_name -> xchain.contract.sdk.SyscallHeader
-	4,  // 12: xchain.contract.sdk.ContractCallRequest.args:type_name -> xchain.contract.sdk.ArgPair
-	26, // 13: xchain.contract.sdk.ContractCallResponse.response:type_name -> xchain.contract.sdk.Response
-	6,  // 14: xchain.contract.sdk.CrossContractQueryRequest.header:type_name -> xchain.contract.sdk.SyscallHeader
-	4,  // 15: xchain.contract.sdk.CrossContractQueryRequest.args:type_name -> xchain.contract.sdk.ArgPair
-	26, // 16: xchain.contract.sdk.CrossContractQueryResponse.response:type_name -> xchain.contract.sdk.Response
-	6,  // 17: xchain.contract.sdk.SetOutputRequest.header:type_name -> xchain.contract.sdk.SyscallHeader
-	26, // 18: xchain.contract.sdk.SetOutputRequest.response:type_name -> xchain.contract.sdk.Response
-	6,  // 19: xchain.contract.sdk.GetCallArgsRequest.header:type_name -> xchain.contract.sdk.SyscallHeader
-	30, // 20: xchain.contract.sdk.Transaction.tx_inputs:type_name -> xchain.contract.sdk.TxInput
-	31, // 21: xchain.contract.sdk.Transaction.tx_outputs:type_name -> xchain.contract.sdk.TxOutput
-	6,  // 22: xchain.contract.sdk.GetAccountAddressesRequest.header:type_name -> xchain.contract.sdk.SyscallHeader
-	6,  // 23: xchain.contract.sdk.PostLogRequest.header:type_name -> xchain.contract.sdk.SyscallHeader
-	6,  // 24: xchain.contract.sdk.EmitEventRequest.header:type_name -> xchain.contract.sdk.SyscallHeader
+	4,  // 0: mchain.contract.sdk.CallArgs.args:type_name -> mchain.contract.sdk.ArgPair
+	6,  // 1: mchain.contract.sdk.PutRequest.header:type_name -> mchain.contract.sdk.SyscallHeader
+	6,  // 2: mchain.contract.sdk.GetRequest.header:type_name -> mchain.contract.sdk.SyscallHeader
+	6,  // 3: mchain.contract.sdk.DeleteRequest.header:type_name -> mchain.contract.sdk.SyscallHeader
+	6,  // 4: mchain.contract.sdk.IteratorRequest.header:type_name -> mchain.contract.sdk.SyscallHeader
+	14, // 5: mchain.contract.sdk.IteratorResponse.items:type_name -> mchain.contract.sdk.IteratorItem
+	6,  // 6: mchain.contract.sdk.QueryTxRequest.header:type_name -> mchain.contract.sdk.SyscallHeader
+	32, // 7: mchain.contract.sdk.QueryTxResponse.tx:type_name -> mchain.contract.sdk.Transaction
+	6,  // 8: mchain.contract.sdk.QueryBlockRequest.header:type_name -> mchain.contract.sdk.SyscallHeader
+	33, // 9: mchain.contract.sdk.QueryBlockResponse.block:type_name -> mchain.contract.sdk.Block
+	6,  // 10: mchain.contract.sdk.TransferRequest.header:type_name -> mchain.contract.sdk.SyscallHeader
+	6,  // 11: mchain.contract.sdk.ContractCallRequest.header:type_name -> mchain.contract.sdk.SyscallHeader
+	4,  // 12: mchain.contract.sdk.ContractCallRequest.args:type_name -> mchain.contract.sdk.ArgPair
+	26, // 13: mchain.contract.sdk.ContractCallResponse.response:type_name -> mchain.contract.sdk.Response
+	6,  // 14: mchain.contract.sdk.CrossContractQueryRequest.header:type_name -> mchain.contract.sdk.SyscallHeader
+	4,  // 15: mchain.contract.sdk.CrossContractQueryRequest.args:type_name -> mchain.contract.sdk.ArgPair
+	26, // 16: mchain.contract.sdk.CrossContractQueryResponse.response:type_name -> mchain.contract.sdk.Response
+	6,  // 17: mchain.contract.sdk.SetOutputRequest.header:type_name -> mchain.contract.sdk.SyscallHeader
+	26, // 18: mchain.contract.sdk.SetOutputRequest.response:type_name -> mchain.contract.sdk.Response
+	6,  // 19: mchain.contract.sdk.GetCallArgsRequest.header:type_name -> mchain.contract.sdk.SyscallHeader
+	30, // 20: mchain.contract.sdk.Transaction.tx_inputs:type_name -> mchain.contract.sdk.TxInput
+	31, // 21: mchain.contract.sdk.Transaction.tx_outputs:type_name -> mchain.contract.sdk.TxOutput
+	6,  // 22: mchain.contract.sdk.GetAccountAddressesRequest.header:type_name -> mchain.contract.sdk.SyscallHeader
+	6,  // 23: mchain.contract.sdk.PostLogRequest.header:type_name -> mchain.contract.sdk.SyscallHeader
+	6,  // 24: mchain.contract.sdk.EmitEventRequest.header:type_name -> mchain.contract.sdk.SyscallHeader
 	25, // [25:25] is the sub-list for method output_type
 	25, // [25:25] is the sub-list for method input_type
 	25, // [25:25] is the sub-list for extension type_name

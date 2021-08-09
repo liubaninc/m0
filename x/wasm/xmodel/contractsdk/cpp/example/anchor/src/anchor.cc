@@ -1,11 +1,11 @@
 #include <inttypes.h>
-#include "xchain/xchain.h"
-#include "xchain/table/types.h"
-#include "xchain/table/table.tpl.h"
+#include "mchain/mchain.h"
+#include "mchain/table/types.h"
+#include "mchain/table/table.tpl.h"
 #include "anchor.pb.h"
 
 //data anchoring
-struct Anchor : public xchain::Contract {
+struct Anchor : public mchain::Contract {
 public:
     Anchor(): _entity(this->context(), "entity") {}
 
@@ -18,7 +18,7 @@ public:
         DEFINE_INDEX_END();
     };
 private:
-    xchain::cdt::Table<entity> _entity;
+    mchain::cdt::Table<entity> _entity;
 
 public:
     decltype(_entity)& get_entity() {
@@ -28,7 +28,7 @@ public:
 
 //初始化
 DEFINE_METHOD(Anchor, initialize) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& id= ctx->arg("id");
     const std::string& name = ctx->arg("name");
     const std::string& desc = ctx->arg("desc");
@@ -42,7 +42,7 @@ DEFINE_METHOD(Anchor, initialize) {
 }
 
 DEFINE_METHOD(Anchor, get) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& name = ctx->arg("key");
     Anchor::entity ent;
     if (self.get_entity().find({{"name", name}}, &ent)) {
@@ -53,7 +53,7 @@ DEFINE_METHOD(Anchor, get) {
 }
 
 DEFINE_METHOD(Anchor, set) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& id= ctx->arg("id");
     const std::string& name = ctx->arg("name");
     const std::string& desc = ctx->arg("desc");
@@ -67,7 +67,7 @@ DEFINE_METHOD(Anchor, set) {
 }
 
 DEFINE_METHOD(Anchor, del) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& id= ctx->arg("id");
     const std::string& name = ctx->arg("name");
     const std::string& desc = ctx->arg("desc");
@@ -81,7 +81,7 @@ DEFINE_METHOD(Anchor, del) {
 }
 
 DEFINE_METHOD(Anchor, scan) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& name = ctx->arg("name");
     const std::string& id = ctx->arg("id");
     //const std::string& desc = ctx->arg("desc");

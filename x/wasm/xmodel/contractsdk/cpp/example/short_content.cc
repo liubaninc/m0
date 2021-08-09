@@ -1,4 +1,4 @@
-#include "xchain/xchain.h"
+#include "mchain/mchain.h"
 
 const std::string UserBucket = "USER";
 const int TOPIC_LENGTH_LIMIT = 36;
@@ -21,14 +21,14 @@ public:
     virtual void queryByTopic() = 0;
 };
 
-struct ShortContentDeposit : public ShortContentDepositBasic, public xchain::Contract {
+struct ShortContentDeposit : public ShortContentDepositBasic, public mchain::Contract {
 public:
     void initialize() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         ctx->ok("initialize success");
     }
     void storeShortContent() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         std::string user_id = ctx->arg("user_id");
         std::string title = ctx->arg("title");
         std::string topic = ctx->arg("topic");
@@ -46,9 +46,9 @@ public:
         ctx->error("storeShortContent failed");
     }
     void queryByUser() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         std::string key = UserBucket + "/" + ctx->arg("user_id") + "/";
-        std::unique_ptr<xchain::Iterator> iter = ctx->new_iterator(key, key + "～");
+        std::unique_ptr<mchain::Iterator> iter = ctx->new_iterator(key, key + "～");
         std::string result;
         while (iter->next()) {
             std::pair<std::string, std::string> res;
@@ -58,7 +58,7 @@ public:
         ctx->ok(result);
     }
     void queryByTitle() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         std::string user_id = ctx->arg("user_id");
         std::string topic = ctx->arg("topic");
         std::string title = ctx->arg("title");
@@ -72,12 +72,12 @@ public:
         ctx->error("queryByTitle failed");
     }
     void queryByTopic() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         std::string user_id = ctx->arg("user_id");
         std::string topic = ctx->arg("topic");
         std::string key = UserBucket + "/" + user_id + "/" + topic + "/";
         std::string result;
-        std::unique_ptr<xchain::Iterator> iter = ctx->new_iterator(key, key + "～");
+        std::unique_ptr<mchain::Iterator> iter = ctx->new_iterator(key, key + "～");
         while (iter->next()) {
             std::pair<std::string, std::string> res;
             iter->get(&res);

@@ -33,7 +33,7 @@ func (api *API) GetPeerEvents(c *gin.Context) {
 	offset := (request.PageNum - 1) * request.PageSize
 	cond := map[string]interface{}{}
 	cond["route"] = "peer"
-	if tp := c.Param("action"); len(tp) != 0 {
+	if tp := c.Query("action"); len(tp) != 0 {
 		cond["type"] = tp
 	}
 
@@ -86,7 +86,7 @@ func (api *API) GetValidatorEvents(c *gin.Context) {
 	offset := (request.PageNum - 1) * request.PageSize
 	cond := map[string]interface{}{}
 	cond["route"] = "validator"
-	if tp := c.Param("action"); len(tp) != 0 {
+	if tp := c.Query("action"); len(tp) != 0 {
 		cond["type"] = tp
 	}
 
@@ -139,7 +139,7 @@ func (api *API) GetCertEvents(c *gin.Context) {
 	offset := (request.PageNum - 1) * request.PageSize
 	cond := map[string]interface{}{}
 	cond["route"] = "pki"
-	if tp := c.Param("action"); len(tp) != 0 {
+	if tp := c.Query("action"); len(tp) != 0 {
 		cond["type"] = tp
 	}
 
@@ -192,7 +192,7 @@ func (api *API) GetAccountEvents(c *gin.Context) {
 	offset := (request.PageNum - 1) * request.PageSize
 	cond := map[string]interface{}{}
 	cond["route"] = "permission"
-	if tp := c.Param("action"); len(tp) != 0 {
+	if tp := c.Query("action"); len(tp) != 0 {
 		cond["type"] = tp
 	}
 
@@ -245,7 +245,7 @@ func (api *API) GetContractEvents(c *gin.Context) {
 	offset := (request.PageNum - 1) * request.PageSize
 	cond := map[string]interface{}{}
 	cond["route"] = "wasm"
-	if tp := c.Param("action"); len(tp) != 0 {
+	if tp := c.Query("action"); len(tp) != 0 {
 		cond["type"] = tp
 	}
 

@@ -1,13 +1,13 @@
-#include "xchain/xchain.h"
+#include "mchain/mchain.h"
 
-struct ERC20 : public xchain::Contract {};
+struct ERC20 : public mchain::Contract {};
 
 const std::string BALANCEPRE = "balanceOf_";
 const std::string ALLOWANCEPRE = "allowanceOf_";
 const std::string MASTERPRE = "owner";
 
 DEFINE_METHOD(ERC20, initialize) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& caller = ctx->initiator();
     if (caller.empty()) {
         ctx->error("missing caller");
@@ -29,7 +29,7 @@ DEFINE_METHOD(ERC20, initialize) {
 }
 
 DEFINE_METHOD(ERC20, mint) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& caller = ctx->initiator();
     if (caller.empty()) {
         ctx->error("missing caller");
@@ -79,7 +79,7 @@ DEFINE_METHOD(ERC20, mint) {
 }
 
 DEFINE_METHOD(ERC20, totalSupply) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     std::string value;
     if (ctx->get_object("totalSupply", &value)) {
         ctx->ok(value);
@@ -89,7 +89,7 @@ DEFINE_METHOD(ERC20, totalSupply) {
 }
 
 DEFINE_METHOD(ERC20, balance) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& caller = ctx->arg("caller");
     if (caller.empty()) {
         ctx->error("missing caller");
@@ -106,7 +106,7 @@ DEFINE_METHOD(ERC20, balance) {
 }
 
 DEFINE_METHOD(ERC20, allowance) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& from = ctx->arg("from");
     if (from.empty()) {
         ctx->error("missing from");
@@ -129,7 +129,7 @@ DEFINE_METHOD(ERC20, allowance) {
 }
 
 DEFINE_METHOD(ERC20, transfer) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& from = ctx->arg("from");
     if (from.empty()) {
         ctx->error("missing from");
@@ -182,7 +182,7 @@ DEFINE_METHOD(ERC20, transfer) {
 }
 
 DEFINE_METHOD(ERC20, transferFrom) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& from = ctx->arg("from");
     if (from.empty()) {
         ctx->error("missing from");
@@ -257,7 +257,7 @@ DEFINE_METHOD(ERC20, transferFrom) {
 }
 
 DEFINE_METHOD(ERC20, approve) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& from = ctx->arg("from");
     if (from.empty()) {
         ctx->error("missing from");

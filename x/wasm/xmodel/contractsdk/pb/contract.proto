@@ -3,7 +3,7 @@ option optimize_for = LITE_RUNTIME;
 option go_package = "github.com/liubaninc/m0/x/wasm/xmodel/contractsdk/go/pb";
 option java_package = "com.tq_bc.m0.contractpb";
 
-package xchain.contract.sdk;
+package mchain.contract.sdk;
 
 message PingRequest {
 }
@@ -67,7 +67,7 @@ message IteratorRequest {
   // start和limit为[start, limit)
   bytes start = 2;
   bytes limit = 3;
-  // cap代表一次请求的最大IteratorItem个数，如果为0则采用xchain的默认配置
+  // cap代表一次请求的最大IteratorItem个数，如果为0则采用mchain的默认配置
   int32 cap = 4;
 }
 
