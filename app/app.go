@@ -414,7 +414,7 @@ func New(
 	app.SetEndBlocker(app.EndBlocker)
 
 	app.SetIDPeerFilter(func(info string) abci.ResponseQuery {
-		return app.PeerKeeper.IDPeerFilter(app.GetState(0).Context(), info)
+		return app.PeerKeeper.IDPeerFilter(app.GetState(3).Context(), info)
 	})
 
 	if loadLatest {

@@ -4,6 +4,10 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	peertypes "github.com/liubaninc/m0/x/peer/types"
+	permissiontypes "github.com/liubaninc/m0/x/permission/types"
+	validatortypes "github.com/liubaninc/m0/x/validator/types"
+	pkitypes "github.com/liubaninc/m0/x/pki/types"
 	"net"
 	"strings"
 	"time"
@@ -261,6 +265,10 @@ func (synced *Syncer) processBlock(resultBlock *coretypes.ResultBlock, db *gorm.
 	contractHashs := map[string][]string{}
 	hashMap := map[string]*model.Transaction{}
 	for _, tx := range resultBlock.Block.Txs {
+		if err := synced.processTxEvents(tx.Hash(), block.Time, db); err != nil {
+			return err
+		}
+
 		mtx, err := synced.processTx(tx.Hash(), block.Time)
 		if err != nil {
 			return err
@@ -478,6 +486,38 @@ func (synced *Syncer) processBlock(resultBlock *coretypes.ResultBlock, db *gorm.
 	return nil
 }
 
+func (synced *Syncer) processTxEvents(hash []byte, time string, db *gorm.DB) error {
+	synced.logger.Debug("processTxEvents ...", "hash", hex.EncodeToString(hash))
+	resultTx, err := synced.client.GetTx(hex.EncodeToString(hash))
+	if err != nil {
+		return err
+	}
+
+	var e model.Events
+	e.Hash = resultTx.Hash.String()
+	e.Height = resultTx.Height
+	e.Time = time
+	bts, _ := json.Marshal(resultTx.TxResult.Events)
+	e.Detail = string(bts)
+	for _, event := range resultTx.TxResult.Events {
+		if event.Type == "message" {
+			for _, attr := range event.Attributes {
+				switch key := string(attr.Key); key {
+				case "creator":
+					e.Operator = key
+				case "module":
+					e.Route = key
+				case "action":
+					e.Type = key
+				default:
+				}
+			}
+		}
+	}
+	db.Save(&e)
+	return nil
+}
+
 func (synced *Syncer) processTx(hash []byte, time string) (*model.Transaction, error) {
 	synced.logger.Debug("processTx ...", "hash", hex.EncodeToString(hash))
 	resultTx, err := synced.client.GetTx(hex.EncodeToString(hash))
@@ -529,6 +569,54 @@ func (synced *Syncer) processTx(hash []byte, time string) (*model.Transaction, e
 			umsg = ProcessMsgUpgrade(msg)
 		case *wasmtypes.MsgInvoke:
 			umsg = ProcessMsgInvoke(msg)
+		case *wasmtypes.MsgFreeze:
+			umsg = &model.MsgUTXO{
+				Type: "冻结合约",
+			}
+		case *wasmtypes.MsgUnfreeze:
+			umsg = &model.MsgUTXO{
+				Type: "解冻合约",
+			}
+		case *wasmtypes.MsgUndeploy:
+			umsg = &model.MsgUTXO{
+				Type: "删除合约",
+			}
+		case *peertypes.MsgCreatePeerID:
+			umsg = &model.MsgUTXO{
+				Type: "新增节点",
+			}
+		case *peertypes.MsgDeletePeerID:
+			umsg = &model.MsgUTXO{
+				Type: "移除节点",
+			}
+		case *permissiontypes.MsgSetPermission:
+			umsg = &model.MsgUTXO{
+				Type: "新增用户",
+			}
+		case *validatortypes.MsgCreateValidator:
+			umsg = &model.MsgUTXO{
+				Type: "新增共识节点",
+			}
+		case *validatortypes.MsgLeaveValidator:
+			umsg = &model.MsgUTXO{
+				Type: "移除共识节点",
+			}
+		case *pkitypes.MsgAddRootCert:
+			umsg = &model.MsgUTXO{
+				Type: "新增根证书",
+			}
+		case *pkitypes.MsgAddCert:
+			umsg = &model.MsgUTXO{
+				Type: "新增证书",
+			}
+		case *pkitypes.MsgFreezeCert:
+			umsg = &model.MsgUTXO{
+				Type: "冻结证书",
+			}
+		case *pkitypes.MsgRevokeCert:
+			umsg = &model.MsgUTXO{
+				Type: "注销证书",
+			}
 		default:
 			return nil, fmt.Errorf("not support route %v, type %v", msg.Route(), msg.Type())
 		}

@@ -49,10 +49,8 @@ func (k Keeper) verifyCertificate(ctx sdk.Context, x509Certificate *x509.X509Cer
 		}
 	} else {
 		parentCertificates, _ := k.GetCertificates(ctx, x509Certificate.Issuer, x509Certificate.AuthorityKeyID)
-		fmt.Println("chaogaofeng1", x509Certificate.Issuer, x509Certificate.AuthorityKeyID)
 		for _, identifier := range parentCertificates.Items {
 			cert, found := k.GetCertificate(ctx, identifier.Issuer, identifier.SerialNumber)
-			fmt.Println("chaogaofeng2", identifier.Issuer, identifier.SerialNumber, found)
 			if !found {
 				continue
 			}
@@ -70,8 +68,6 @@ func (k Keeper) verifyCertificate(ctx sdk.Context, x509Certificate *x509.X509Cer
 			// verify parent certificate
 			if subject, subjectKeyID, err := k.verifyCertificate(ctx, parentX509Certificate); err == nil {
 				return subject, subjectKeyID, nil
-			} else {
-				fmt.Println("chaogaofeng3", identifier.Issuer, identifier.SerialNumber, err)
 			}
 		}
 	}
