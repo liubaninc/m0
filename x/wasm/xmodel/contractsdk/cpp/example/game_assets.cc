@@ -1,7 +1,7 @@
-#include "xchain/xchain.h"
+#include "mchain/mchain.h"
 
 // 游戏装备资产模板
-// 参数由xchain::Contract中的context提供
+// 参数由mchain::Contract中的context提供
 class GameAssets {
 public:
     /*
@@ -42,14 +42,14 @@ public:
     virtual void tradeAsset() = 0;
 };
 
-struct GameDemo : public GameAssets, public xchain::Contract {
+struct GameDemo : public GameAssets, public mchain::Contract {
 public:
     const std::string ASSETTYPE = "AssetType_";
     const std::string USERASSET = "UserAsset_";
     const std::string ASSET2USER = "Asset2User_";
 
     void initialize() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         const std::string& admin = ctx->arg("admin");
         if (admin.empty()) {
             ctx->error("missing admin address");
@@ -60,7 +60,7 @@ public:
         ctx->ok("initialize success");
     }
 
-    bool isAdmin(xchain::Context* ctx, const std::string& caller) {
+    bool isAdmin(mchain::Context* ctx, const std::string& caller) {
         std::string admin;
         if (!ctx->get_object("admin", &admin)) {
             return false;
@@ -69,7 +69,7 @@ public:
     }
 
     void addAssetType() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         const std::string& caller = ctx->initiator();
         if (caller.empty()) {
             ctx->error("missing initiator");
@@ -104,8 +104,8 @@ public:
     }
 
     void listAssetType() {
-        xchain::Context* ctx = this->context();
-        std::unique_ptr<xchain::Iterator> iter =
+        mchain::Context* ctx = this->context();
+        std::unique_ptr<mchain::Iterator> iter =
             ctx->new_iterator(ASSETTYPE, ASSETTYPE + "~");
         std::string result;
         while (iter->next()) {
@@ -120,7 +120,7 @@ public:
     }
 
     void getAssetsByUser() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         const std::string& caller = ctx->initiator();
         if (caller.empty()) {
             ctx->error("missing initiator");
@@ -136,7 +136,7 @@ public:
         }
 
         std::string userAssetKey = USERASSET + userId + "_";
-        std::unique_ptr<xchain::Iterator> iter =
+        std::unique_ptr<mchain::Iterator> iter =
             ctx->new_iterator(userAssetKey, userAssetKey + "~");
         std::string result;
         while (iter->next()) {
@@ -159,7 +159,7 @@ public:
     }
 
     void newAssetToUser() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         const std::string& caller = ctx->initiator();
         if (caller.empty()) {
             ctx->error("missing initiator");
@@ -205,7 +205,7 @@ public:
     }
 
     void tradeAsset() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         const std::string& from = ctx->initiator();
         if (from.empty()) {
             ctx->error("missing initiator");

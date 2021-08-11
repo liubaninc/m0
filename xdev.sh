@@ -1,7 +1,7 @@
 #!/bin/bash
 
 dir=$1
-export XCHAIN_ROOT=$(pwd)/x/wasm
+export MCHAIN_ROOT=$(pwd)/x/wasm
 
 # install docker in precondition
 if ! command -v docker &>/dev/null; then

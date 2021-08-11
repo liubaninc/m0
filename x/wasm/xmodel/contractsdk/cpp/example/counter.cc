@@ -1,9 +1,9 @@
-#include "xchain/xchain.h"
+#include "mchain/mchain.h"
 
-struct Counter : public xchain::Contract {};
+struct Counter : public mchain::Contract {};
 
 DEFINE_METHOD(Counter, initialize) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& creator = ctx->arg("creator");
     if (creator.empty()) {
         ctx->error("missing creator");
@@ -14,7 +14,7 @@ DEFINE_METHOD(Counter, initialize) {
 }
 
 DEFINE_METHOD(Counter, increase) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& key = ctx->arg("key");
     std::string value;
     ctx->get_object(key, &value);
@@ -31,7 +31,7 @@ DEFINE_METHOD(Counter, increase) {
 }
 
 DEFINE_METHOD(Counter, get) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& key = ctx->arg("key");
     std::string value;
     if (ctx->get_object(key, &value)) {

@@ -1,8 +1,8 @@
 #include <string>
 #include <vector>
-#include "xchain/xchain.h"
+#include "mchain/mchain.h"
 
-class UnifiedCheck : public xchain::Contract {};
+class UnifiedCheck : public mchain::Contract {};
 
 // define delimiters
 const std::string DELIMITER_COMMA = ",";  // used for dividing contract args
@@ -38,7 +38,7 @@ std::string string_last(const std::string& source,
     return source;
 }
 
-int verify_address(xchain::Context* ctx, std::string address) {
+int verify_address(mchain::Context* ctx, std::string address) {
     std::string value;
     std::string key = PREFIX_IDENTITY + address;
     if (!ctx->get_object(key, &value) || value != "true") {
@@ -49,10 +49,10 @@ int verify_address(xchain::Context* ctx, std::string address) {
 
 // verify if initiator and auth_require are in identify list
 // return 0 if check pass, otherwise check fail
-int verify_identity(xchain::Context* ctx) {
+int verify_identity(mchain::Context* ctx) {
     // verify initiator
-    xchain::Account initiator(ctx->initiator());
-    if (initiator.type() == xchain::ADDRESS) {
+    mchain::Account initiator(ctx->initiator());
+    if (initiator.type() == mchain::ADDRESS) {
         // initiator is address
         if (verify_address(ctx, initiator.get_name()) != 0) {
             return -1;
@@ -84,7 +84,7 @@ int verify_identity(xchain::Context* ctx) {
 
 // verify is one of the contracts is banned
 // return 0 if not banned, otherwise check fail
-int verify_banned(xchain::Context* ctx) {
+int verify_banned(mchain::Context* ctx) {
     const std::string keys = ctx->arg("contract");
 
     std::vector<std::string> contracts;
@@ -104,7 +104,7 @@ int verify_banned(xchain::Context* ctx) {
 // initialize method provisioning contract
 // note that creator is important for adding more address into identity list
 DEFINE_METHOD(UnifiedCheck, initialize) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& creator = ctx->arg("creator");
     if (creator.empty()) {
         ctx->error("missing creator");
@@ -120,7 +120,7 @@ DEFINE_METHOD(UnifiedCheck, initialize) {
 //////// identity contract write method ////////
 // register_aks method register aks to identify contract
 DEFINE_METHOD(UnifiedCheck, register_aks) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
 
     // aks register to identity contract
     const std::string aks = ctx->arg("aks");
@@ -140,7 +140,7 @@ DEFINE_METHOD(UnifiedCheck, register_aks) {
 
 // unregister_aks method unregister aks from identify contract
 DEFINE_METHOD(UnifiedCheck, unregister_aks) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
 
     // aks unregister form identity contract
     const std::string aks = ctx->arg("aks");
@@ -161,7 +161,7 @@ DEFINE_METHOD(UnifiedCheck, unregister_aks) {
 //////// banned contract write method ////////
 // ban could add contracts to banned list
 DEFINE_METHOD(UnifiedCheck, ban) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string keys = ctx->arg("contract");
     const std::string value = "true";
 
@@ -180,7 +180,7 @@ DEFINE_METHOD(UnifiedCheck, ban) {
 
 // unban could remove contracts from banned list
 DEFINE_METHOD(UnifiedCheck, unban) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string keys = ctx->arg("contract");
 
     std::vector<std::string> contracts;
@@ -199,7 +199,7 @@ DEFINE_METHOD(UnifiedCheck, unban) {
 //////// unified verify method ////////
 // verify method verify whether the aks were identified
 DEFINE_METHOD(UnifiedCheck, verify) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     if (verify_identity(ctx) != 0) {
         ctx->error("identity check failed");
         return;
@@ -216,7 +216,7 @@ DEFINE_METHOD(UnifiedCheck, verify) {
 // identity_check return if the initiator and auth_requires are in identiy list
 // keep this method for convenience
 DEFINE_METHOD(UnifiedCheck, identity_check) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     if (verify_identity(ctx) != 0) {
         ctx->error("identity check failed");
         return;
@@ -228,7 +228,7 @@ DEFINE_METHOD(UnifiedCheck, identity_check) {
 // identity_query return whether address is in identity list
 // keep this method for convenience
 DEFINE_METHOD(UnifiedCheck, identity_query) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& address = ctx->arg("address");
     if (address.empty()) {
         ctx->error("missing address");
@@ -246,7 +246,7 @@ DEFINE_METHOD(UnifiedCheck, identity_query) {
 // banned_check return if the contract is banned
 // keep this method for convenience
 DEFINE_METHOD(UnifiedCheck, banned_check) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     if (verify_banned(ctx) != 0) {
         ctx->error("banned contract check failed");
         return;

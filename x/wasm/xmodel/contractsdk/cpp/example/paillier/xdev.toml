@@ -2,5 +2,5 @@
 name = "main"
 
 [[dependencies]]
-name = "xchain"
-modules = ["xchain/trust_operators"]
+name = "mchain"
+modules = ["mchain/trust_operators"]

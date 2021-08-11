@@ -3,7 +3,7 @@ var assert = require("assert");
 var codePath = "../build/crypto.wasm";
 
 function deploy() {
-    return xchain.Deploy({
+    return mchain.Deploy({
         name: "crypto",
         code: codePath,
         lang: "c",

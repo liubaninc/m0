@@ -2,9 +2,9 @@
 #include <cstdlib>
 #include <climits>
 #include <cassert>
-#include "xchain/xchain.h"
+#include "mchain/mchain.h"
 
-struct Move : public xchain::Contract {};
+struct Move : public mchain::Contract {};
 
 const std::string BALANCEPRE = "balanceOf_";
 
@@ -39,7 +39,7 @@ ret_t string2num(const std::string& from, int64_t *to) {
 }
 
 DEFINE_METHOD(Move, initialize) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& caller = ctx->initiator();
     if (caller.empty()) {
         ctx->error("missing caller");
@@ -66,7 +66,7 @@ DEFINE_METHOD(Move, initialize) {
 }
 
 DEFINE_METHOD(Move, balance) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& caller = ctx->arg("caller");
     std::string key;
     if (caller.empty()) {
@@ -89,7 +89,7 @@ DEFINE_METHOD(Move, balance) {
 }
 
 DEFINE_METHOD(Move, transfer) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& from = ctx->initiator();
     if (from.empty()) {
         ctx->error("missing from");

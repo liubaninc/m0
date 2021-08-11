@@ -77,7 +77,7 @@ func (d *DockerProcess) Start() error {
 	}
 
 	env := []string{
-		"XCHAIN_PING_TIMEOUT=" + strconv.Itoa(pingTimeoutSecond),
+		"MCHAIN_PING_TIMEOUT=" + strconv.Itoa(pingTimeoutSecond),
 	}
 	env = append(env, d.envs...)
 	env = append(env, os.Environ()...)
@@ -174,7 +174,7 @@ func (h *HostProcess) Start() error {
 		Setsid: true,
 		Pgid:   0,
 	}
-	cmd.Env = []string{"XCHAIN_PING_TIMEOUT=" + strconv.Itoa(pingTimeoutSecond)}
+	cmd.Env = []string{"MCHAIN_PING_TIMEOUT=" + strconv.Itoa(pingTimeoutSecond)}
 	cmd.Env = append(cmd.Env, h.envs...)
 	cmd.Env = append(cmd.Env, os.Environ()...)
 	cmd.Stdout = os.Stdout

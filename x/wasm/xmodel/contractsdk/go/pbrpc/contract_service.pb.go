@@ -129,66 +129,66 @@ var file_contract_service_proto_rawDesc = []byte{
 }
 
 var file_contract_service_proto_goTypes = []interface{}{
-	(*pb.NativeCallRequest)(nil),    // 0: xchain.contract.sdk.NativeCallRequest
-	(*pb.PingRequest)(nil),          // 1: xchain.contract.sdk.PingRequest
-	(*pb.PutRequest)(nil),           // 2: xchain.contract.sdk.PutRequest
-	(*pb.GetRequest)(nil),           // 3: xchain.contract.sdk.GetRequest
-	(*pb.DeleteRequest)(nil),        // 4: xchain.contract.sdk.DeleteRequest
-	(*pb.IteratorRequest)(nil),      // 5: xchain.contract.sdk.IteratorRequest
-	(*pb.QueryTxRequest)(nil),       // 6: xchain.contract.sdk.QueryTxRequest
-	(*pb.QueryBlockRequest)(nil),    // 7: xchain.contract.sdk.QueryBlockRequest
-	(*pb.TransferRequest)(nil),      // 8: xchain.contract.sdk.TransferRequest
-	(*pb.ContractCallRequest)(nil),  // 9: xchain.contract.sdk.ContractCallRequest
-	(*pb.PostLogRequest)(nil),       // 10: xchain.contract.sdk.PostLogRequest
-	(*pb.GetCallArgsRequest)(nil),   // 11: xchain.contract.sdk.GetCallArgsRequest
-	(*pb.SetOutputRequest)(nil),     // 12: xchain.contract.sdk.SetOutputRequest
-	(*pb.EmitEventRequest)(nil),     // 13: xchain.contract.sdk.EmitEventRequest
-	(*pb.NativeCallResponse)(nil),   // 14: xchain.contract.sdk.NativeCallResponse
-	(*pb.PingResponse)(nil),         // 15: xchain.contract.sdk.PingResponse
-	(*pb.PutResponse)(nil),          // 16: xchain.contract.sdk.PutResponse
-	(*pb.GetResponse)(nil),          // 17: xchain.contract.sdk.GetResponse
-	(*pb.DeleteResponse)(nil),       // 18: xchain.contract.sdk.DeleteResponse
-	(*pb.IteratorResponse)(nil),     // 19: xchain.contract.sdk.IteratorResponse
-	(*pb.QueryTxResponse)(nil),      // 20: xchain.contract.sdk.QueryTxResponse
-	(*pb.QueryBlockResponse)(nil),   // 21: xchain.contract.sdk.QueryBlockResponse
-	(*pb.TransferResponse)(nil),     // 22: xchain.contract.sdk.TransferResponse
-	(*pb.ContractCallResponse)(nil), // 23: xchain.contract.sdk.ContractCallResponse
-	(*pb.PostLogResponse)(nil),      // 24: xchain.contract.sdk.PostLogResponse
-	(*pb.CallArgs)(nil),             // 25: xchain.contract.sdk.CallArgs
-	(*pb.SetOutputResponse)(nil),    // 26: xchain.contract.sdk.SetOutputResponse
-	(*pb.EmitEventResponse)(nil),    // 27: xchain.contract.sdk.EmitEventResponse
+	(*pb.NativeCallRequest)(nil),    // 0: mchain.contract.sdk.NativeCallRequest
+	(*pb.PingRequest)(nil),          // 1: mchain.contract.sdk.PingRequest
+	(*pb.PutRequest)(nil),           // 2: mchain.contract.sdk.PutRequest
+	(*pb.GetRequest)(nil),           // 3: mchain.contract.sdk.GetRequest
+	(*pb.DeleteRequest)(nil),        // 4: mchain.contract.sdk.DeleteRequest
+	(*pb.IteratorRequest)(nil),      // 5: mchain.contract.sdk.IteratorRequest
+	(*pb.QueryTxRequest)(nil),       // 6: mchain.contract.sdk.QueryTxRequest
+	(*pb.QueryBlockRequest)(nil),    // 7: mchain.contract.sdk.QueryBlockRequest
+	(*pb.TransferRequest)(nil),      // 8: mchain.contract.sdk.TransferRequest
+	(*pb.ContractCallRequest)(nil),  // 9: mchain.contract.sdk.ContractCallRequest
+	(*pb.PostLogRequest)(nil),       // 10: mchain.contract.sdk.PostLogRequest
+	(*pb.GetCallArgsRequest)(nil),   // 11: mchain.contract.sdk.GetCallArgsRequest
+	(*pb.SetOutputRequest)(nil),     // 12: mchain.contract.sdk.SetOutputRequest
+	(*pb.EmitEventRequest)(nil),     // 13: mchain.contract.sdk.EmitEventRequest
+	(*pb.NativeCallResponse)(nil),   // 14: mchain.contract.sdk.NativeCallResponse
+	(*pb.PingResponse)(nil),         // 15: mchain.contract.sdk.PingResponse
+	(*pb.PutResponse)(nil),          // 16: mchain.contract.sdk.PutResponse
+	(*pb.GetResponse)(nil),          // 17: mchain.contract.sdk.GetResponse
+	(*pb.DeleteResponse)(nil),       // 18: mchain.contract.sdk.DeleteResponse
+	(*pb.IteratorResponse)(nil),     // 19: mchain.contract.sdk.IteratorResponse
+	(*pb.QueryTxResponse)(nil),      // 20: mchain.contract.sdk.QueryTxResponse
+	(*pb.QueryBlockResponse)(nil),   // 21: mchain.contract.sdk.QueryBlockResponse
+	(*pb.TransferResponse)(nil),     // 22: mchain.contract.sdk.TransferResponse
+	(*pb.ContractCallResponse)(nil), // 23: mchain.contract.sdk.ContractCallResponse
+	(*pb.PostLogResponse)(nil),      // 24: mchain.contract.sdk.PostLogResponse
+	(*pb.CallArgs)(nil),             // 25: mchain.contract.sdk.CallArgs
+	(*pb.SetOutputResponse)(nil),    // 26: mchain.contract.sdk.SetOutputResponse
+	(*pb.EmitEventResponse)(nil),    // 27: mchain.contract.sdk.EmitEventResponse
 }
 var file_contract_service_proto_depIdxs = []int32{
-	0,  // 0: xchain.contract.svc.NativeCode.Call:input_type -> xchain.contract.sdk.NativeCallRequest
-	1,  // 1: xchain.contract.svc.NativeCode.Ping:input_type -> xchain.contract.sdk.PingRequest
-	2,  // 2: xchain.contract.svc.Syscall.PutObject:input_type -> xchain.contract.sdk.PutRequest
-	3,  // 3: xchain.contract.svc.Syscall.GetObject:input_type -> xchain.contract.sdk.GetRequest
-	4,  // 4: xchain.contract.svc.Syscall.DeleteObject:input_type -> xchain.contract.sdk.DeleteRequest
-	5,  // 5: xchain.contract.svc.Syscall.NewIterator:input_type -> xchain.contract.sdk.IteratorRequest
-	6,  // 6: xchain.contract.svc.Syscall.QueryTx:input_type -> xchain.contract.sdk.QueryTxRequest
-	7,  // 7: xchain.contract.svc.Syscall.QueryBlock:input_type -> xchain.contract.sdk.QueryBlockRequest
-	8,  // 8: xchain.contract.svc.Syscall.Transfer:input_type -> xchain.contract.sdk.TransferRequest
-	9,  // 9: xchain.contract.svc.Syscall.ContractCall:input_type -> xchain.contract.sdk.ContractCallRequest
-	1,  // 10: xchain.contract.svc.Syscall.Ping:input_type -> xchain.contract.sdk.PingRequest
-	10, // 11: xchain.contract.svc.Syscall.PostLog:input_type -> xchain.contract.sdk.PostLogRequest
-	11, // 12: xchain.contract.svc.Syscall.GetCallArgs:input_type -> xchain.contract.sdk.GetCallArgsRequest
-	12, // 13: xchain.contract.svc.Syscall.SetOutput:input_type -> xchain.contract.sdk.SetOutputRequest
-	13, // 14: xchain.contract.svc.Syscall.EmitEvent:input_type -> xchain.contract.sdk.EmitEventRequest
-	14, // 15: xchain.contract.svc.NativeCode.Call:output_type -> xchain.contract.sdk.NativeCallResponse
-	15, // 16: xchain.contract.svc.NativeCode.Ping:output_type -> xchain.contract.sdk.PingResponse
-	16, // 17: xchain.contract.svc.Syscall.PutObject:output_type -> xchain.contract.sdk.PutResponse
-	17, // 18: xchain.contract.svc.Syscall.GetObject:output_type -> xchain.contract.sdk.GetResponse
-	18, // 19: xchain.contract.svc.Syscall.DeleteObject:output_type -> xchain.contract.sdk.DeleteResponse
-	19, // 20: xchain.contract.svc.Syscall.NewIterator:output_type -> xchain.contract.sdk.IteratorResponse
-	20, // 21: xchain.contract.svc.Syscall.QueryTx:output_type -> xchain.contract.sdk.QueryTxResponse
-	21, // 22: xchain.contract.svc.Syscall.QueryBlock:output_type -> xchain.contract.sdk.QueryBlockResponse
-	22, // 23: xchain.contract.svc.Syscall.Transfer:output_type -> xchain.contract.sdk.TransferResponse
-	23, // 24: xchain.contract.svc.Syscall.ContractCall:output_type -> xchain.contract.sdk.ContractCallResponse
-	15, // 25: xchain.contract.svc.Syscall.Ping:output_type -> xchain.contract.sdk.PingResponse
-	24, // 26: xchain.contract.svc.Syscall.PostLog:output_type -> xchain.contract.sdk.PostLogResponse
-	25, // 27: xchain.contract.svc.Syscall.GetCallArgs:output_type -> xchain.contract.sdk.CallArgs
-	26, // 28: xchain.contract.svc.Syscall.SetOutput:output_type -> xchain.contract.sdk.SetOutputResponse
-	27, // 29: xchain.contract.svc.Syscall.EmitEvent:output_type -> xchain.contract.sdk.EmitEventResponse
+	0,  // 0: mchain.contract.svc.NativeCode.Call:input_type -> mchain.contract.sdk.NativeCallRequest
+	1,  // 1: mchain.contract.svc.NativeCode.Ping:input_type -> mchain.contract.sdk.PingRequest
+	2,  // 2: mchain.contract.svc.Syscall.PutObject:input_type -> mchain.contract.sdk.PutRequest
+	3,  // 3: mchain.contract.svc.Syscall.GetObject:input_type -> mchain.contract.sdk.GetRequest
+	4,  // 4: mchain.contract.svc.Syscall.DeleteObject:input_type -> mchain.contract.sdk.DeleteRequest
+	5,  // 5: mchain.contract.svc.Syscall.NewIterator:input_type -> mchain.contract.sdk.IteratorRequest
+	6,  // 6: mchain.contract.svc.Syscall.QueryTx:input_type -> mchain.contract.sdk.QueryTxRequest
+	7,  // 7: mchain.contract.svc.Syscall.QueryBlock:input_type -> mchain.contract.sdk.QueryBlockRequest
+	8,  // 8: mchain.contract.svc.Syscall.Transfer:input_type -> mchain.contract.sdk.TransferRequest
+	9,  // 9: mchain.contract.svc.Syscall.ContractCall:input_type -> mchain.contract.sdk.ContractCallRequest
+	1,  // 10: mchain.contract.svc.Syscall.Ping:input_type -> mchain.contract.sdk.PingRequest
+	10, // 11: mchain.contract.svc.Syscall.PostLog:input_type -> mchain.contract.sdk.PostLogRequest
+	11, // 12: mchain.contract.svc.Syscall.GetCallArgs:input_type -> mchain.contract.sdk.GetCallArgsRequest
+	12, // 13: mchain.contract.svc.Syscall.SetOutput:input_type -> mchain.contract.sdk.SetOutputRequest
+	13, // 14: mchain.contract.svc.Syscall.EmitEvent:input_type -> mchain.contract.sdk.EmitEventRequest
+	14, // 15: mchain.contract.svc.NativeCode.Call:output_type -> mchain.contract.sdk.NativeCallResponse
+	15, // 16: mchain.contract.svc.NativeCode.Ping:output_type -> mchain.contract.sdk.PingResponse
+	16, // 17: mchain.contract.svc.Syscall.PutObject:output_type -> mchain.contract.sdk.PutResponse
+	17, // 18: mchain.contract.svc.Syscall.GetObject:output_type -> mchain.contract.sdk.GetResponse
+	18, // 19: mchain.contract.svc.Syscall.DeleteObject:output_type -> mchain.contract.sdk.DeleteResponse
+	19, // 20: mchain.contract.svc.Syscall.NewIterator:output_type -> mchain.contract.sdk.IteratorResponse
+	20, // 21: mchain.contract.svc.Syscall.QueryTx:output_type -> mchain.contract.sdk.QueryTxResponse
+	21, // 22: mchain.contract.svc.Syscall.QueryBlock:output_type -> mchain.contract.sdk.QueryBlockResponse
+	22, // 23: mchain.contract.svc.Syscall.Transfer:output_type -> mchain.contract.sdk.TransferResponse
+	23, // 24: mchain.contract.svc.Syscall.ContractCall:output_type -> mchain.contract.sdk.ContractCallResponse
+	15, // 25: mchain.contract.svc.Syscall.Ping:output_type -> mchain.contract.sdk.PingResponse
+	24, // 26: mchain.contract.svc.Syscall.PostLog:output_type -> mchain.contract.sdk.PostLogResponse
+	25, // 27: mchain.contract.svc.Syscall.GetCallArgs:output_type -> mchain.contract.sdk.CallArgs
+	26, // 28: mchain.contract.svc.Syscall.SetOutput:output_type -> mchain.contract.sdk.SetOutputResponse
+	27, // 29: mchain.contract.svc.Syscall.EmitEvent:output_type -> mchain.contract.sdk.EmitEventResponse
 	15, // [15:30] is the sub-list for method output_type
 	0,  // [0:15] is the sub-list for method input_type
 	0,  // [0:0] is the sub-list for extension type_name
@@ -246,7 +246,7 @@ func NewNativeCodeClient(cc grpc.ClientConnInterface) NativeCodeClient {
 
 func (c *nativeCodeClient) Call(ctx context.Context, in *pb.NativeCallRequest, opts ...grpc.CallOption) (*pb.NativeCallResponse, error) {
 	out := new(pb.NativeCallResponse)
-	err := c.cc.Invoke(ctx, "/xchain.contract.svc.NativeCode/Call", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mchain.contract.svc.NativeCode/Call", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -255,7 +255,7 @@ func (c *nativeCodeClient) Call(ctx context.Context, in *pb.NativeCallRequest, o
 
 func (c *nativeCodeClient) Ping(ctx context.Context, in *pb.PingRequest, opts ...grpc.CallOption) (*pb.PingResponse, error) {
 	out := new(pb.PingResponse)
-	err := c.cc.Invoke(ctx, "/xchain.contract.svc.NativeCode/Ping", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mchain.contract.svc.NativeCode/Ping", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -293,7 +293,7 @@ func _NativeCode_Call_Handler(srv interface{}, ctx context.Context, dec func(int
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/xchain.contract.svc.NativeCode/Call",
+		FullMethod: "/mchain.contract.svc.NativeCode/Call",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(NativeCodeServer).Call(ctx, req.(*pb.NativeCallRequest))
@@ -311,7 +311,7 @@ func _NativeCode_Ping_Handler(srv interface{}, ctx context.Context, dec func(int
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/xchain.contract.svc.NativeCode/Ping",
+		FullMethod: "/mchain.contract.svc.NativeCode/Ping",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(NativeCodeServer).Ping(ctx, req.(*pb.PingRequest))
@@ -320,7 +320,7 @@ func _NativeCode_Ping_Handler(srv interface{}, ctx context.Context, dec func(int
 }
 
 var _NativeCode_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "xchain.contract.svc.NativeCode",
+	ServiceName: "mchain.contract.svc.NativeCode",
 	HandlerType: (*NativeCodeServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -370,7 +370,7 @@ func NewSyscallClient(cc grpc.ClientConnInterface) SyscallClient {
 
 func (c *syscallClient) PutObject(ctx context.Context, in *pb.PutRequest, opts ...grpc.CallOption) (*pb.PutResponse, error) {
 	out := new(pb.PutResponse)
-	err := c.cc.Invoke(ctx, "/xchain.contract.svc.Syscall/PutObject", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mchain.contract.svc.Syscall/PutObject", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -379,7 +379,7 @@ func (c *syscallClient) PutObject(ctx context.Context, in *pb.PutRequest, opts .
 
 func (c *syscallClient) GetObject(ctx context.Context, in *pb.GetRequest, opts ...grpc.CallOption) (*pb.GetResponse, error) {
 	out := new(pb.GetResponse)
-	err := c.cc.Invoke(ctx, "/xchain.contract.svc.Syscall/GetObject", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mchain.contract.svc.Syscall/GetObject", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -388,7 +388,7 @@ func (c *syscallClient) GetObject(ctx context.Context, in *pb.GetRequest, opts .
 
 func (c *syscallClient) DeleteObject(ctx context.Context, in *pb.DeleteRequest, opts ...grpc.CallOption) (*pb.DeleteResponse, error) {
 	out := new(pb.DeleteResponse)
-	err := c.cc.Invoke(ctx, "/xchain.contract.svc.Syscall/DeleteObject", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mchain.contract.svc.Syscall/DeleteObject", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -397,7 +397,7 @@ func (c *syscallClient) DeleteObject(ctx context.Context, in *pb.DeleteRequest, 
 
 func (c *syscallClient) NewIterator(ctx context.Context, in *pb.IteratorRequest, opts ...grpc.CallOption) (*pb.IteratorResponse, error) {
 	out := new(pb.IteratorResponse)
-	err := c.cc.Invoke(ctx, "/xchain.contract.svc.Syscall/NewIterator", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mchain.contract.svc.Syscall/NewIterator", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -406,7 +406,7 @@ func (c *syscallClient) NewIterator(ctx context.Context, in *pb.IteratorRequest,
 
 func (c *syscallClient) QueryTx(ctx context.Context, in *pb.QueryTxRequest, opts ...grpc.CallOption) (*pb.QueryTxResponse, error) {
 	out := new(pb.QueryTxResponse)
-	err := c.cc.Invoke(ctx, "/xchain.contract.svc.Syscall/QueryTx", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mchain.contract.svc.Syscall/QueryTx", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -415,7 +415,7 @@ func (c *syscallClient) QueryTx(ctx context.Context, in *pb.QueryTxRequest, opts
 
 func (c *syscallClient) QueryBlock(ctx context.Context, in *pb.QueryBlockRequest, opts ...grpc.CallOption) (*pb.QueryBlockResponse, error) {
 	out := new(pb.QueryBlockResponse)
-	err := c.cc.Invoke(ctx, "/xchain.contract.svc.Syscall/QueryBlock", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mchain.contract.svc.Syscall/QueryBlock", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -424,7 +424,7 @@ func (c *syscallClient) QueryBlock(ctx context.Context, in *pb.QueryBlockRequest
 
 func (c *syscallClient) Transfer(ctx context.Context, in *pb.TransferRequest, opts ...grpc.CallOption) (*pb.TransferResponse, error) {
 	out := new(pb.TransferResponse)
-	err := c.cc.Invoke(ctx, "/xchain.contract.svc.Syscall/Transfer", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mchain.contract.svc.Syscall/Transfer", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -433,7 +433,7 @@ func (c *syscallClient) Transfer(ctx context.Context, in *pb.TransferRequest, op
 
 func (c *syscallClient) ContractCall(ctx context.Context, in *pb.ContractCallRequest, opts ...grpc.CallOption) (*pb.ContractCallResponse, error) {
 	out := new(pb.ContractCallResponse)
-	err := c.cc.Invoke(ctx, "/xchain.contract.svc.Syscall/ContractCall", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mchain.contract.svc.Syscall/ContractCall", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -442,7 +442,7 @@ func (c *syscallClient) ContractCall(ctx context.Context, in *pb.ContractCallReq
 
 func (c *syscallClient) Ping(ctx context.Context, in *pb.PingRequest, opts ...grpc.CallOption) (*pb.PingResponse, error) {
 	out := new(pb.PingResponse)
-	err := c.cc.Invoke(ctx, "/xchain.contract.svc.Syscall/Ping", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mchain.contract.svc.Syscall/Ping", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -451,7 +451,7 @@ func (c *syscallClient) Ping(ctx context.Context, in *pb.PingRequest, opts ...gr
 
 func (c *syscallClient) PostLog(ctx context.Context, in *pb.PostLogRequest, opts ...grpc.CallOption) (*pb.PostLogResponse, error) {
 	out := new(pb.PostLogResponse)
-	err := c.cc.Invoke(ctx, "/xchain.contract.svc.Syscall/PostLog", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mchain.contract.svc.Syscall/PostLog", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -460,7 +460,7 @@ func (c *syscallClient) PostLog(ctx context.Context, in *pb.PostLogRequest, opts
 
 func (c *syscallClient) GetCallArgs(ctx context.Context, in *pb.GetCallArgsRequest, opts ...grpc.CallOption) (*pb.CallArgs, error) {
 	out := new(pb.CallArgs)
-	err := c.cc.Invoke(ctx, "/xchain.contract.svc.Syscall/GetCallArgs", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mchain.contract.svc.Syscall/GetCallArgs", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -469,7 +469,7 @@ func (c *syscallClient) GetCallArgs(ctx context.Context, in *pb.GetCallArgsReque
 
 func (c *syscallClient) SetOutput(ctx context.Context, in *pb.SetOutputRequest, opts ...grpc.CallOption) (*pb.SetOutputResponse, error) {
 	out := new(pb.SetOutputResponse)
-	err := c.cc.Invoke(ctx, "/xchain.contract.svc.Syscall/SetOutput", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mchain.contract.svc.Syscall/SetOutput", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -478,7 +478,7 @@ func (c *syscallClient) SetOutput(ctx context.Context, in *pb.SetOutputRequest, 
 
 func (c *syscallClient) EmitEvent(ctx context.Context, in *pb.EmitEventRequest, opts ...grpc.CallOption) (*pb.EmitEventResponse, error) {
 	out := new(pb.EmitEventResponse)
-	err := c.cc.Invoke(ctx, "/xchain.contract.svc.Syscall/EmitEvent", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/mchain.contract.svc.Syscall/EmitEvent", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -565,7 +565,7 @@ func _Syscall_PutObject_Handler(srv interface{}, ctx context.Context, dec func(i
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/xchain.contract.svc.Syscall/PutObject",
+		FullMethod: "/mchain.contract.svc.Syscall/PutObject",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SyscallServer).PutObject(ctx, req.(*pb.PutRequest))
@@ -583,7 +583,7 @@ func _Syscall_GetObject_Handler(srv interface{}, ctx context.Context, dec func(i
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/xchain.contract.svc.Syscall/GetObject",
+		FullMethod: "/mchain.contract.svc.Syscall/GetObject",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SyscallServer).GetObject(ctx, req.(*pb.GetRequest))
@@ -601,7 +601,7 @@ func _Syscall_DeleteObject_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/xchain.contract.svc.Syscall/DeleteObject",
+		FullMethod: "/mchain.contract.svc.Syscall/DeleteObject",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SyscallServer).DeleteObject(ctx, req.(*pb.DeleteRequest))
@@ -619,7 +619,7 @@ func _Syscall_NewIterator_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/xchain.contract.svc.Syscall/NewIterator",
+		FullMethod: "/mchain.contract.svc.Syscall/NewIterator",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SyscallServer).NewIterator(ctx, req.(*pb.IteratorRequest))
@@ -637,7 +637,7 @@ func _Syscall_QueryTx_Handler(srv interface{}, ctx context.Context, dec func(int
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/xchain.contract.svc.Syscall/QueryTx",
+		FullMethod: "/mchain.contract.svc.Syscall/QueryTx",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SyscallServer).QueryTx(ctx, req.(*pb.QueryTxRequest))
@@ -655,7 +655,7 @@ func _Syscall_QueryBlock_Handler(srv interface{}, ctx context.Context, dec func(
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/xchain.contract.svc.Syscall/QueryBlock",
+		FullMethod: "/mchain.contract.svc.Syscall/QueryBlock",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SyscallServer).QueryBlock(ctx, req.(*pb.QueryBlockRequest))
@@ -673,7 +673,7 @@ func _Syscall_Transfer_Handler(srv interface{}, ctx context.Context, dec func(in
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/xchain.contract.svc.Syscall/Transfer",
+		FullMethod: "/mchain.contract.svc.Syscall/Transfer",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SyscallServer).Transfer(ctx, req.(*pb.TransferRequest))
@@ -691,7 +691,7 @@ func _Syscall_ContractCall_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/xchain.contract.svc.Syscall/ContractCall",
+		FullMethod: "/mchain.contract.svc.Syscall/ContractCall",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SyscallServer).ContractCall(ctx, req.(*pb.ContractCallRequest))
@@ -709,7 +709,7 @@ func _Syscall_Ping_Handler(srv interface{}, ctx context.Context, dec func(interf
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/xchain.contract.svc.Syscall/Ping",
+		FullMethod: "/mchain.contract.svc.Syscall/Ping",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SyscallServer).Ping(ctx, req.(*pb.PingRequest))
@@ -727,7 +727,7 @@ func _Syscall_PostLog_Handler(srv interface{}, ctx context.Context, dec func(int
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/xchain.contract.svc.Syscall/PostLog",
+		FullMethod: "/mchain.contract.svc.Syscall/PostLog",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SyscallServer).PostLog(ctx, req.(*pb.PostLogRequest))
@@ -745,7 +745,7 @@ func _Syscall_GetCallArgs_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/xchain.contract.svc.Syscall/GetCallArgs",
+		FullMethod: "/mchain.contract.svc.Syscall/GetCallArgs",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SyscallServer).GetCallArgs(ctx, req.(*pb.GetCallArgsRequest))
@@ -763,7 +763,7 @@ func _Syscall_SetOutput_Handler(srv interface{}, ctx context.Context, dec func(i
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/xchain.contract.svc.Syscall/SetOutput",
+		FullMethod: "/mchain.contract.svc.Syscall/SetOutput",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SyscallServer).SetOutput(ctx, req.(*pb.SetOutputRequest))
@@ -781,7 +781,7 @@ func _Syscall_EmitEvent_Handler(srv interface{}, ctx context.Context, dec func(i
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/xchain.contract.svc.Syscall/EmitEvent",
+		FullMethod: "/mchain.contract.svc.Syscall/EmitEvent",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SyscallServer).EmitEvent(ctx, req.(*pb.EmitEventRequest))
@@ -790,7 +790,7 @@ func _Syscall_EmitEvent_Handler(srv interface{}, ctx context.Context, dec func(i
 }
 
 var _Syscall_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "xchain.contract.svc.Syscall",
+	ServiceName: "mchain.contract.svc.Syscall",
 	HandlerType: (*SyscallServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

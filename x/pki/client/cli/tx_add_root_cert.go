@@ -2,6 +2,7 @@ package cli
 
 import (
 	"github.com/spf13/cobra"
+	"io/ioutil"
 	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -25,7 +26,12 @@ func CmdAddRootCert() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgAddRootCert(clientCtx.GetFromAddress().String(), string(argsCertificate))
+			bts, err := ioutil.ReadFile(argsCertificate)
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgAddRootCert(clientCtx.GetFromAddress().String(), string(bts))
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}

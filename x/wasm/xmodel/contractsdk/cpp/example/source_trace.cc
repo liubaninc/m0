@@ -1,8 +1,8 @@
-#include "xchain/xchain.h"
+#include "mchain/mchain.h"
 
 
 // 商品溯源合约模板
-// 参数由xchain::Contract中的context提供
+// 参数由mchain::Contract中的context提供
 class SourceTrace {
 public:
     /*
@@ -32,7 +32,7 @@ public:
 
 };
 
-struct SourceTraceDemo : public SourceTrace, public xchain::Contract {
+struct SourceTraceDemo : public SourceTrace, public mchain::Contract {
 public:
     const std::string GOODS = "GOODS_";
     const std::string GOODSRECORD = "GOODSSRECORD_";
@@ -40,7 +40,7 @@ public:
     const std::string CREATE = "CREATE";
 
     void initialize() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         const std::string& admin = ctx->arg("admin");
         if (admin.empty()) {
             ctx->error("missing admin address");
@@ -51,7 +51,7 @@ public:
         ctx->ok("initialize success");
     }
 
-    bool isAdmin(xchain::Context* ctx, const std::string& caller) {
+    bool isAdmin(mchain::Context* ctx, const std::string& caller) {
         std::string admin;
         if (!ctx->get_object("admin", &admin)) {
             return false;
@@ -60,7 +60,7 @@ public:
     }
 
     void createGoods() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         const std::string& caller = ctx->initiator();
         if (caller.empty()) {
             ctx->error("missing initiator");
@@ -100,7 +100,7 @@ public:
     }
 
     void updateGoods() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         const std::string& caller = ctx->initiator();
         if (caller.empty()) {
             ctx->error("missing initiator");
@@ -140,7 +140,7 @@ public:
     }
 
     void queryRecords() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         const std::string& id = ctx->arg("id");
         if (id.empty()) {
             ctx->error("missing 'id' as goods identity");
@@ -155,7 +155,7 @@ public:
         }
 
         std::string goodsRecordsKey = GOODSRECORD + id + "_";
-        std::unique_ptr<xchain::Iterator> iter =
+        std::unique_ptr<mchain::Iterator> iter =
             ctx->new_iterator(goodsRecordsKey, goodsRecordsKey + "~");
 
         std::string result = "\n";

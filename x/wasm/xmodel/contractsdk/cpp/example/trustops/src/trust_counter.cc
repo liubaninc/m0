@@ -1,11 +1,11 @@
-#include "xchain/trust_operators/trust_operators.h"
-#include "xchain/xchain.h"
+#include "mchain/trust_operators/trust_operators.h"
+#include "mchain/mchain.h"
 #include <iostream>
 
-struct Counter : public xchain::Contract {};
+struct Counter : public mchain::Contract {};
 
 DEFINE_METHOD(Counter, initialize) {
-  xchain::Context *ctx = self.context();
+  mchain::Context *ctx = self.context();
   const std::string &creator = ctx->arg("creator");
   if (creator.empty()) {
     ctx->error("missing creator");
@@ -17,7 +17,7 @@ DEFINE_METHOD(Counter, initialize) {
 
 // get a number by key
 DEFINE_METHOD(Counter, get) {
-  xchain::Context *ctx = self.context();
+  mchain::Context *ctx = self.context();
   const std::string &key = ctx->arg("key");
   std::string value;
   if (ctx->get_object(key, &value)) {
@@ -29,7 +29,7 @@ DEFINE_METHOD(Counter, get) {
 
 // store saves encrypted data directly
 DEFINE_METHOD(Counter, store) {
-  xchain::Context *ctx = self.context();
+  mchain::Context *ctx = self.context();
   std::string debug = "done";
   for (auto it = ctx->args().begin(); it != ctx->args().end(); ++it) {
     // args are already encrypted, just put
@@ -45,7 +45,7 @@ DEFINE_METHOD(Counter, store) {
 // input format: {"l":"key_l", "r":"key_r", "commitment": c1,
 //                "commitment2": c2}
 DEFINE_METHOD(Counter, add) {
-  xchain::Context *ctx = self.context();
+  mchain::Context *ctx = self.context();
   if (ctx->arg("l").empty() || ctx->arg("commitment").empty()) {
       ctx->error("missing left operand parameter ");
       return;
@@ -95,7 +95,7 @@ DEFINE_METHOD(Counter, add) {
 // input format: {"l":"key_l", "r":"key_r", "commitment": c1,
 //                "commitment2": c2}
 DEFINE_METHOD(Counter, sub) {
-  xchain::Context *ctx = self.context();
+  mchain::Context *ctx = self.context();
   if (ctx->arg("l").empty() || ctx->arg("commitment").empty()) {
       ctx->error("missing left operand parameter ");
       return;
@@ -145,7 +145,7 @@ DEFINE_METHOD(Counter, sub) {
 // input format: {"l":"key_l", "r":"key_r", "commitment": c1,
 //                "commitment2": c2}
 DEFINE_METHOD(Counter, mul) {
-  xchain::Context *ctx = self.context();
+  mchain::Context *ctx = self.context();
   if (ctx->arg("l").empty() || ctx->arg("commitment").empty()) {
       ctx->error("missing left operand parameter ");
       return;

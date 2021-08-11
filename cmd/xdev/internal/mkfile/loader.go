@@ -15,7 +15,7 @@ const (
 	PkgDescFile     = "xdev.toml"
 	ModDescFile     = "mod.toml"
 	SelfPackageName = "self"
-	XchainPackage   = "xchain"
+	XchainPackage   = "mchain"
 )
 
 // DependencyDesc 描述了依赖的package信息

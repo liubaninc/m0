@@ -1,13 +1,13 @@
 #include <assert.h>
-#include "xchain/xchain.h"
-#include "xchain/xrc01/xrc01.h"
+#include "mchain/mchain.h"
+#include "mchain/xrc01/xrc01.h"
 
 // XRC是超级链协议标准族
 // XRC_01是XRC协议家族中的第一个协议，支持在超级链中发行通用资产
 // 该协议同时支持可分割和不可分割两种资产的发行、转账、授权、授权转账、查询余额、授权关系等行为；
 
 // 通用资产协议XRC_01使用示例
-// 参数由xchain::Contract中的context提供
+// 参数由mchain::Contract中的context提供
 class XRC01_Example {
 public:
     /*
@@ -88,7 +88,7 @@ public:
     virtual void get_authorized_infos() = 0;
 };
 
-struct XRC01_Demo : public XRC01_Example, public xchain::Contract {
+struct XRC01_Demo : public XRC01_Example, public mchain::Contract {
 public:
     bool str2bool(const std::string var, bool& var_bool) {
         if (var == "1") {
@@ -119,7 +119,7 @@ public:
     }
 
     void initialize() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         const std::string& creator = ctx->arg("creator");
         if (creator.empty()) {
             ctx->error("missing creator");
@@ -130,7 +130,7 @@ public:
     }
 
     void issue() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         XRC01 xrc01(ctx);
         XRC01::token token;
 
@@ -176,7 +176,7 @@ public:
     }
 
     void authorization() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         XRC01 xrc01(ctx);
         const std::string& to = ctx->arg("to");
         uint64_t token_id;
@@ -199,7 +199,7 @@ public:
     }
 
     void withdraw_authorization() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         XRC01 xrc01(ctx);
 
         const std::string& from = ctx->arg("from");
@@ -224,7 +224,7 @@ public:
     }
 
     void transfer() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         XRC01 xrc01(ctx);
 
         const std::string& to = ctx->arg("to");
@@ -249,7 +249,7 @@ public:
     }
 
     void authorize_transfer() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         XRC01 xrc01(ctx);
 
         const std::string& from = ctx->arg("from");
@@ -275,7 +275,7 @@ public:
     }
 
     void get_balance() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         XRC01 xrc01(ctx);
 
         const std::string& account = ctx->arg("account");
@@ -295,7 +295,7 @@ public:
     }
 
     void get_authorized() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         XRC01 xrc01(ctx);
 
         const std::string& account = ctx->arg("account");
@@ -315,7 +315,7 @@ public:
     }
 
     void get_owner_of() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         XRC01 xrc01(ctx);
 
         uint64_t token_id;
@@ -335,7 +335,7 @@ public:
     }
 
     void get_authorize_infos() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         XRC01 xrc01(ctx);
 
         const std::string& account = ctx->arg("account");
@@ -364,7 +364,7 @@ public:
     }
 
     void get_authorized_infos() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         XRC01 xrc01(ctx);
 
         const std::string& account = ctx->arg("account");

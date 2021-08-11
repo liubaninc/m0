@@ -1,23 +1,23 @@
-#include "xchain/xchain.h"
+#include "mchain/mchain.h"
 
-struct CrossChain : public xchain::Contract {};
+struct CrossChain : public mchain::Contract {};
 
 DEFINE_METHOD(CrossChain, initialize) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     ctx->ok("ok");
 }
 
 DEFINE_METHOD(CrossChain, verifyTx) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& relay = ctx->arg("relay");
     const std::string& to_addr = ctx->initiator();
     const std::string& amount = ctx->arg("amount");
-    xchain::Transaction tx;
+    mchain::Transaction tx;
     if (!tx.from_raw(ctx->arg("tx"))) {
         ctx->error("parse tx error");
         return;
     }
-    xchain::Response resp;
+    mchain::Response resp;
     int ok = ctx->call("wasm", relay, "verifyTx",
                        {{"blockid", ctx->arg("blockid")},
                         {"txid", tx.txid},

@@ -1,21 +1,21 @@
-#include "xchain/crypto.h"
-#include "xchain/xchain.h"
+#include "mchain/crypto.h"
+#include "mchain/mchain.h"
 
-using namespace xchain::crypto;
+using namespace mchain::crypto;
 
-struct Crypto : public xchain::Contract {};
+struct Crypto : public mchain::Contract {};
 
 DEFINE_METHOD(Crypto, initialize) {}
 
 DEFINE_METHOD(Crypto, sha256) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& in = ctx->arg("in");
     std::string out = sha256(in);
     ctx->ok(hex_encode(out));
 }
 
 DEFINE_METHOD(Crypto, ecverify) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& hash_hex = ctx->arg("hash");
     std::string hash;
     hex_decode(hash_hex, &hash);
@@ -33,7 +33,7 @@ DEFINE_METHOD(Crypto, ecverify) {
 }
 
 DEFINE_METHOD(Crypto, addr_from_pubkey) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& pubkey = ctx->arg("pubkey");
     std::string addr;
     if (!addr_from_pubkey(pubkey, &addr)) {

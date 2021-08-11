@@ -1,4 +1,4 @@
-#include "xchain/xchain.h"
+#include "mchain/mchain.h"
 #include <string>
 
 const std::string UserBucket = "USER";
@@ -20,14 +20,14 @@ public:
     virtual void queryFileInfoByHash() = 0;
 };
 
-struct HashDeposit : public HashDepositBasic, public xchain::Contract {
+struct HashDeposit : public HashDepositBasic, public mchain::Contract {
 public:
     void initialize() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         ctx->ok("initialize success");
     }
     void storeFileInfo() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         std::string user_id = ctx->arg("user_id");
         std::string hash_id = ctx->arg("hash_id");
         std::string file_name = ctx->arg("file_name");
@@ -47,9 +47,9 @@ public:
     }
     
     void queryUserList() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         const std::string key = UserBucket + "/";
-        std::unique_ptr<xchain::Iterator> iter = ctx->new_iterator(key, key + "～");
+        std::unique_ptr<mchain::Iterator> iter = ctx->new_iterator(key, key + "～");
         std::string result;
         while (iter->next()) {
             std::pair<std::string, std::string> res;
@@ -61,9 +61,9 @@ public:
         ctx->ok(result);
     }
     void queryFileInfoByUser() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         const std::string key = UserBucket + "/" + ctx->arg("user_id");
-        std::unique_ptr<xchain::Iterator> iter = ctx->new_iterator(key, key + "～");
+        std::unique_ptr<mchain::Iterator> iter = ctx->new_iterator(key, key + "～");
         std::string result;
         while (iter->next()) {
             std::pair<std::string, std::string> res;
@@ -73,7 +73,7 @@ public:
         ctx->ok(result);
     }
     void queryFileInfoByHash() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         
         const std::string key = HashBucket + "/" + ctx->arg("hash_id");
         std::string value;

@@ -59,7 +59,7 @@ func (k Keeper) GetAllInput(ctx sdk.Context) (list []types.Input) {
 // GetAllInput returns all input
 func (k Keeper) GetAllInputByAddress(ctx sdk.Context, addr sdk.AccAddress) (list []types.Input) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.InputKey))
-	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefix(fmt.Sprintf("%X", addr.Bytes())))
+	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefix(fmt.Sprintf("%X_", addr.Bytes())))
 
 	defer iterator.Close()
 

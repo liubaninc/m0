@@ -15,9 +15,9 @@ import (
 )
 
 const (
-	xchainPingTimeout = "XCHAIN_PING_TIMEOUT"
-	xchainCodePort    = "XCHAIN_CODE_PORT"
-	xchainChainAddr   = "XCHAIN_CHAIN_ADDR"
+	mchainPingTimeout = "MCHAIN_PING_TIMEOUT"
+	mchainCodePort    = "MCHAIN_CODE_PORT"
+	mchainChainAddr   = "MCHAIN_CHAIN_ADDR"
 )
 
 type driver struct {
@@ -29,15 +29,15 @@ func New() code.Driver {
 }
 
 func (d *driver) Serve(contract code.Contract) {
-	chainAddr := os.Getenv(xchainChainAddr)
-	codePort := os.Getenv(xchainCodePort)
+	chainAddr := os.Getenv(mchainChainAddr)
+	codePort := os.Getenv(mchainCodePort)
 
 	if chainAddr == "" {
-		panic("empty XCHAIN_CHAIN_ADDR env")
+		panic("empty MCHAIN_CHAIN_ADDR env")
 	}
 
 	if codePort == "" {
-		panic("empty XCHAIN_CODE_PORT env")
+		panic("empty MCHAIN_CODE_PORT env")
 	}
 
 	nativeCodeService := newNativeCodeService(chainAddr, contract)
@@ -77,7 +77,7 @@ func (d *driver) Serve(contract code.Contract) {
 }
 
 func getPingTimeout() time.Duration {
-	envtimeout := os.Getenv(xchainPingTimeout)
+	envtimeout := os.Getenv(mchainPingTimeout)
 	if envtimeout == "" {
 		return 3 * time.Second
 	}

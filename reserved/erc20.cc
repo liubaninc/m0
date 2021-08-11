@@ -1,10 +1,10 @@
-#include "xchain/xchain.h"
+#include "mchain/mchain.h"
 
-struct ERC20 : public xchain::Contract {};
+struct ERC20 : public mchain::Contract {};
 
 // 初始化资产 发行指定数量totalSupply的资产到调用者账户
 DEFINE_METHOD(ERC20, initialize) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& caller = ctx->initiator();
     if (caller.empty()) {
         ctx->error("missing caller");
@@ -31,7 +31,7 @@ DEFINE_METHOD(ERC20, initialize) {
 
 // 增发资产 增发指定数量amount的资产到调用者账户, 仅初始调用者可增发
 DEFINE_METHOD(ERC20, mint) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& caller = ctx->initiator();
     if (caller.empty()) {
         ctx->error("missing caller");
@@ -86,7 +86,7 @@ DEFINE_METHOD(ERC20, mint) {
 
 // 查询资产发行总量
 DEFINE_METHOD(ERC20, totalSupply) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     std::string value;
     if (ctx->get_object("totalSupply", &value)) {
         ctx->ok(value);
@@ -97,7 +97,7 @@ DEFINE_METHOD(ERC20, totalSupply) {
 
 // 查询指定账户owner可用资产数量
 DEFINE_METHOD(ERC20, balance) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& caller = ctx->arg("owner");
     if (caller.empty()) {
         ctx->error("missing owner");
@@ -115,7 +115,7 @@ DEFINE_METHOD(ERC20, balance) {
 
 // 查询to可以从账户from中代理转出token的可用资产数量
 DEFINE_METHOD(ERC20, allowance) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& from = ctx->arg("from");
     if (from.empty()) {
         ctx->error("missing from");
@@ -139,7 +139,7 @@ DEFINE_METHOD(ERC20, allowance) {
 
 // 资产转移 从调用者账户中往to账户转数量amount的资产，
 DEFINE_METHOD(ERC20, transfer) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& from = ctx->initiator();
     if (from.empty()) {
         ctx->error("missing from");
@@ -199,7 +199,7 @@ DEFINE_METHOD(ERC20, transfer) {
 
 // 允许调用者代理某人转移amount数量资产。条件是from账户必须经过了approve
 DEFINE_METHOD(ERC20, transferFrom) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& from = ctx->arg("from");
     if (from.empty()) {
         ctx->error("missing from");
@@ -281,7 +281,7 @@ DEFINE_METHOD(ERC20, transferFrom) {
 
 // 批准to能从代理调用账户中转出数量为amount的资产
 DEFINE_METHOD(ERC20, approve) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& from = ctx->initiator();
     if (from.empty()) {
         ctx->error("missing from");

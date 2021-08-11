@@ -1,14 +1,14 @@
-#include "xchain/xchain.h"
+#include "mchain/mchain.h"
 
-class Forbidden : public xchain::Contract {};
+class Forbidden : public mchain::Contract {};
 
 DEFINE_METHOD(Forbidden, initialize) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     ctx->ok("initialize success");
 }
 
 DEFINE_METHOD(Forbidden, forbid) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     // txid to be forbidden
     const std::string key = ctx->arg("txid");
     if ("" == key) {
@@ -26,7 +26,7 @@ DEFINE_METHOD(Forbidden, forbid) {
 }
 
 DEFINE_METHOD(Forbidden, unforbid) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     // txid to be unforbidden
     const std::string key = ctx->arg("txid");
     if ("" == key) {
@@ -42,7 +42,7 @@ DEFINE_METHOD(Forbidden, unforbid) {
 }
 
 DEFINE_METHOD(Forbidden, get) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     // check if txid has been forbidden
     const std::string key = ctx->arg("txid");
     std::string value;

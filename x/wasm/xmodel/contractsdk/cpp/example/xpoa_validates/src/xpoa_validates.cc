@@ -1,10 +1,10 @@
-#include "xchain/json/json.h"
-#include "xchain/xchain.h"
+#include "mchain/json/json.h"
+#include "mchain/mchain.h"
 
 class jvectorFinder {
 public:
     jvectorFinder(const std::string address) : address(address) {}
-    bool operator ()(const std::vector<xchain::json>::value_type &value) { 
+    bool operator ()(const std::vector<mchain::json>::value_type &value) {
         return value.is_object() and value.value("Address", "") == address; 
     }
 private:
@@ -12,12 +12,12 @@ private:
 };
 
 // XPoA 验证集合变更智能合约
-class XpoaValidates : public xchain::Contract {
+class XpoaValidates : public mchain::Contract {
 private:
     const std::string VALIDATES_KEY = "VALIDATES";
 
 public:
-    bool checkArg(xchain::Context* ctx, const std::string& key, std::string& value) {
+    bool checkArg(mchain::Context* ctx, const std::string& key, std::string& value) {
         value = ctx->arg(key);
         if (value.empty()) {
             ctx->error("missing required arg: " + key);
@@ -41,13 +41,13 @@ public:
         return;
     }
 
-    bool parseValidates(xchain::Context* ctx, xchain::json* jValidatesObject) {
+    bool parseValidates(mchain::Context* ctx, mchain::json* jValidatesObject) {
         std::string buffer;
         if (!ctx->get_object(VALIDATES_KEY, &buffer) || buffer.empty()) {
             ctx->error("Invalid origin validates.");
             return false;
         }
-        *jValidatesObject = xchain::json::parse(buffer);
+        *jValidatesObject = mchain::json::parse(buffer);
         auto proposersIter = jValidatesObject->find("proposers");
         if (proposersIter == jValidatesObject->end() || !(*proposersIter).is_array() || (*proposersIter).empty() || !(*proposersIter).size()) {
              ctx->error("Invalid origin proposers.");
@@ -56,7 +56,7 @@ public:
         return true;
     }
        
-    bool findItem(xchain::Context* ctx, xchain::json& jObject, const std::string& targetStr, xchain::json::iterator* iter) {
+    bool findItem(mchain::Context* ctx, mchain::json& jObject, const std::string& targetStr, mchain::json::iterator* iter) {
         *iter = std::find_if(jObject.begin(), jObject.end(), jvectorFinder(targetStr));
         return *iter != jObject.end();
     }
@@ -65,7 +65,7 @@ public:
      * func: 初始化函数，部署合约时默认被调用
      */
     void initialize() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         // 检查合约参数是否包含所需字段
         std::string addresss, neturls;
         if (!checkArg(ctx, "addresss", addresss) || !checkArg(ctx, "neturls", neturls)) {
@@ -85,15 +85,15 @@ public:
             return;
         }
 
-        xchain::json jValidatesArray = xchain::json::array();
+        mchain::json jValidatesArray = mchain::json::array();
         for (int i = 0; i < address_sets.size(); ++i) {
-            xchain::json jItem = {
+            mchain::json jItem = {
                 { "Address", address_sets[i] },
                 { "PeerAddr", neturl_sets[i] }
             };
             jValidatesArray.push_back(jItem);
         }
-        xchain::json jValidatesObject;
+        mchain::json jValidatesObject;
         jValidatesObject["proposers"] = jValidatesArray;
         auto validatesStr = jValidatesObject.dump();
         if (validatesStr.empty() || !ctx->put_object(VALIDATES_KEY, validatesStr)) {
@@ -111,24 +111,24 @@ public:
     * @param: neturl: 节点网络连接地址
     */
     void add_validate() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         // 检查合约参数是否包含所需字段
         std::string address, neturl;
         if (!checkArg(ctx, "address", address) || !checkArg(ctx, "neturl", neturl)) {
             return;
         }
         // 检查当前proposers是否合法
-        xchain::json jValidatesObject;
+        mchain::json jValidatesObject;
         if (!parseValidates(ctx, &jValidatesObject)) {
             return;
         }
-        xchain::json::iterator proposerIter;
+        mchain::json::iterator proposerIter;
         if (findItem(ctx, jValidatesObject["proposers"], address, &proposerIter)) {
             ctx->error("Proposer has exist");
             return;
         }
     
-        xchain::json jItem = {
+        mchain::json jItem = {
             { "Address", address },
             { "PeerAddr", neturl}
         };
@@ -148,17 +148,17 @@ public:
     * @param: address: 节点地址
     */
     void del_validate() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         // 检查合约参数是否包含所需字段
         std::string address;
         if (!checkArg(ctx, "address", address)) {
             return;
         }
-        xchain::json jValidatesObject;
+        mchain::json jValidatesObject;
         if (!parseValidates(ctx, &jValidatesObject)) {
             return;
         }
-        xchain::json::iterator proposerIter;
+        mchain::json::iterator proposerIter;
         if (!findItem(ctx, jValidatesObject["proposers"], address, &proposerIter)) {
             ctx->error("Proposer doesn't exist");
             return;
@@ -180,16 +180,16 @@ public:
     * @param: neturl: 节点网络连接地址
     */
     void update_validate() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         std::string address, neturl;
         if (!checkArg(ctx, "address", address) || !checkArg(ctx, "neturl", neturl)) {
             return;
         }
-        xchain::json jValidatesObject;
+        mchain::json jValidatesObject;
         if (!parseValidates(ctx, &jValidatesObject)) {
             return;
         }
-        xchain::json::iterator proposerIter;
+        mchain::json::iterator proposerIter;
         if (!findItem(ctx, jValidatesObject["proposers"], address, &proposerIter)) {
             ctx->error("Proposer doesn't exist");
             return;
@@ -210,12 +210,12 @@ public:
     * 查询当前XPoA共识所有验证的验证集合信息
     */
     void get_validates() {
-        xchain::Context* ctx = this->context();
-        xchain::json jValidatesObject;
+        mchain::Context* ctx = this->context();
+        mchain::json jValidatesObject;
         if (!parseValidates(ctx, &jValidatesObject)) {
             return;
         }
-        xchain::json resultObject;
+        mchain::json resultObject;
         resultObject["proposers"] = jValidatesObject["proposers"];
         ctx->ok(resultObject.dump());
     }

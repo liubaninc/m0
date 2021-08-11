@@ -39,7 +39,7 @@ func DecodeX509Certificate(pemCertificate string) (*X509Certificate, error) {
 
 	cert, err := x509.ParseCertificate(block.Bytes)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "Could not parse certificate: %v", err.Error)
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "Could not parse certificate: %v", err)
 	}
 
 	certificate := X509Certificate{
