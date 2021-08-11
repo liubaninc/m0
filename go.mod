@@ -10,6 +10,7 @@ require (
 	github.com/bartekn/go-bip39 v0.0.0-20171116152956-a05967ea095d
 	github.com/cosmos/cosmos-sdk v0.42.5
 	github.com/cosmos/go-bip39 v1.0.0
+	github.com/cpuguy83/go-md2man/v2 v2.0.1 // indirect
 	github.com/dchest/captcha v0.0.0-20200903113550-03f5f0333e1f
 	github.com/ddliu/motto v0.3.1
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
@@ -19,6 +20,9 @@ require (
 	github.com/gin-gonic/gin v1.7.2
 	github.com/go-kit/kit v0.10.0
 	github.com/go-ole/go-ole v1.2.5 // indirect
+	github.com/go-openapi/jsonreference v0.19.6 // indirect
+	github.com/go-openapi/spec v0.20.3 // indirect
+	github.com/go-openapi/swag v0.19.15 // indirect
 	github.com/gogo/protobuf v1.3.3
 	github.com/golang/protobuf v1.5.2
 	github.com/google/go-cmp v0.5.6 // indirect
@@ -27,6 +31,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.5.0 // indirect
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible // indirect
 	github.com/lestrrat-go/strftime v1.0.4 // indirect
+	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mitchellh/mapstructure v1.3.3
 	github.com/pelletier/go-toml v1.8.1
 	github.com/prometheus/client_golang v1.10.0
@@ -46,7 +51,10 @@ require (
 	github.com/tklauser/go-sysconf v0.3.6 // indirect
 	github.com/zigbee-alliance/distributed-compliance-ledger v0.0.0-20210628074237-9ab0d85b92c4
 	go.opencensus.io v0.22.6 // indirect
+	golang.org/x/net v0.0.0-20210805182204-aaa1db679c0d // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
+	golang.org/x/sys v0.0.0-20210809222454-d867a43fc93e // indirect
+	golang.org/x/tools v0.1.5 // indirect
 	google.golang.org/genproto v0.0.0-20210617175327-b9e0b3197ced
 	google.golang.org/grpc v1.38.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v0.0.0-20200527211525-6c9e30c09db2 // indirect

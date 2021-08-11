@@ -4,8 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-
 	utxotypes "github.com/liubaninc/m0/x/utxo/types"
 	"github.com/liubaninc/m0/x/wasm/xmodel"
 	"github.com/liubaninc/m0/x/wasm/xmodel/contract/kernel"
@@ -91,17 +89,17 @@ func (c Client) Query(name string, method string, arg string) (*xmodel.ContractR
 	return res.Responses[0], nil
 }
 
-func (c Client) DeployMsg(from string, name string, codeFile string, args string, desc string, fees string) (sdk.Msg, error) {
+func (c Client) DeployMsg(from string, name string, code []byte, args string, desc string, fees string) (sdk.Msg, error) {
 	if _, err := sdk.AccAddressFromBech32(from); err != nil {
 		return nil, fmt.Errorf("invalid from %s (%s)", from, err)
 	}
 	if err := kernel.ValidContractName(name); err != nil {
 		return nil, fmt.Errorf("invalid name %v (%v)", name, err)
 	}
-	code, err := ioutil.ReadFile(codeFile)
-	if err != nil {
-		return nil, fmt.Errorf("invalid code file %v (%v)", codeFile, err)
-	}
+	//code, err := ioutil.ReadFile(codeFile)
+	//if err != nil {
+	//	return nil, fmt.Errorf("invalid code file %v (%v)", codeFile, err)
+	//}
 	initArgs, err := convertToArgs(args)
 	if err != nil {
 		return nil, fmt.Errorf("invalid args %v (%v)", args, err)
@@ -162,17 +160,17 @@ func (c Client) DeployMsg(from string, name string, codeFile string, args string
 	return msg, nil
 }
 
-func (c Client) UpgradeMsg(from string, name string, codeFile string, desc string, fees string) (sdk.Msg, error) {
+func (c Client) UpgradeMsg(from string, name string, code []byte, desc string, fees string) (sdk.Msg, error) {
 	if _, err := sdk.AccAddressFromBech32(from); err != nil {
 		return nil, fmt.Errorf("invalid from %s (%s)", from, err)
 	}
 	if err := kernel.ValidContractName(name); err != nil {
 		return nil, fmt.Errorf("invalid name %v (%v)", name, err)
 	}
-	code, err := ioutil.ReadFile(codeFile)
-	if err != nil {
-		return nil, fmt.Errorf("invalid code file %v (%v)", codeFile, err)
-	}
+	//code, err := ioutil.ReadFile(codeFile)
+	//if err != nil {
+	//	return nil, fmt.Errorf("invalid code file %v (%v)", codeFile, err)
+	//}
 
 	feeCoins, err := sdk.ParseCoinsNormalized(fees)
 	if err != nil {
@@ -363,14 +361,14 @@ func convertToArgs(args string) (map[string][]byte, error) {
 	return args2, nil
 }
 
-func (c Client) BroadcastDeployTx(from string, name string, codeFile string, args string, desc string, fees string, memo string) (*sdk.TxResponse, error) {
+func (c Client) BroadcastDeployTx(from string, name string, codeFile []byte, args string, desc string, fees string, memo string) (*sdk.TxResponse, error) {
 	msg, err := c.DeployMsg(from, name, codeFile, args, desc, fees)
 	if err != nil {
 		return nil, err
 	}
 	return c.GenerateAndBroadcastTx(from, fees, memo, 0, msg)
 }
-func (c Client) BroadcastUpgradeTx(from string, name string, codeFile string, desc string, fees string, memo string) (*sdk.TxResponse, error) {
+func (c Client) BroadcastUpgradeTx(from string, name string, codeFile []byte, desc string, fees string, memo string) (*sdk.TxResponse, error) {
 	msg, err := c.UpgradeMsg(from, name, codeFile, desc, fees)
 	if err != nil {
 		return nil, err

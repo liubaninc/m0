@@ -188,6 +188,7 @@ func GetCaptcha(c *gin.Context) {
 // @Success 200 {string} json
 // @Router /captcha/{captchaId} [get]
 func GetCaptchaPNG(c *gin.Context) {
+
 	ServeHTTP(c.Writer, c.Request)
 }
 

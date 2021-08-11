@@ -123,6 +123,46 @@ type ClaimRequest struct {
 	Password string `json:"password"`                // 账户密码
 }
 
+type MContractRequest struct {
+	AccountName string `json:"account_name"` //账户名称
+	Name        string `json:"name"`         // 合约名称
+	Args        string `json:"args"`         //合约参数
+	Version     string `json:"version"`      // 合约版本
+	Description string `json:"description"`  // 合约描述
+	Type        int8   `json:"type"`         //生成方式：1 自定义合约上传 2 模板合约
+	FileName    string `json:"file_name"`    // 创建自定义合约，合约文件
+	TemplateId  uint   `json:"template_id"`  //创建模板合约，模板Id
+}
+type MContractSignRespose struct {
+	Name        string `json:"name" binding:"required"` // 合约名称
+	Args        string `json:"args"`                    //合约参数
+	Version     string `json:"version"`                 // 合约版本
+	Description string `json:"description"`             // 合约描述
+	Address     string `json:"address"`                 //发起人
+	Mode        string `json:"mode"`                    //合约操作
+}
+
+const (
+	AllianceName                     string = "M0"            //链名称
+	MContractCustomType              int8   = 1               //自定义合约上传
+	MContractTemplateType            int8   = 2               //模板合约
+	WASMContractSizeLimit            int64  = 5 * 1024 * 1024 //合约文件大小限制
+	WASMContractStatusPending        int8   = 0               //待部署
+	WASMContractStatusGoing          int8   = 1               //部署中
+	WASMContractStatusSuccess        int8   = 2               //已部署
+	WASMContractStatusFail           int8   = 3               //部署失败
+	WASMContractStatusFrozen         int8   = 4               //已冻结
+	WASMContractStatusUnfrozen       int8   = 5               //已解冻
+	WASMContractStatusUpgradePending int8   = 6               //升级中
+	WASMContractStatusUpgradeFail    int8   = 7               //升级失败
+	WASMContractStatusDeleted        int8   = 8               //已删除
+	WASMContractHandleDeploy         string = "deploy"
+	WASMContractHandleUpgrade        string = "upgrade"
+	WASMContractHandleFreeze         string = "freeze"
+	WASMContractHandleUnfreeze       string = "unfreeze"
+	WASMContractHandleUndeploy       string = "undeploy"
+)
+
 var (
 	ERROR_REQ          = "请求参数不正确"
 	ERROR_USER_EXIST   = "用户已存在"
@@ -131,6 +171,9 @@ var (
 	ERROR_ACCT_NO      = "账户不存在"
 	ERROR_FILE_EXIST   = "文件已存在"
 	ERROR_FILE_NO      = "文件不存在"
+	ERROR_FILE_READ    = "读取文件错误"
+	ERROR_FILE_FORMAT  = "文件格式不正确"
+	ERROR_FILE_SIZE    = "文件大于要求"
 	ERROR_NO           = "查询不存在"
 	ERROR_EXIST        = "名称已存在"
 	ERROR_DB           = "执行错误"

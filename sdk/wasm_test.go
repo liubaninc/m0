@@ -1,11 +1,16 @@
 package sdk
 
 import (
+	"io/ioutil"
 	"testing"
 )
 
 func TestDeploy(t *testing.T) {
-	res, err := testClient.BroadcastDeployTx(address, "ccc", "../x/wasm/xmodel/contractsdk/cpp/build/counter.wasm", "{\"creator\":\"someone\"}", "test", "", "")
+	code, err := ioutil.ReadFile("../x/wasm/xmodel/contractsdk/cpp/build/counter.wasm")
+	if err != nil {
+		t.Fatal("invalid code file", code, err)
+	}
+	res, err := testClient.BroadcastDeployTx(address, "ccc", code, "{\"creator\":\"someone\"}", "test", "", "")
 	if err != nil {
 		t.Fatal("deploy", "tx", err)
 	}
@@ -13,7 +18,11 @@ func TestDeploy(t *testing.T) {
 }
 
 func TestUpgrade(t *testing.T) {
-	res, err := testClient.BroadcastUpgradeTx(address, "ccc", "../x/wasm/xmodel/contractsdk/cpp/build/counter.wasm", "test", "", "")
+	code, err := ioutil.ReadFile("../x/wasm/xmodel/contractsdk/cpp/build/counter.wasm")
+	if err != nil {
+		t.Fatal("invalid code file", code, err)
+	}
+	res, err := testClient.BroadcastUpgradeTx(address, "ccc", code, "test", "", "")
 	if err != nil {
 		t.Fatal("upgrade", "tx", err)
 	}

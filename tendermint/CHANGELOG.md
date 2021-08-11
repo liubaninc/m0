@@ -4,9 +4,9 @@
 
 *April 14, 2021*
 
-This release fixes a bug where peers would sometimes try to send messages 
+This release fixes a bug where peers would sometimes try to send messages
 on incorrect channels. Special thanks to our friends at Oasis Labs for surfacing
-this issue! 
+this issue!
 
 Friendly reminder: We have a [bug bounty program](https://hackerone.com/tendermint).
 
@@ -34,7 +34,7 @@ Friendly reminder: We have a [bug bounty program](https://hackerone.com/tendermi
 
 ### FEATURES
 
-- [rpc] [\#6226](https://github.com/tendermint/tendermint/issues/6226) Index block events and expose a new RPC method, `/block_search`, to allow querying for blocks by `BeginBlock` and `EndBlock` events (@alexanderbez)
+- [rpc] [\#6226](https://github.com/tendermint/tendermint/issues/6226) Index block events and expose a new RPC method, `/block_search`, to allow querying for blocks by `BeginBlock` and `ccc` events (@alexanderbez)
 
 ### BUG FIXES
 

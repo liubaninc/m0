@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/tendermint/tendermint/crypto/tmhash"
 	"net"
 	"strings"
 	"time"
@@ -494,6 +495,8 @@ func (synced *Syncer) processTx(hash []byte, time string) (*model.Transaction, e
 		return nil, err
 	}
 	tx := txBuilder.GetTx()
+	//查询合约部署、升级最终状态
+	synced.ContractTxResultCheck(resultTx)
 
 	mtx := &model.Transaction{
 		Hash:     resultTx.Hash.String(),
@@ -529,6 +532,20 @@ func (synced *Syncer) processTx(hash []byte, time string) (*model.Transaction, e
 			umsg = ProcessMsgUpgrade(msg)
 		case *wasmtypes.MsgInvoke:
 			umsg = ProcessMsgInvoke(msg)
+		case *wasmtypes.MsgFreeze:
+			types[index] = "合约冻结"
+			mtx.Type = strings.Join(types, ",")
+			return mtx, nil
+		case *wasmtypes.MsgUnfreeze:
+			types[index] = "合约解冻"
+			mtx.Type = strings.Join(types, ",")
+			mtx.UTXOMsgs[index] = &model.MsgUTXO{}
+			continue
+		case *wasmtypes.MsgUndeploy:
+			types[index] = "合约删除"
+			mtx.Type = strings.Join(types, ",")
+			mtx.UTXOMsgs[index] = &model.MsgUTXO{}
+			continue
 		default:
 			return nil, fmt.Errorf("not support route %v, type %v", msg.Route(), msg.Type())
 		}
@@ -986,7 +1003,6 @@ func ProcessMsgInvoke(msg *wasmtypes.MsgInvoke) *model.MsgUTXO {
 	mmsg.Type = "合约调用"
 	return mmsg
 }
-
 func (synced *Syncer) updatePeerStatus(peer *model.Peer, db *gorm.DB) {
 	var validator model.Validator
 	if result := db.Find(&validator, map[string]interface{}{
@@ -995,4 +1011,39 @@ func (synced *Syncer) updatePeerStatus(peer *model.Peer, db *gorm.DB) {
 		peer.Type = 0
 		return
 	}
+}
+func (synced *Syncer) ContractTxResultCheck(resultTx *coretypes.ResultTx) {
+	if len(resultTx.Hash) > 0 {
+		var status int8 = 2
+		log := ""
+		if resultTx.TxResult.Code != 0 {
+			status = 3
+			log = resultTx.TxResult.Log
+		}
+
+		stx, err := synced.client.TxConfig.TxDecoder()(resultTx.Tx)
+		if err != nil {
+			synced.logger.Error("TxDecoder", "error", err)
+
+		}
+		txBuilder, err := synced.client.TxConfig.WrapTxBuilder(stx)
+		if err != nil {
+			synced.logger.Error("WrapTxBuilder", "error", err)
+
+		}
+		tx := txBuilder.GetTx()
+		bts, _ := synced.client.TxConfig.TxEncoder()(tx)
+		hash := fmt.Sprintf("%X", tmhash.Sum(bts))
+		var t model.MContract
+		result := synced.db.Find(&t, map[string]interface{}{"hash": hash})
+		if result.RowsAffected > 0 {
+			synced.db.First(&t, t.ID).Updates(&model.MContract{Status: status, Log: log, Hash: hash})
+		} else {
+			if result = synced.db.Find(&t, map[string]interface{}{"hash": resultTx.Hash}); result.RowsAffected > 0 {
+				synced.db.First(&t, t.ID).Updates(&model.MContract{Status: 2})
+			}
+
+		}
+	}
+
 }

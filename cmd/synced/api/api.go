@@ -101,6 +101,18 @@ func (api *API) Run(port int) {
 	v1.POST("/claims/:account/tx", api.ClaimTx)
 	v1.POST("/claims/:account/get", api.Claim)
 	v1.POST("/user/logout", api.UserLogout)
+	//钱包合约模块
+	v1.GET("/mcontract/template/list/:account", api.MContractTemplateList)
+	v1.GET("/mcontract/template/get/:id", api.GetMContractTemplate)
+	v1.GET("/mcontract/get/:id", api.GetMContract)
+	v1.GET("/mcontract/history/list/:account/:contractName", api.MContractHistoryList)
+	v1.GET("/mcontract/list/:account", api.MContractList)
+	v1.POST("mcontract/tx/sign", api.MContractSign)
+	v1.POST("/mcontract/operate", api.OperateContract)
+	v1.POST("/mcontract/create", api.CreateMContract)
+	v1.POST("/mcontract/tx/upload", api.MContractUploadTx)
+	v1.GET("/mcontract/tx/download/:hash", api.DownloadMContractTx)
+	v1.GET("/mcontract/download/:id", api.DownloadMContractFile)
 	if err := router.Run(fmt.Sprintf(":%d", port)); err != nil {
 		panic(err)
 	}

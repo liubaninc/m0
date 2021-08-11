@@ -48,4 +48,7 @@ func autoMigrate(db *gorm.DB) {
 	db.AutoMigrate(&User{})
 	db.AutoMigrate(&Account{})
 	db.AutoMigrate(&Claim{})
+	db.AutoMigrate(&MContract{})
+	db.AutoMigrate(&MContracTemplate{})
+	db.AutoMigrate(&MContracTemplateFunction{})
 }

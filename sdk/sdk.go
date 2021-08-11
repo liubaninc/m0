@@ -45,6 +45,11 @@ func (c Client) WithKeyring(kr keyring.Keyring) Client {
 	tc.Context = tc.Context.WithKeyring(kr)
 	return tc
 }
+func (c Client) WithBroadcastMode(mode string) Client {
+	tc := c
+	tc.Context = tc.Context.WithBroadcastMode(mode)
+	return tc
+}
 
 func MustNew(rpcURI string, kr keyring.Keyring) Client {
 	client, err := New(rpcURI, kr)
