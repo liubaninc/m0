@@ -33,6 +33,28 @@ const TIME_FORMAT = "2006-01-02 15:04:05.999"
 
 var (
 	Local, _ = time.LoadLocation("Asia/Shanghai")
+
+	actions = map[string]string {
+		"CreatePeerID": "新增节点",
+		"UpdatePeerID": "更新节点",
+		"DeletePeerID": "删除节点",
+		"SetPermission": "设置用户",
+		"AddRootCert": "上传根证书",
+		"AddCert": "上传证书",
+		"RevokeRootCert": "注销根证书",
+		"RevokeCert": "注销证书",
+		"FreezeCert": "冻结证书",
+		"UnfreezeCert": "解冻证书",
+		"CreateValidator": "新增共识节点",
+		"LeaveValidator": "删除共识节点",
+		"Deploy": "部署合约",
+		"Upgrade": "升级合约",
+		"Invoke": "调用合约",
+		"Freeze": "解冻合约",
+		"Unfreeze": "冻结合约",
+		"ProposeDeployContract":"申请合约",
+		"ApproveDeployContract":"批准合约",
+	}
 )
 
 type Syncer struct {
@@ -503,12 +525,12 @@ func (synced *Syncer) processTxEvents(hash []byte, time string, db *gorm.DB) err
 		if event.Type == "message" {
 			for _, attr := range event.Attributes {
 				switch key := string(attr.Key); key {
-				case "creator":
+				case "sender":
 					e.Operator = string(attr.Value)
 				case "module":
 					e.Route = string(attr.Value)
 				case "action":
-					e.Type = string(attr.Value)
+					e.Type = actions[string(attr.Value)]
 				default:
 				}
 			}

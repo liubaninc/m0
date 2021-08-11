@@ -56,7 +56,7 @@ func generateCA(serial *big.Int) (*x509.Certificate, *rsa.PrivateKey, error) {
 			Province:           Province,
 			Organization:       Organization,
 			OrganizationalUnit: OrganizationalUnit,
-			CommonName:         "Root CA",
+			CommonName:         "RootCA",
 		},
 		NotBefore:             time.Now(),
 		NotAfter:              time.Now().Add(20 * 365 * 24 * time.Hour), // 20 years
@@ -197,8 +197,8 @@ func GenCACommand() *cobra.Command {
 				return err
 			}
 
-			keyFile := filepath.Join(dir, fmt.Sprintf("%s.cert", "ca"))
-			certFile := filepath.Join(dir, fmt.Sprintf("%s.key", "ca"))
+			keyFile := filepath.Join(dir, fmt.Sprintf("%s.key", "ca"))
+			certFile := filepath.Join(dir, fmt.Sprintf("%s.cert", "ca"))
 			if tmos.FileExists(keyFile) || tmos.FileExists(certFile) {
 				return fmt.Errorf("certificate %s already exist", certFile)
 			}
@@ -254,8 +254,8 @@ func GenCertCommand() *cobra.Command {
 			if err := tmos.EnsureDir(dir, 0755); err != nil {
 				return err
 			}
-			keyFile := filepath.Join(dir, fmt.Sprintf("%s.cert", nodeid))
-			certFile := filepath.Join(dir, fmt.Sprintf("%s.key", nodeid))
+			keyFile := filepath.Join(dir, fmt.Sprintf("%s.key", nodeid))
+			certFile := filepath.Join(dir, fmt.Sprintf("%s.cert", nodeid))
 			if tmos.FileExists(keyFile) || tmos.FileExists(certFile) {
 				return fmt.Errorf("certificate already exist")
 			}
@@ -287,7 +287,7 @@ func GenCertCommand() *cobra.Command {
 				if err := saveCert(certFile, keyFile, caCert, caKey, cert, key); err != nil {
 					return fmt.Errorf("cannot save custom ca certificate : %s", err)
 				}
-				fmt.Println(fmt.Sprintf("\"%s\" %s", cert.Issuer, cert.SerialNumber))
+				fmt.Println(fmt.Sprintf("%s %s", cert.Issuer, cert.SerialNumber))
 			} else {
 				cert, err := parseCert(rCertFile)
 				if err != nil {
@@ -302,7 +302,7 @@ func GenCertCommand() *cobra.Command {
 				if err := saveCert(certFile, keyFile, caCert, caKey, cert, key); err != nil {
 					return fmt.Errorf("cannot save custom certificate : %s", err)
 				}
-				fmt.Println(fmt.Sprintf("\"%s\" %s", cert.Issuer, cert.SerialNumber))
+				fmt.Println(fmt.Sprintf("%s %s", cert.Issuer, cert.SerialNumber))
 			}
 			return nil
 		},
