@@ -9,7 +9,7 @@ message ApproveDeploy {
   string creator = 1;
   string index = 2;
   string contractName = 3; 
-  bytes contractCode = 4;
+  bytes contractCodeHash = 4;
   string initArgs = 5;
   repeated string approval = 6;
 }

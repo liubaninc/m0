@@ -42,7 +42,7 @@ func (k msgServer) ApproveDeployContract(goCtx context.Context, msg *types.MsgAp
 			Creator:      proposeDeploy.Creator,
 			Index:        proposeDeploy.Index,
 			ContractName: proposeDeploy.ContractName,
-			ContractCode: proposeDeploy.ContractCode,
+			ContractCodeHash: proposeDeploy.ContractCodeHash,
 			InitArgs:     proposeDeploy.InitArgs,
 			Approval:     proposeDeploy.Approval,
 		})

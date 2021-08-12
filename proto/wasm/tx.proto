@@ -33,7 +33,7 @@ message MsgApproveDeployContractResponse {
 message MsgProposeDeployContract {
   string creator = 1;
   string contractName = 2;
-  bytes contractCode = 3;
+  bytes contractCodeHash = 3;
   string initArgs = 4;
   repeated string approval = 5;
 }

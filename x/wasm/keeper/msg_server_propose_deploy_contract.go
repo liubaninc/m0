@@ -12,7 +12,7 @@ import (
 func (k msgServer) ProposeDeployContract(goCtx context.Context, msg *types.MsgProposeDeployContract) (*types.MsgProposeDeployContractResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	hash := tmhash.Sum(append(msg.ContractCode, append([]byte(msg.ContractName), []byte(msg.ContractName)...)...))
+	hash := tmhash.Sum(append(msg.ContractCodeHash, append([]byte(msg.ContractName), []byte(msg.ContractName)...)...))
 	index := fmt.Sprintf("%X", hash)
 	if _, found := k.GetProposeDeploy(ctx, index); found {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "index is proposing")
@@ -26,7 +26,7 @@ func (k msgServer) ProposeDeployContract(goCtx context.Context, msg *types.MsgPr
 		Creator:      msg.Creator,
 		Index:        index,
 		ContractName: msg.ContractName,
-		ContractCode: msg.ContractCode,
+		ContractCodeHash: msg.ContractCodeHash,
 		InitArgs:     msg.InitArgs,
 		Approval:     msg.Approval,
 	}

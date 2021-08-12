@@ -17,7 +17,7 @@ func (k msgServer) Deploy(goCtx context.Context, msg *types.MsgDeploy) (*types.M
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	if k.GetParams(ctx).Enabled {
-		hash := tmhash.Sum(append(msg.ContractCode, append([]byte(msg.ContractName), []byte(msg.ContractName)...)...))
+		hash := tmhash.Sum(append(tmhash.Sum(msg.ContractCode), append([]byte(msg.ContractName), []byte(msg.ContractName)...)...))
 		index := fmt.Sprintf("%X", hash)
 		if _, found := k.GetApproveDeploy(ctx, index); !found {
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "contract was not approved")
