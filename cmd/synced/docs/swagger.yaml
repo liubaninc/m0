@@ -84,6 +84,13 @@ definitions:
     - related
     - threshold
     type: object
+  api.PageRequest:
+    properties:
+      page_num:
+        type: integer
+      page_size:
+        type: integer
+    type: object
   api.Receiver:
     properties:
       amount:
@@ -798,7 +805,7 @@ paths:
       tags:
       - contract
   /mcontract/list/{account}:
-    get:
+    post:
       consumes:
       - application/json
       parameters:
@@ -807,6 +814,12 @@ paths:
         name: account
         required: true
         type: string
+      - description: 请求信息
+        in: body
+        name: prequest
+        required: true
+        schema:
+          $ref: '#/definitions/api.PageRequest'
       produces:
       - application/json
       responses:
@@ -856,6 +869,41 @@ paths:
       summary: 升级/冻结/解冻/删除合约
       tags:
       - contract
+  /mcontract/template/function/insert:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: 合约方法描述
+        in: formData
+        name: description
+        type: string
+      - description: 合约方法参数
+        in: formData
+        name: args
+        type: string
+      - description: 合约方法名称
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: 合约方模板Id
+        in: formData
+        name: template_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 合约模板方法导入
+      tags:
+      - contractTemplate
   /mcontract/template/get/{id}:
     get:
       consumes:
@@ -878,16 +926,61 @@ paths:
       summary: 合约模板详情
       tags:
       - contractTemplate
+  /mcontract/template/insert/{account}:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: 账户名称
+        in: formData
+        name: account
+        type: string
+      - description: 合约文件
+        in: formData
+        name: codefile
+        required: true
+        type: file
+      - description: 合约描述
+        in: formData
+        name: description
+        required: true
+        type: string
+      - description: 合约语言
+        in: formData
+        name: language
+        type: string
+      - description: 合约名称
+        in: formData
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 合约模板导入
+      tags:
+      - contractTemplate
   /mcontract/template/list/{account}:
-    get:
+    post:
       consumes:
       - application/json
       parameters:
       - description: 账户名
         in: path
         name: account
-        required: true
         type: string
+      - description: 请求信息
+        in: body
+        name: prequest
+        required: true
+        schema:
+          $ref: '#/definitions/api.PageRequest'
       produces:
       - application/json
       responses:

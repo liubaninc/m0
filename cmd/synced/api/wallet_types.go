@@ -155,7 +155,8 @@ const (
 	WASMContractStatusUnfrozen       int8   = 5               //已解冻
 	WASMContractStatusUpgradePending int8   = 6               //升级中
 	WASMContractStatusUpgradeFail    int8   = 7               //升级失败
-	WASMContractStatusDeleted        int8   = 8               //已删除
+	WASMContractStatusUpgradeSuccess int8   = 8               //升级成功
+	WASMContractStatusDeleted        int8   = 9               //已删除
 	WASMContractHandleDeploy         string = "deploy"
 	WASMContractHandleUpgrade        string = "upgrade"
 	WASMContractHandleFreeze         string = "freeze"

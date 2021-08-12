@@ -950,7 +950,7 @@ var doc = `{
             }
         },
         "/mcontract/list/{account}": {
-            "get": {
+            "post": {
                 "security": [
                     {
                         "ApiKeyAuth": []
@@ -973,6 +973,15 @@ var doc = `{
                         "name": "account",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "请求信息",
+                        "name": "prequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.PageRequest"
+                        }
                     }
                 ],
                 "responses": {
@@ -1042,6 +1051,61 @@ var doc = `{
                 }
             }
         },
+        "/mcontract/template/function/insert": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "contractTemplate"
+                ],
+                "summary": "合约模板方法导入",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "合约方法描述",
+                        "name": "description",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "合约方法参数",
+                        "name": "args",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "合约方法名称",
+                        "name": "name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "合约方模板Id",
+                        "name": "template_id",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/mcontract/template/get/{id}": {
             "get": {
                 "security": [
@@ -1078,8 +1142,70 @@ var doc = `{
                 }
             }
         },
+        "/mcontract/template/insert/{account}": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "contractTemplate"
+                ],
+                "summary": "合约模板导入",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "账户名称",
+                        "name": "account",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "合约文件",
+                        "name": "codefile",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "合约描述",
+                        "name": "description",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "合约语言",
+                        "name": "language",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "合约名称",
+                        "name": "name",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/mcontract/template/list/{account}": {
-            "get": {
+            "post": {
                 "security": [
                     {
                         "ApiKeyAuth": []
@@ -1100,8 +1226,16 @@ var doc = `{
                         "type": "string",
                         "description": "账户名",
                         "name": "account",
-                        "in": "path",
-                        "required": true
+                        "in": "path"
+                    },
+                    {
+                        "description": "请求信息",
+                        "name": "prequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.PageRequest"
+                        }
                     }
                 ],
                 "responses": {
@@ -1662,6 +1796,17 @@ var doc = `{
                 },
                 "threshold": {
                     "description": "公钥列表",
+                    "type": "integer"
+                }
+            }
+        },
+        "api.PageRequest": {
+            "type": "object",
+            "properties": {
+                "page_num": {
+                    "type": "integer"
+                },
+                "page_size": {
                     "type": "integer"
                 }
             }

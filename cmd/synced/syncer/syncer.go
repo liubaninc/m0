@@ -1094,13 +1094,6 @@ func (synced *Syncer) updatePeerStatus(peer *model.Peer, db *gorm.DB) {
 }
 func (synced *Syncer) ContractTxResultCheck(resultTx *coretypes.ResultTx) {
 	if len(resultTx.Hash) > 0 {
-		var status int8 = 2
-		log := ""
-		if resultTx.TxResult.Code != 0 {
-			status = 3
-			log = resultTx.TxResult.Log
-		}
-
 		stx, err := synced.client.TxConfig.TxDecoder()(resultTx.Tx)
 		if err != nil {
 			synced.logger.Error("TxDecoder", "error", err)
@@ -1114,15 +1107,45 @@ func (synced *Syncer) ContractTxResultCheck(resultTx *coretypes.ResultTx) {
 		tx := txBuilder.GetTx()
 		bts, _ := synced.client.TxConfig.TxEncoder()(tx)
 		hash := fmt.Sprintf("%X", tmhash.Sum(bts))
+
+		var status int8 = 2
+		log := ""
+		switch tx.GetMsgs()[0].(type) {
+		case *wasmtypes.MsgDeploy:
+			if resultTx.TxResult.Code != 0 {
+				status = 3
+				log = resultTx.TxResult.Log
+			} else {
+				status = 2
+			}
+		case *wasmtypes.MsgUpgrade:
+			if resultTx.TxResult.Code != 0 {
+				status = 7
+				log = resultTx.TxResult.Log
+			} else {
+				status = 8
+			}
+		default:
+			return
+		}
 		var t model.MContract
 		result := synced.db.Find(&t, map[string]interface{}{"hash": hash})
 		if result.RowsAffected > 0 {
 			synced.db.First(&t, t.ID).Updates(&model.MContract{Status: status, Log: log, Hash: hash})
 		} else {
 			if result = synced.db.Find(&t, map[string]interface{}{"hash": resultTx.Hash}); result.RowsAffected > 0 {
-				synced.db.First(&t, t.ID).Updates(&model.MContract{Status: 2})
+				synced.db.First(&t, t.ID).Updates(&model.MContract{Status: status})
 			}
 
+		}
+		//升级成功修改历史版本状态
+		if status == 8 {
+			var contracts []*model.MContract
+			if result := synced.db.Where("name = ? AND address = ? AND status <> ?", t.Name, t.Address, status).Order("Version desc").Find(&contracts); result.RowsAffected > 0 {
+				for contract, _ := range contracts {
+					synced.db.First(contract).Update("status", 9)
+				}
+			}
 		}
 	}
 

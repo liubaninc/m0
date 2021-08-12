@@ -4,14 +4,12 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/gin-gonic/gin"
 	"github.com/liubaninc/m0/cmd/synced/model"
-	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	tmos "github.com/tendermint/tendermint/libs/os"
 	"io/ioutil"
@@ -35,16 +33,107 @@ type MContractsResponse struct {
 
 const home = "/Users/admin/.synced/"
 
+// @合约模板方法导入
+// @Summary 合约模板方法导入
+// @Description
+// @Tags contractTemplate
+// @Accept  multipart/form-data
+// @Produce json
+// @Param description formData string false "合约方法描述"
+// @Param args formData string false "合约方法参数"
+// @Param name formData string true "合约方法名称"
+// @Param template_id formData string true "合约方模板Id"
+// @Success 200 {object} Response
+// @Security ApiKeyAuth
+// @Router /mcontract/template/function/insert [POST]
+func (api *API) MContractTemplateFunctionInsert(c *gin.Context) {
+	response := &Response{
+		Code: OKCode,
+		Msg:  OKMsg,
+	}
+	description := c.PostForm("description")
+	name := c.PostForm("name")
+	args := c.PostForm("args")
+	template_id, _ := strconv.Atoi(c.PostForm("template_id"))
+
+	if result := api.db.Save(&model.MContracTemplateFunction{Description: description, Name: name, Args: args, TemplateId: uint(template_id)}); result.Error != nil {
+		response.Code = ExecuteCode
+		response.Msg = ERROR_DB
+		response.Detail = result.Error.Error()
+		api.logger.Error(c.Request.URL.Path, "error", response.Detail)
+		c.JSON(http.StatusOK, response)
+		return
+	}
+	c.JSON(http.StatusOK, response)
+}
+
+// @合约模板导入
+// @Summary 合约模板导入
+// @Description
+// @Tags contractTemplate
+// @Accept  multipart/form-data
+// @Produce json
+// @Param account formData string false "账户名称"
+// @Param codefile formData file true "合约文件"
+// @Param description formData string true "合约描述"
+// @Param language formData string false "合约语言"
+// @Param name formData string true "合约名称"
+// @Success 200 {object} Response
+// @Security ApiKeyAuth
+// @Router /mcontract/template/insert/{account} [POST]
+func (api *API) MContractTemplateInsert(c *gin.Context) {
+	response := &Response{
+		Code: OKCode,
+		Msg:  OKMsg,
+	}
+	description := c.PostForm("description")
+	language := c.PostForm("language")
+	name := c.PostForm("name")
+	codefile, _ := c.FormFile("codefile")
+	file, _ := codefile.Open()
+	code, _ := ioutil.ReadAll(file)
+	fmt.Println("file size = ", len(code))
+	account := c.PostForm("account")
+	acct := &model.Account{}
+	if len(account) > 0 {
+		acct = api.getAccount(c, account, api.userID(c))
+		if acct == nil {
+			response.Code = ExecuteCode
+			response.Msg = ERROR_ACCT_NO
+			response.Detail = fmt.Sprintf("user %s 's account %s not exist", api.userName(c), account)
+			api.logger.Error(c.Request.URL.Path, "error", response.Detail)
+			c.JSON(http.StatusOK, response)
+			return
+		}
+	}
+
+	if result := api.db.Save(&model.MContracTemplate{
+		Address:     acct.Address,
+		Description: description,
+		Language:    language,
+		Name:        name,
+		CodeFile:    code}); result.Error != nil {
+		response.Code = ExecuteCode
+		response.Msg = ERROR_DB
+		response.Detail = result.Error.Error()
+		api.logger.Error(c.Request.URL.Path, "error", response.Detail)
+		c.JSON(http.StatusOK, response)
+		return
+	}
+	c.JSON(http.StatusOK, response)
+}
+
 // @合约模板列表
 // @Summary 合约模板列表
 // @Description
 // @Tags contractTemplate
 // @Accept  json
 // @Produce json
-// @Param account path string true "账户名"
+// @Param account path string false "账户名"
+// @Param prequest body PageRequest true "请求信息"
 // @Success 200 {object} Response
 // @Security ApiKeyAuth
-// @Router /mcontract/template/list/{account} [get]
+// @Router /mcontract/template/list/{account} [POST]
 func (api *API) MContractTemplateList(c *gin.Context) {
 	var request PageRequest
 	response := &Response{
@@ -69,20 +158,23 @@ func (api *API) MContractTemplateList(c *gin.Context) {
 	offset := (request.PageNum - 1) * request.PageSize
 
 	name := c.Param("account")
-	acct := api.getAccount(c, name, api.userID(c))
-	if acct == nil {
-		response.Code = ExecuteCode
-		response.Msg = ERROR_ACCT_NO
-		response.Detail = fmt.Sprintf("user %s 's account %s not exist", api.userName(c), name)
-		api.logger.Error(c.Request.URL.Path, "error", response.Detail)
-		c.JSON(http.StatusOK, response)
-		return
+	acct := &model.Account{}
+	if len(name) > 0 && "undefined" != name {
+		acct = api.getAccount(c, name, api.userID(c))
+		if acct == nil {
+			response.Code = ExecuteCode
+			response.Msg = ERROR_ACCT_NO
+			response.Detail = fmt.Sprintf("user %s 's account %s not exist", api.userName(c), name)
+			api.logger.Error(c.Request.URL.Path, "error", response.Detail)
+			c.JSON(http.StatusOK, response)
+			return
+		}
 	}
 
 	var templates []*model.MContracTemplate
-	if result := api.db.Where(&model.MContracTemplate{
+	if result := api.db.Table(new(model.MContracTemplate).TableName()).Select("id,created_at,name,description,language,address").Where(&model.MContracTemplate{
 		Address: acct.Address,
-	}).Order("ID desc").Offset(offset).Limit(request.PageSize).Find(&templates); result.Error != nil {
+	}).Offset(offset).Limit(request.PageSize).Scan(&templates); result.Error != nil {
 		response.Code = ExecuteCode
 		response.Msg = ERROR_DB
 		response.Detail = result.Error.Error()
@@ -136,13 +228,17 @@ func (api *API) GetMContractTemplate(c *gin.Context) {
 
 	id, _ := strconv.Atoi(c.Param("id"))
 	var template model.MContracTemplate
-	if result := api.db.Preload("MContracTemplateFunctions").First(&template, id); result.RowsAffected == 0 {
+	if result := api.db.Table(new(model.MContracTemplate).TableName()).Select("id,created_at,name,description,language,address").Where("id = ?", id).Scan(&template); result.RowsAffected == 0 {
 		response.Code = ExecuteCode
 		response.Msg = ERROR_FILE_NO
 		response.Detail = fmt.Sprintf("template not exist")
 		api.logger.Error(c.Request.URL.Path, "error", response.Detail)
 		c.JSON(http.StatusOK, response)
 		return
+	}
+	var templatefunctions []model.MContracTemplateFunction
+	if result := api.db.Where("template_id = ?", template.ID).Find(&templatefunctions); result.RowsAffected > 0 {
+		template.MContracTemplateFunctions = templatefunctions
 	}
 	response.Data = template
 	c.JSON(http.StatusOK, response)
@@ -210,7 +306,7 @@ func (api *API) MContractHistoryList(c *gin.Context) {
 	if result := api.db.Where(&model.MContract{
 		Address: acct.Address,
 		Name:    contractName,
-	}).Order("ID desc").Find(&contracts); result.Error != nil {
+	}).Order("Version desc").Find(&contracts); result.Error != nil {
 		response.Code = ExecuteCode
 		response.Msg = ERROR_DB
 		response.Detail = result.Error.Error()
@@ -229,9 +325,10 @@ func (api *API) MContractHistoryList(c *gin.Context) {
 // @Accept  json
 // @Produce json
 // @Param account path string true "账户名"
+// @Param prequest body PageRequest true "请求信息"
 // @Success 200 {object} Response
 // @Security ApiKeyAuth
-// @Router /mcontract/list/{account} [get]
+// @Router /mcontract/list/{account} [POST]
 func (api *API) MContractList(c *gin.Context) {
 	var request PageRequest
 	response := &Response{
@@ -267,9 +364,7 @@ func (api *API) MContractList(c *gin.Context) {
 	}
 
 	var contracts []*model.MContract
-	if result := api.db.Where(&model.MContract{
-		Address: acct.Address,
-	}).Order("ID desc").Offset(offset).Limit(request.PageSize).Find(&contracts); result.Error != nil {
+	if result := api.db.Where("address = ? AND status <> ?", acct.Address, WASMContractStatusDeleted).Order("UpdatedAt desc").Offset(offset).Limit(request.PageSize).Find(&contracts); result.Error != nil {
 		response.Code = ExecuteCode
 		response.Msg = ERROR_DB
 		response.Detail = result.Error.Error()
@@ -555,15 +650,6 @@ func (api *API) OperateContract(c *gin.Context) {
 		c.JSON(http.StatusOK, response)
 		return
 	}
-	//模板部署
-	if contract.Type == MContractTemplateType {
-		var template model.MContracTemplate
-		if result := api.db.First(&template, contract.TemplateId); result.RowsAffected > 0 {
-			contract.FileName = template.CodeFile
-			contract.Description = template.Description
-		}
-
-	}
 	data, tx, err := api.contractTx(c, mode, password, commit, &contract)
 
 	if err != nil {
@@ -828,7 +914,9 @@ func (api *API) DownloadMContractFile(c *gin.Context) {
 		return
 	}
 
-	dst := filepath.Join(viper.GetString(flags.FlagHome), "upload/contract", contract.Version, contract.Address, contract.FileName)
+	//dst := filepath.Join(viper.GetString(flags.FlagHome), "upload/contract", contract.Version, contract.Address, contract.FileName)
+
+	dst := filepath.Join(home, "upload/contract", contract.Version, contract.Address, contract.FileName)
 
 	fileContentDisposition := "attachment;filename=\"" + contract.FileName + "\""
 	c.Header("Content-Type", "application/octet-stream")
@@ -904,14 +992,25 @@ func (api *API) contractTx(c *gin.Context, handle string, password string, commi
 	var err error
 	switch handle {
 	case WASMContractHandleDeploy:
-		//codeFile := filepath.Join(viper.GetString(flags.FlagHome), "upload/contract", contract.Version, contract.Address, contract.FileName)
-		codeFile := filepath.Join(home, "upload/contract", contract.Version, contract.Address, contract.FileName)
-		if !tmos.FileExists(codeFile) {
-			return nil, nil, fmt.Errorf("file %s not exist", contract.FileName)
-		}
-		code, er := ioutil.ReadFile(codeFile)
-		if er != nil {
-			return nil, nil, er
+		var code []byte
+		//模板部署
+		if contract.Type == MContractTemplateType {
+			var template model.MContracTemplate
+			if result := api.db.First(&template, contract.TemplateId); result.RowsAffected > 0 {
+				code = template.CodeFile
+				contract.Description = template.Description
+			}
+
+		} else {
+			//codeFile := filepath.Join(viper.GetString(flags.FlagHome), "upload/contract", contract.Version, contract.Address, contract.FileName)
+			codeFile := filepath.Join(home, "upload/contract", contract.Version, contract.Address, contract.FileName)
+			if !tmos.FileExists(codeFile) {
+				return nil, nil, fmt.Errorf("file %s not exist", contract.FileName)
+			}
+			code, err = ioutil.ReadFile(codeFile)
+			if err != nil {
+				return nil, nil, err
+			}
 		}
 		msg, err = api.client.DeployMsg(contract.Address, contract.Name, code, contract.Args, contract.Description, contract.Fees)
 	case WASMContractHandleUpgrade:
