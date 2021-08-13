@@ -14,7 +14,12 @@ export let queryPeers = async (params) => {
         if (code == 200) {
             return data;
         } else if (code == 201) {
-            window.location.href = location.origin + "#/audit/noAuth"
+            // window.location.href = location.origin + "#/audit/noAuth"
+            return {
+                noAuth: true,
+                ...data
+            }
+
         } else {
             Vue.prototype.$message.error(`${msg}`)
             console.log(code, msg);
@@ -37,7 +42,11 @@ export let queryCheckPerson = async (params) => {
         if (code == 200) {
             return data;
         } else if (code == 201) {
-            window.location.href = location.origin + "#/audit/noAuth"
+            // window.location.href = location.origin + "#/audit/noAuth"
+            return {
+                noAuth: true,
+                ...data
+            }
         } else {
             Vue.prototype.$message.error(`${msg}`)
             console.log(code, msg);
@@ -59,7 +68,11 @@ export let queryCerts = async (params) => {
         if (code == 200) {
             return data;
         } else if (code == 201) {
-            window.location.href = location.origin + "#/audit/noAuth"
+            // window.location.href = location.origin + "#/audit/noAuth"
+            return {
+                noAuth: true,
+                ...data
+            }
         } else {
             Vue.prototype.$message.error(`${msg}`)
             console.log(code, msg);
@@ -81,7 +94,11 @@ export let queryUsers = async (params) => {
         if (code == 200) {
             return data;
         } else if (code == 201) {
-            window.location.href = location.origin + "#/audit/noAuth"
+            // window.location.href = location.origin + "#/audit/noAuth"
+            return {
+                noAuth: true,
+                ...data
+            }
         } else {
             Vue.prototype.$message.error(`${msg}`)
             console.log(code, msg);
@@ -103,7 +120,11 @@ export let queryContracts = async (params) => {
         if (code == 200) {
             return data;
         } else if (code == 201) {
-            window.location.href = location.origin + "#/audit/noAuth"
+            // window.location.href = location.origin + "#/audit/noAuth"
+            return {
+                noAuth: true,
+                ...data
+            }
         } else {
             Vue.prototype.$message.error(`${msg}`)
             console.log(code, msg);

@@ -81,7 +81,10 @@
         </template>
       </template>
       <template v-else>
-        <div class="cm-module-bg trx-list-row trx-no-data">暂无证书数据</div>
+        <div class="cm-module-bg trx-list-row trx-no-data">
+          <template v-if="noAuth"> 暂无访问权限 </template>
+          <template v-else> 暂无证书数据 </template>
+        </div>
       </template>
 
       <div v-if="peers && peers.length" class="pagination-main">
@@ -151,6 +154,7 @@ export default {
         pageNum: 1,
       },
       walAdd: '',
+      noAuth: '',
     }
   },
   created() {
@@ -182,14 +186,15 @@ export default {
       this.getCerts({ address: this.walAdd, action })
     },
     async getCerts({ action, address, pageNum = 1, pageSize = 10 }) {
-      let { page_num, page_size, total, items } = await queryCerts({
+      let { page_num, page_size, total, items, noAuth } = await queryCerts({
         action,
         address,
         page_size: pageSize,
         page_num: pageNum,
       })
-
-      if (items) {
+      if (noAuth && !items) {
+        this.noAuth = noAuth
+      } else {
         this.page.pageNum = pageNum
         this.page.pageSize = pageSize
         this.page.pageTotal = total

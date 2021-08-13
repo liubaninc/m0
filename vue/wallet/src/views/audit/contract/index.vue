@@ -79,7 +79,10 @@
         </template>
       </template>
       <template v-else>
-        <div class="cm-module-bg trx-list-row trx-no-data">暂无合约数据</div>
+        <div class="cm-module-bg trx-list-row trx-no-data">
+          <template v-if="noAuth"> 暂无访问权限 </template>
+          <template v-else> 暂无合约数据 </template>
+        </div>
       </template>
 
       <div v-if="peers && peers.length" class="pagination-main">
@@ -154,6 +157,7 @@ export default {
         pageNum: 1,
       },
       walAdd: '',
+      noAuth: '',
     }
   },
   created() {
@@ -185,14 +189,16 @@ export default {
       this.getPeers({ address: this.walAdd, action })
     },
     async getPeers({ action, address, pageNum = 1, pageSize = 10 }) {
-      let { page_num, page_size, total, items } = await queryContracts({
+      let { page_num, page_size, total, items, noAuth } = await queryContracts({
         address,
         action,
         page_size: pageSize,
         page_num: pageNum,
       })
 
-      if (items && items.length) {
+      if (noAuth && !items) {
+        this.noAuth = noAuth
+      } else {
         this.page.pageNum = pageNum
         this.page.pageSize = pageSize
         this.page.pageTotal = total

@@ -76,7 +76,8 @@
       </template>
       <template v-else>
         <div class="cm-module-bg trx-list-row trx-no-data">
-          暂无用户管理数据
+          <template v-if="noAuth"> 暂无访问权限 </template>
+          <template v-else> 暂无用户管理数据 </template>
         </div>
       </template>
 
@@ -122,6 +123,7 @@ export default {
         pageNum: 1,
       },
       walAdd: '',
+      noAuth: '',
     }
   },
   created() {
@@ -153,14 +155,15 @@ export default {
       this.getPeers({ address: this.walAdd, action })
     },
     async getPeers({ action, address, pageNum = 1, pageSize = 10 }) {
-      let { page_num, page_size, total, items } = await queryUsers({
+      let { page_num, page_size, total, items, noAuth } = await queryUsers({
         action,
         address,
         page_size: pageSize,
         page_num: pageNum,
       })
-
-      if (items && items.length) {
+      if (noAuth && !items) {
+        this.noAuth = noAuth
+      } else {
         this.page.pageNum = pageNum
         this.page.pageSize = pageSize
         this.page.pageTotal = total
