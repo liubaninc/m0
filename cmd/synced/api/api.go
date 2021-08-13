@@ -116,6 +116,7 @@ var (
 	OKMsg = "SUCCESS"
 	// OKCode Ok
 	OKCode   = 200
+	PermCode = 201
 	AuthCode = 3000
 	//RequestCode Api request error
 	RequestCode = 3001

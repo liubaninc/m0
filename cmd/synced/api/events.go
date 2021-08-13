@@ -1,9 +1,16 @@
 package api
 
 import (
+	"net/http"
+
+	peertypes "github.com/liubaninc/m0/x/peer/types"
+	permissiontypes "github.com/liubaninc/m0/x/permission/types"
+	pkitypes "github.com/liubaninc/m0/x/pki/types"
+	validatortypes "github.com/liubaninc/m0/x/validator/types"
+	wasmtypes "github.com/liubaninc/m0/x/wasm/types"
+
 	"github.com/gin-gonic/gin"
 	"github.com/liubaninc/m0/cmd/synced/model"
-	"net/http"
 )
 
 type EventsResponse struct {
@@ -28,6 +35,15 @@ func (api *API) GetPeerEvents(c *gin.Context) {
 	}
 	if request.PageSize < 1 {
 		request.PageSize = 10
+	}
+
+	if !api.hasPerm(c.Query("address"), peertypes.ModuleName) {
+		response := &Response{
+			Code: PermCode,
+			Msg:  "无权查看",
+		}
+		c.JSON(http.StatusOK, response)
+		return
 	}
 
 	offset := (request.PageNum - 1) * request.PageSize
@@ -83,6 +99,15 @@ func (api *API) GetValidatorEvents(c *gin.Context) {
 		request.PageSize = 10
 	}
 
+	if !api.hasPerm(c.Query("address"), validatortypes.ModuleName) {
+		response := &Response{
+			Code: PermCode,
+			Msg:  "无权查看",
+		}
+		c.JSON(http.StatusOK, response)
+		return
+	}
+
 	offset := (request.PageNum - 1) * request.PageSize
 	cond := map[string]interface{}{}
 	cond["route"] = "validator"
@@ -134,6 +159,15 @@ func (api *API) GetCertEvents(c *gin.Context) {
 	}
 	if request.PageSize < 1 {
 		request.PageSize = 10
+	}
+
+	if !api.hasPerm(c.Query("address"), pkitypes.ModuleName) {
+		response := &Response{
+			Code: PermCode,
+			Msg:  "无权查看",
+		}
+		c.JSON(http.StatusOK, response)
+		return
 	}
 
 	offset := (request.PageNum - 1) * request.PageSize
@@ -189,6 +223,15 @@ func (api *API) GetAccountEvents(c *gin.Context) {
 		request.PageSize = 10
 	}
 
+	if !api.hasPerm(c.Query("address"), permissiontypes.ModuleName) {
+		response := &Response{
+			Code: PermCode,
+			Msg:  "无权查看",
+		}
+		c.JSON(http.StatusOK, response)
+		return
+	}
+
 	offset := (request.PageNum - 1) * request.PageSize
 	cond := map[string]interface{}{}
 	cond["route"] = "permission"
@@ -242,6 +285,15 @@ func (api *API) GetContractEvents(c *gin.Context) {
 		request.PageSize = 10
 	}
 
+	if !api.hasPerm(c.Query("address"), wasmtypes.ModuleName) {
+		response := &Response{
+			Code: PermCode,
+			Msg:  "无权查看",
+		}
+		c.JSON(http.StatusOK, response)
+		return
+	}
+
 	offset := (request.PageNum - 1) * request.PageSize
 	cond := map[string]interface{}{}
 	cond["route"] = "wasm"
@@ -274,4 +326,17 @@ func (api *API) GetContractEvents(c *gin.Context) {
 		Items: events,
 	}
 	c.JSON(http.StatusOK, response)
+}
+
+func (api *API) hasPerm(address string, perm string) bool {
+	if len(address) == 0 {
+		return false
+	}
+	perms, _ := api.client.GetPerms(address)
+	for _, m := range perms {
+		if m == permissiontypes.AllPermissions || m == perm {
+			return true
+		}
+	}
+	return false
 }

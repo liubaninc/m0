@@ -33,6 +33,13 @@ func (k Keeper) IDPeerFilter(ctx sdk.Context, index string) abci.ResponseQuery {
 		}
 	}
 
+	if _, found := k.pkiKeeper.GetRevokedCertificates(ctx, cert.Subject, cert.SubjectKeyID); found {
+		return abci.ResponseQuery{
+			Code: 1,
+			Log:  fmt.Sprintf("certificate %s/%s is revoked in pki module", peerID.CertIssuer, peerID.CertSerialNum),
+		}
+	}
+
 	if certs, _ := k.pkiKeeper.GetCertificates(ctx, cert.Subject, cert.SubjectKeyID); certs.Disable {
 		return abci.ResponseQuery{
 			Code: 1,

@@ -470,6 +470,75 @@ export let routes = [
           },
         ],
       },
+      {
+        path: "/audit",
+        component: Viewport,
+        children: [
+          {
+            path: "node",
+            name: "节点管理",
+            meta: {
+              isNeedLogin: !0,
+            },
+            component: () =>
+              import(/* webpackChunkName: "audit/node" */ "@/views/audit/node"),
+          },
+          {
+            path: "cert",
+            name: "认证管理",
+            meta: {
+              isNeedLogin: !0,
+            },
+            component: () =>
+              import(/* webpackChunkName: "audit/cert" */ "@/views/audit/cert"),
+          },
+          {
+            path: "checkPerson",
+            name: "验证人管理",
+            meta: {
+              isNeedLogin: !0,
+            },
+            component: () =>
+              import(/* webpackChunkName: "audit/checkPerson" */ "@/views/audit/checkPerson"),
+          },
+          {
+            path: "user",
+            name: "用户管理",
+            meta: {
+              isNeedLogin: !0,
+            },
+            component: () =>
+              import(/* webpackChunkName: "audit/user" */ "@/views/audit/user"),
+          },
+          {
+            path: "cert",
+            name: "证书管理",
+            meta: {
+              isNeedLogin: !0,
+            },
+            component: () =>
+              import(/* webpackChunkName: "audit/cert" */ "@/views/audit/cert"),
+          },
+          {
+            path: "contract",
+            name: "合约管理",
+            meta: {
+              isNeedLogin: !0,
+            },
+            component: () =>
+              import(/* webpackChunkName: "audit/contract" */ "@/views/audit/contract"),
+          },
+          {
+            path: "noAuth",
+            name: "无权限",
+            meta: {
+              isNeedLogin: !0,
+            },
+            component: () =>
+              import(/* webpackChunkName: "authority/noAuth" */ "@/views/authority/noAuth"),
+          },
+        ],
+      },
     ],
   },
 
