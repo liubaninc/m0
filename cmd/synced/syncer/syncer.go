@@ -623,6 +623,14 @@ func (synced *Syncer) processTx(hash []byte, time string) (*model.Transaction, e
 			umsg = &model.MsgUTXO{
 				Type: actions[msg.Type()],
 			}
+		case *wasmtypes.MsgProposeDeployContract:
+			umsg = &model.MsgUTXO{
+				Type: actions[msg.Type()],
+			}
+		case *wasmtypes.MsgApproveDeployContract:
+			umsg = &model.MsgUTXO{
+				Type: actions[msg.Type()],
+			}
 		case *peertypes.MsgCreatePeerID:
 			umsg = &model.MsgUTXO{
 				Type: actions[msg.Type()],
