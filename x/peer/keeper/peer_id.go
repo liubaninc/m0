@@ -11,7 +11,7 @@ import (
 )
 
 func (k Keeper) IDPeerFilter(ctx sdk.Context, index string) abci.ResponseQuery {
-	if ctx.BlockHeight() == 0 || !k.GetParams(ctx).Enabled {
+	if !k.GetParams(ctx).Enabled {
 		return abci.ResponseQuery{
 			Code: abci.CodeTypeOK,
 		}

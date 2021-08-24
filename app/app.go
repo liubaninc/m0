@@ -248,6 +248,14 @@ func New(
 	)
 	// ... other modules keepers
 
+	app.ValidatorKeeper = *validatormodulekeeper.NewKeeper(
+		appCodec,
+		keys[validatormoduletypes.StoreKey],
+		keys[validatormoduletypes.MemStoreKey],
+		app.GetSubspace(validatormoduletypes.ModuleName),
+	)
+	validatorModule := validatormodule.NewAppModule(appCodec, app.ValidatorKeeper)
+
 	// Create IBC Keeper
 	app.IBCKeeper = ibckeeper.NewKeeper(
 		appCodec, keys[ibchost.StoreKey], app.GetSubspace(ibchost.ModuleName), app.ValidatorKeeper, scopedIBCKeeper,
@@ -301,14 +309,6 @@ func New(
 		app.AccountKeeper,
 	)
 	permissionModule := permissionmodule.NewAppModule(appCodec, app.PermissionKeeper)
-
-	app.ValidatorKeeper = *validatormodulekeeper.NewKeeper(
-		appCodec,
-		keys[validatormoduletypes.StoreKey],
-		keys[validatormoduletypes.MemStoreKey],
-		app.GetSubspace(validatormoduletypes.ModuleName),
-	)
-	validatorModule := validatormodule.NewAppModule(appCodec, app.ValidatorKeeper)
 
 	app.WasmKeeper = *wasmkeeper.NewKeeper(
 		appCodec,
