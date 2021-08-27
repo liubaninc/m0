@@ -1,9 +1,11 @@
 package app
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+	"runtime/debug"
 
 	"github.com/cosmos/cosmos-sdk/x/capability"
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
@@ -246,6 +248,14 @@ func New(
 	)
 	// ... other modules keepers
 
+	app.ValidatorKeeper = *validatormodulekeeper.NewKeeper(
+		appCodec,
+		keys[validatormoduletypes.StoreKey],
+		keys[validatormoduletypes.MemStoreKey],
+		app.GetSubspace(validatormoduletypes.ModuleName),
+	)
+	validatorModule := validatormodule.NewAppModule(appCodec, app.ValidatorKeeper)
+
 	// Create IBC Keeper
 	app.IBCKeeper = ibckeeper.NewKeeper(
 		appCodec, keys[ibchost.StoreKey], app.GetSubspace(ibchost.ModuleName), app.ValidatorKeeper, scopedIBCKeeper,
@@ -299,14 +309,6 @@ func New(
 		app.AccountKeeper,
 	)
 	permissionModule := permissionmodule.NewAppModule(appCodec, app.PermissionKeeper)
-
-	app.ValidatorKeeper = *validatormodulekeeper.NewKeeper(
-		appCodec,
-		keys[validatormoduletypes.StoreKey],
-		keys[validatormoduletypes.MemStoreKey],
-		app.GetSubspace(validatormoduletypes.ModuleName),
-	)
-	validatorModule := validatormodule.NewAppModule(appCodec, app.ValidatorKeeper)
 
 	app.WasmKeeper = *wasmkeeper.NewKeeper(
 		appCodec,
@@ -414,7 +416,14 @@ func New(
 	app.SetEndBlocker(app.EndBlocker)
 
 	app.SetIDPeerFilter(func(info string) abci.ResponseQuery {
-		return app.PeerKeeper.IDPeerFilter(app.GetState(3).Context(), info)
+		defer func() {
+			r := recover()
+			if r != nil {
+				fmt.Println("SetIDPeerFilter", r)
+				debug.PrintStack()
+			}
+		}()
+		return app.PeerKeeper.IDPeerFilter(app.GetPeerFilterContext(), info)
 	})
 
 	if loadLatest {

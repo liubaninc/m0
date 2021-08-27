@@ -518,12 +518,12 @@ func (app *BaseApp) getState(mode runTxMode) *state {
 	return app.checkState
 }
 
-func (app *BaseApp) GetState(mode runTxMode) *state {
-	if mode == runTxModeDeliver {
-		return app.deliverState
+func (app *BaseApp) GetPeerFilterContext() sdk.Context {
+	if app.deliverState != nil && app.deliverState.ctx.BlockHeight() == 0 {
+		return app.deliverState.ctx
 	}
 
-	return app.checkState
+	return app.checkState.ctx
 }
 
 // retrieve the context for the tx w/ txBytes and other memoized values.

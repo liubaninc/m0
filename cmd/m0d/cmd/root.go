@@ -167,6 +167,15 @@ func txCommand() *cobra.Command {
 	)
 
 	app.ModuleBasics.AddTxCommands(cmd)
+
+	var cmdsToRemove []*cobra.Command
+	for _, cmd := range cmd.Commands() {
+		if cmd.Use == banktypes.ModuleName {
+			cmdsToRemove = append(cmdsToRemove, cmd)
+		}
+	}
+
+	cmd.RemoveCommand(cmdsToRemove...)
 	cmd.PersistentFlags().String(flags.FlagChainID, "", "The network chain ID")
 
 	return cmd

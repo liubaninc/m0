@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/spf13/cobra"
+	"github.com/tendermint/tendermint/crypto/tmhash"
 	"io/ioutil"
 	"strconv"
 
@@ -39,7 +40,7 @@ func CmdProposeDeployContract() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgProposeDeployContract(clientCtx.GetFromAddress().String(), string(argsContractName), []byte(argsContractCode), string(argsInitArgs), args[3:])
+			msg := types.NewMsgProposeDeployContract(clientCtx.GetFromAddress().String(), string(argsContractName), []byte(tmhash.Sum(argsContractCode)), string(argsInitArgs), args[3:])
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}

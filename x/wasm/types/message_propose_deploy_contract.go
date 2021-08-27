@@ -8,13 +8,13 @@ import (
 
 var _ sdk.Msg = &MsgProposeDeployContract{}
 
-func NewMsgProposeDeployContract(creator string, contractName string, contractCode []byte, initArgs string, approval []string) *MsgProposeDeployContract {
+func NewMsgProposeDeployContract(creator string, contractName string, contractCodeHash []byte, initArgs string, approval []string) *MsgProposeDeployContract {
 	return &MsgProposeDeployContract{
-		Creator:      creator,
-		ContractName: contractName,
-		ContractCode: contractCode,
-		InitArgs:     initArgs,
-		Approval:     approval,
+		Creator:          creator,
+		ContractName:     contractName,
+		ContractCodeHash: contractCodeHash,
+		InitArgs:         initArgs,
+		Approval:         approval,
 	}
 }
 
@@ -53,8 +53,8 @@ func (msg *MsgProposeDeployContract) ValidateBasic() error {
 		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "contract name %v, error %v", msg.ContractName, err)
 	}
 
-	if len(msg.ContractCode) == 0 {
-		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid contract code: it cannot be empty")
+	if len(msg.ContractCodeHash) == 0 {
+		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "invalid contract code hash: it cannot be empty")
 	}
 
 	approval := map[string]bool{}
