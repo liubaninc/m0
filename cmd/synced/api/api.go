@@ -28,6 +28,7 @@ func New(db *gorm.DB, client msdk.Client, logger log.Logger) *API {
 		logger: logger.With("module", "api"),
 	}
 }
+
 func (api *API) Run(port int) {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
