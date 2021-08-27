@@ -10,11 +10,11 @@ var _ sdk.Msg = &MsgProposeDeployContract{}
 
 func NewMsgProposeDeployContract(creator string, contractName string, contractCodeHash []byte, initArgs string, approval []string) *MsgProposeDeployContract {
 	return &MsgProposeDeployContract{
-		Creator:      creator,
-		ContractName: contractName,
+		Creator:          creator,
+		ContractName:     contractName,
 		ContractCodeHash: contractCodeHash,
-		InitArgs:     initArgs,
-		Approval:     approval,
+		InitArgs:         initArgs,
+		Approval:         approval,
 	}
 }
 

@@ -1,6 +1,7 @@
 package recrypt
 
 import (
+	"encoding/hex"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	ed25519 "github.com/miguelsandro/curve25519-go/axlsign"
 	"math/rand"
@@ -31,30 +32,42 @@ func encrypt(privateKey, publicKey []byte, content string) (string, string, erro
 	if err != nil {
 		return "", "", err
 	}
-	return string(cipherContent), string(envelope), nil
+	return hex.EncodeToString(cipherContent), hex.EncodeToString(envelope), nil
 }
+
 // 解密
 func dencrypt(privateKey, publicKey []byte, envelope string, cipherContent string) (string, error) {
 	//拆开加密密码信封
-	var contentKey []byte
 	sk := ed25519.SharedKey(privateKey, publicKey)
-	contentKey, err := AESCBCPKCS7Decrypt(sk, []byte(envelope))
+	envelopeBytes, err := hex.DecodeString(envelope)
+	if err != nil {
+		return "", err
+	}
+	contentKey, err := AESCBCPKCS7Decrypt(sk, envelopeBytes)
 	if err != nil {
 		return "", err
 	}
 	//加密密码解密内容
-	content, err := AESCBCPKCS7Decrypt(contentKey, []byte(cipherContent))
+	cipherContentBytes, err := hex.DecodeString(cipherContent)
+	if err != nil {
+		return "", err
+	}
+	content, err := AESCBCPKCS7Decrypt(contentKey, cipherContentBytes)
 	if err != nil {
 		return "", err
 	}
 	return string(content), nil
 }
+
 //  代理重加密
 func reEnvelope(priv ed25519.Keys, oldPublicKey, newPublicKey []byte, envelope string) (string, error) {
 	//拆开加密密码信封
-	var contentKey []byte
 	sk := ed25519.SharedKey(priv.PrivateKey, oldPublicKey)
-	contentKey, err := AESCBCPKCS7Decrypt(sk, []byte(envelope))
+	envelopeBytes, err := hex.DecodeString(envelope)
+	if err != nil {
+		return "", err
+	}
+	contentKey, err := AESCBCPKCS7Decrypt(sk, envelopeBytes)
 	if err != nil {
 		return "", err
 	}
@@ -65,7 +78,7 @@ func reEnvelope(priv ed25519.Keys, oldPublicKey, newPublicKey []byte, envelope s
 	if err != nil {
 		return "", err
 	}
-	return string(reEnvelope), nil
+	return hex.EncodeToString(reEnvelope), nil
 }
 
 func Encrypt(key cryptotypes.PrivKey, publicKey []byte, content string) (string, string, error) {
@@ -81,4 +94,9 @@ func Dencrypt(key cryptotypes.PrivKey, publicKey []byte, envelope string, cipher
 func ReEnvelope(key cryptotypes.PrivKey, oldPublicKey, newPublicKey []byte, envelope string) (string, error) {
 	priv := ed25519.GenerateKeyPair(key.Bytes())
 	return reEnvelope(priv, oldPublicKey, newPublicKey, envelope)
+}
+
+func GetPubKey(key cryptotypes.PrivKey) []byte {
+	priv := ed25519.GenerateKeyPair(key.Bytes())
+	return priv.PublicKey
 }

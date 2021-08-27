@@ -1,0 +1,14 @@
+syntax = "proto3";
+package liubaninc.m0.storage;
+
+option go_package = "github.com/liubaninc/m0/x/storage/types";
+
+import "gogoproto/gogo.proto";
+
+message ShareEncryptStorage {
+  string creator = 1;
+  string index = 2;
+  string shareIndex = 3;
+  string envelope = 4; 
+  string sharer = 5;
+}

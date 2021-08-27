@@ -39,12 +39,12 @@ func (k msgServer) ApproveDeployContract(goCtx context.Context, msg *types.MsgAp
 	if len(proposeDeploy.Approval) == len(proposeDeploy.Approved) {
 		k.RemoveProposeDeploy(ctx, proposeDeploy.Index)
 		k.SetApproveDeploy(ctx, types.ApproveDeploy{
-			Creator:      proposeDeploy.Creator,
-			Index:        proposeDeploy.Index,
-			ContractName: proposeDeploy.ContractName,
+			Creator:          proposeDeploy.Creator,
+			Index:            proposeDeploy.Index,
+			ContractName:     proposeDeploy.ContractName,
 			ContractCodeHash: proposeDeploy.ContractCodeHash,
-			InitArgs:     proposeDeploy.InitArgs,
-			Approval:     proposeDeploy.Approval,
+			InitArgs:         proposeDeploy.InitArgs,
+			Approval:         proposeDeploy.Approval,
 		})
 	} else {
 		k.SetProposeDeploy(ctx, proposeDeploy)

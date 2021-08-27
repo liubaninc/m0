@@ -23,12 +23,12 @@ func (k msgServer) ProposeDeployContract(goCtx context.Context, msg *types.MsgPr
 	}
 
 	proposeDeploy := types.ProposeDeploy{
-		Creator:      msg.Creator,
-		Index:        index,
-		ContractName: msg.ContractName,
+		Creator:          msg.Creator,
+		Index:            index,
+		ContractName:     msg.ContractName,
 		ContractCodeHash: msg.ContractCodeHash,
-		InitArgs:     msg.InitArgs,
-		Approval:     msg.Approval,
+		InitArgs:         msg.InitArgs,
+		Approval:         msg.Approval,
 	}
 
 	attrs := make([]sdk.Attribute, len(msg.Approval))

@@ -2,10 +2,13 @@ package cmd
 
 import (
 	"bufio"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/liubaninc/m0/crypto/recrypt"
 	pkimoduletypes "github.com/liubaninc/m0/x/pki/types"
 	wasmtypes "github.com/liubaninc/m0/x/wasm/types"
+	storagetypes "github.com/liubaninc/m0/x/storage/types"
 	"io/ioutil"
 	"net"
 	"os"
@@ -342,6 +345,10 @@ func InitTestnet(
 		if err != nil {
 			return err
 		}
+		priv, err := kb.ExportPrivateKeyObject("reserved")
+		if err != nil {
+			return err
+		}
 
 		info := map[string]string{
 			"secret":  reservedAccount,
@@ -407,6 +414,8 @@ func InitTestnet(
 				Amount: reservedCoin,
 			},
 		}, ""))
+
+		msgs = append(msgs, storagetypes.NewMsgCreateRecryptAccount(addr.String(), hex.EncodeToString(recrypt.GetPubKey(priv))))
 
 		for i, msg := range msgs {
 			txBuilder := clientCtx.TxConfig.NewTxBuilder()
