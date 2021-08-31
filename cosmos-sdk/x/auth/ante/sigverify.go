@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/hex"
 	"fmt"
+
 	"github.com/cosmos/cosmos-sdk/crypto/keys/sm2"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
@@ -375,6 +376,7 @@ func DefaultSigVerificationGasConsumer(
 	case multisig.PubKey:
 		multisignature, ok := sig.Data.(*signing.MultiSignatureData)
 		if !ok {
+			return nil
 			return fmt.Errorf("expected %T, got, %T", &signing.MultiSignatureData{}, sig.Data)
 		}
 		err := ConsumeMultisignatureVerificationGas(meter, multisignature, pubkey, params, sig.Sequence)
