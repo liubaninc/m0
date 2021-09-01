@@ -149,9 +149,9 @@ images/build-%: reserved
 		-t ciyuntangquan/$*:${COMMIT} \
 		.
 	@echo "TAG=${COMMIT}" > samples/env
-	docker tag ciyuntangquan/$*:${COMMIT} ciyuntangquan/$*:latest
+	docker tag ciyuntangquan/$*:${COMMIT} ciyuntangquan/$*:bft
 	docker login -u ciyuntangquan -p chaogaofeng
-	docker push ciyuntangquan/$*:latest
+	docker push ciyuntangquan/$*:bft
 
 
 images/clean-%:
