@@ -1,0 +1,46 @@
+syntax = "proto3";
+package liubaninc.m0.storage;
+
+// this line is used by starport scaffolding # proto/tx/import
+
+option go_package = "github.com/liubaninc/m0/x/storage/types";
+
+// Msg defines the Msg service.
+service Msg {
+    // this line is used by starport scaffolding # proto/tx/rpc
+  rpc CreateRecryptAccount(MsgCreateRecryptAccount) returns (MsgCreateRecryptAccountResponse);
+  rpc CreateShareEncryptStorage(MsgCreateShareEncryptStorage) returns (MsgCreateShareEncryptStorageResponse);
+  rpc CreateEncryptStorage(MsgCreateEncryptStorage) returns (MsgCreateEncryptStorageResponse);
+}
+
+// this line is used by starport scaffolding # proto/tx/message
+message MsgCreateRecryptAccount {
+  string creator = 1;
+  string pubkey = 2;
+}
+
+message MsgCreateRecryptAccountResponse {
+}
+
+
+message MsgCreateShareEncryptStorage {
+  string creator = 1;
+  string key = 2;
+  string shareKey = 3;
+  string envelope = 4;
+  string sharer = 5;
+}
+
+message MsgCreateShareEncryptStorageResponse {
+}
+
+message MsgCreateEncryptStorage {
+  string creator = 1;
+  string key = 2;
+  string md5 = 3;
+  string encrypted = 4;
+  string envelope = 5;
+}
+
+message MsgCreateEncryptStorageResponse {
+}

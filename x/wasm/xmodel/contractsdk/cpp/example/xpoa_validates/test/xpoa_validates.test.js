@@ -4,7 +4,7 @@ var assert = require("assert");
 Test("xpoa_validates", function (t) {
     var contract;
     t.Run("deploy", function (tt) {
-        contract = xchain.Deploy({
+        contract = mchain.Deploy({
             name: "xpoa_validates",
             code: "../xpoa_validates.wasm",
             lang: "c",

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+	"time"
 
 	"github.com/gogo/protobuf/proto"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -31,6 +32,10 @@ const (
 
 var (
 	_ abci.Application = (*BaseApp)(nil)
+)
+
+const (
+	KeyMsgOffset = "msg-index"
 )
 
 type (
@@ -513,6 +518,14 @@ func (app *BaseApp) getState(mode runTxMode) *state {
 	return app.checkState
 }
 
+func (app *BaseApp) GetPeerFilterContext() sdk.Context {
+	if app.deliverState != nil && app.deliverState.ctx.BlockHeight() == 0 {
+		return app.deliverState.ctx
+	}
+
+	return app.checkState.ctx
+}
+
 // retrieve the context for the tx w/ txBytes and other memoized values.
 func (app *BaseApp) getContextForTx(mode runTxMode, txBytes []byte) sdk.Context {
 	ctx := app.getState(mode).ctx.
@@ -688,11 +701,13 @@ func (app *BaseApp) runMsgs(ctx sdk.Context, msgs []sdk.Msg, mode runTxMode) (*s
 	}
 
 	// NOTE: GasWanted is determined by the AnteHandler and GasUsed by the GasMeter.
+	hash := fmt.Sprintf("%X", tmhash.Sum(ctx.TxBytes()))
 	for i, msg := range msgs {
 		// skip actual execution for (Re)CheckTx mode
 		if mode == runTxModeCheck || mode == runTxModeReCheck {
 			break
 		}
+		t := time.Now()
 
 		var (
 			msgEvents sdk.Events
@@ -701,7 +716,7 @@ func (app *BaseApp) runMsgs(ctx sdk.Context, msgs []sdk.Msg, mode runTxMode) (*s
 			err       error
 		)
 
-		ctx = ctx.WithContext(context.WithValue(ctx.Context(), "msg-index", i))
+		ctx = ctx.WithContext(context.WithValue(ctx.Context(), KeyMsgOffset, i))
 		if svcMsg, ok := msg.(sdk.ServiceMsg); ok {
 			msgFqName = svcMsg.MethodName
 			handler := app.msgServiceRouter.Handler(msgFqName)
@@ -738,6 +753,8 @@ func (app *BaseApp) runMsgs(ctx sdk.Context, msgs []sdk.Msg, mode runTxMode) (*s
 
 		txMsgData.Data = append(txMsgData.Data, &sdk.MsgData{MsgType: msg.Type(), Data: msgResult.Data})
 		msgLogs = append(msgLogs, sdk.NewABCIMessageLog(uint32(i), msgResult.Log, msgEvents))
+
+		app.logger.Debug("handler", "hash", hash, "route", msg.Route(), "msg", msg.Type(), "index", i, "elapsed", time.Now().Sub(t).String())
 	}
 
 	data, err := proto.Marshal(txMsgData)

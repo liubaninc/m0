@@ -2,14 +2,21 @@ package cmd
 
 import (
 	"bufio"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	utxotypes "github.com/liubaninc/m0/x/utxo/types"
+	"github.com/liubaninc/m0/crypto/recrypt"
+	pkimoduletypes "github.com/liubaninc/m0/x/pki/types"
+	wasmtypes "github.com/liubaninc/m0/x/wasm/types"
+	storagetypes "github.com/liubaninc/m0/x/storage/types"
+	"io/ioutil"
 	"net"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	utxotypes "github.com/liubaninc/m0/x/utxo/types"
 
 	"github.com/cosmos/go-bip39"
 	"github.com/spf13/viper"
@@ -34,7 +41,9 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	peertypes "github.com/liubaninc/m0/x/peer/types"
+	permissiontypes "github.com/liubaninc/m0/x/permission/types"
+	validatortypes "github.com/liubaninc/m0/x/validator/types"
 )
 
 var (
@@ -50,6 +59,8 @@ var (
 
 	flagReservedAccount = "reserved-account-mnemonic"
 	flagReservedCoin    = "reserved-coin"
+
+	flagDevelopMode = "dev-mode"
 )
 
 // get cmd to initialize all files for tendermint testnet and application
@@ -156,6 +167,8 @@ Example:
 	cmd.Flags().String(flagReservedCoin, "100000000000m0token",
 		"Reserved coin")
 
+	cmd.Flags().Bool(flagDevelopMode, false, "develop mode, skip some module's genesis state， as peer、permission")
+
 	return cmd
 }
 
@@ -195,9 +208,10 @@ func InitTestnet(
 	simappConfig.Telemetry.GlobalLabels = [][]string{{"chain_id", chainID}}
 
 	var (
-		genAccounts []authtypes.GenesisAccount
-		genBalances []banktypes.Balance
-		genFiles    []string
+		genAccounts    []authtypes.GenesisAccount
+		genPermissions []*permissiontypes.Account
+		genPeerIDs     []*peertypes.PeerID
+		genFiles       []string
 	)
 
 	inBuf := bufio.NewReader(cmd.InOrStdin())
@@ -211,6 +225,7 @@ func InitTestnet(
 		nodeConfig.Instrumentation.Prometheus = true
 		nodeConfig.RPC.ListenAddress = "tcp://0.0.0.0:26657"
 		nodeConfig.RPC.TimeoutBroadcastTxCommit = 60 * time.Second
+		nodeConfig.FilterPeers = true
 
 		err := os.MkdirAll(filepath.Join(nodeDir, "config"), nodeDirPerm)
 		if err != nil {
@@ -261,26 +276,27 @@ func InitTestnet(
 			return err
 		}
 
-		// accTokens := sdk.TokensFromConsensusPower(1000)
-		accStakingTokens := sdk.TokensFromConsensusPower(500)
-		coins := sdk.Coins{
-			// sdk.NewCoin(fmt.Sprintf("%stoken", nodeDirName), accTokens),
-			sdk.NewCoin(sdk.DefaultBondDenom, accStakingTokens),
-		}
-
-		genBalances = append(genBalances, banktypes.Balance{Address: addr.String(), Coins: coins.Sort()})
 		genAccounts = append(genAccounts, authtypes.NewBaseAccount(addr, nil, 0, 0))
+		genPermissions = append(genPermissions, &permissiontypes.Account{
+			Creator: addr.String(),
+			Address: addr.String(),
+			Perms: []string{
+				validatortypes.ModuleName,
+			},
+		})
+		genPeerIDs = append(genPeerIDs, &peertypes.PeerID{
+			Creator: addr.String(),
+			Index:   nodeIDs[i],
+		})
 
-		valTokens := sdk.TokensFromConsensusPower(100)
-		createValMsg, err := stakingtypes.NewMsgCreateValidator(
-			sdk.ValAddress(addr),
-			valPubKeys[i],
-			sdk.NewCoin(sdk.DefaultBondDenom, valTokens),
-			stakingtypes.NewDescription(nodeDirName, "", "", "", ""),
-			stakingtypes.NewCommissionRates(sdk.OneDec(), sdk.OneDec(), sdk.OneDec()),
-			sdk.OneInt(),
+		createValMsg := validatortypes.NewMsgCreateValidator(
+			addr.String(),
+			sdk.MustBech32ifyPubKey(sdk.Bech32PubKeyTypeConsPub, valPubKeys[i]),
+			&validatortypes.Description{
+				Moniker: nodeDirName,
+			},
 		)
-		if err != nil {
+		if err := createValMsg.ValidateBasic(); err != nil {
 			return err
 		}
 
@@ -314,7 +330,7 @@ func InitTestnet(
 		srvconfig.WriteConfigFile(filepath.Join(nodeDir, "config/app.toml"), simappConfig)
 	}
 
-	// reverted
+	// reverted account
 	{
 		kb, err := keyring.New(sdk.KeyringServiceName(), keyring.BackendMemory, "", nil)
 		if err != nil {
@@ -326,6 +342,10 @@ func InitTestnet(
 			return err
 		}
 		addr, err := server.SaveCoinKey(kb, "reserved", reservedAccount, true, algo)
+		if err != nil {
+			return err
+		}
+		priv, err := kb.ExportPrivateKeyObject("reserved")
 		if err != nil {
 			return err
 		}
@@ -343,47 +363,90 @@ func InitTestnet(
 			return err
 		}
 
-		accStakingTokens := sdk.TokensFromConsensusPower(10000000000)
-		coins := sdk.Coins{
-			// sdk.NewCoin(fmt.Sprintf("%stoken", nodeDirName), accTokens),
-			sdk.NewCoin(sdk.DefaultBondDenom, accStakingTokens),
-		}
-		genBalances = append(genBalances, banktypes.Balance{Address: addr.String(), Coins: coins})
 		genAccounts = append(genAccounts, authtypes.NewBaseAccount(addr, nil, 0, 0))
+		genPermissions = append(genPermissions, &permissiontypes.Account{
+			Creator: addr.String(),
+			Address: addr.String(),
+			Perms: []string{
+				permissiontypes.AllPermissions,
+			},
+		})
 
-		msg := utxotypes.NewMsgIssue(addr.String(), []*utxotypes.Input{}, []*utxotypes.Output{
+		msgs := []sdk.Msg{}
+
+		// certificates
+		cadir := filepath.Join(outputDir, "ca")
+		tmos.EnsureDir(cadir, 0755)
+		caCertFile := filepath.Join(cadir, "ca.cert")
+		caKeyFile := filepath.Join(cadir, "ca.key")
+		// ca
+		caCert, caKey, err := generateCA(nil)
+		if err != nil {
+			return err
+		}
+		if err := saveCert(caCertFile, caKeyFile, caCert, caKey, caCert, caKey); err != nil {
+			return err
+		}
+		caCert, _ = parseCert(caCertFile)
+		certBytes, _ := ioutil.ReadFile(caCertFile)
+		msgs = append(msgs, pkimoduletypes.NewMsgAddRootCert(addr.String(), string(certBytes)))
+		// peer certificates
+		for i := 0; i < numValidators; i++ {
+			cert, key, err := generateCertificate(nil, []string{nodeIDs[i]}, caCert)
+			if err != nil {
+				return err
+			}
+			certFile := filepath.Join(cadir, fmt.Sprintf("%s.cert", nodeIDs[i]))
+			keyFile := filepath.Join(cadir, fmt.Sprintf("%s.key", nodeIDs[i]))
+			if err := saveCert(certFile, keyFile, caCert, caKey, cert, key); err != nil {
+				return err
+			}
+			certBytes, _ := ioutil.ReadFile(certFile)
+			msgs = append(msgs, pkimoduletypes.NewMsgAddCert(addr.String(), string(certBytes)))
+
+			genPeerIDs[i].CertIssuer = cert.Issuer.String()
+			genPeerIDs[i].CertSerialNum = cert.SerialNumber.String()
+		}
+
+		msgs = append(msgs, utxotypes.NewMsgIssue(addr.String(), []*utxotypes.Input{}, []*utxotypes.Output{
 			{
 				ToAddr: addr.String(),
 				Amount: reservedCoin,
 			},
-		}, "reserved")
-		txBuilder := clientCtx.TxConfig.NewTxBuilder()
-		if err := txBuilder.SetMsgs(msg); err != nil {
-			return err
-		}
+		}, ""))
 
-		txFactory := tx.Factory{}
-		txFactory = txFactory.
-			WithChainID(chainID).
-			WithMemo("testnet").
-			WithKeybase(kb).
-			WithTxConfig(clientCtx.TxConfig)
+		msgs = append(msgs, storagetypes.NewMsgCreateRecryptAccount(addr.String(), hex.EncodeToString(recrypt.GetPubKey(priv))))
 
-		if err := tx.Sign(txFactory, "reserved", txBuilder, true); err != nil {
-			return err
-		}
+		for i, msg := range msgs {
+			txBuilder := clientCtx.TxConfig.NewTxBuilder()
+			if err := txBuilder.SetMsgs(msg); err != nil {
+				return err
+			}
 
-		txBz, err := clientCtx.TxConfig.TxJSONEncoder()(txBuilder.GetTx())
-		if err != nil {
-			return err
-		}
+			txFactory := tx.Factory{}
+			txFactory = txFactory.
+				WithChainID(chainID).
+				WithMemo("reserved coin").
+				WithKeybase(kb).
+				WithTxConfig(clientCtx.TxConfig).
+				WithSequence(uint64(i))
 
-		if err := writeFile(fmt.Sprintf("%v.json", "reserved"), filepath.Join(outputDir, "gentxs"), txBz); err != nil {
-			return err
+			if err := tx.Sign(txFactory, "reserved", txBuilder, true); err != nil {
+				return err
+			}
+
+			txBz, err := clientCtx.TxConfig.TxJSONEncoder()(txBuilder.GetTx())
+			if err != nil {
+				return err
+			}
+
+			if err := writeFile(fmt.Sprintf("%v-%d.json", "reserved", i), filepath.Join(outputDir, "gentxs"), txBz); err != nil {
+				return err
+			}
 		}
 	}
 
-	if err := initGenFiles(clientCtx, mbm, chainID, genAccounts, genBalances, genFiles, numValidators, genesisTime); err != nil {
+	if err := initGenFiles(clientCtx, mbm, chainID, genAccounts, genPermissions, genPeerIDs, genFiles, numValidators, genesisTime); err != nil {
 		return err
 	}
 
@@ -401,7 +464,8 @@ func InitTestnet(
 
 func initGenFiles(
 	clientCtx client.Context, mbm module.BasicManager, chainID string,
-	genAccounts []authtypes.GenesisAccount, genBalances []banktypes.Balance,
+	genAccounts []authtypes.GenesisAccount, genPermissions []*permissiontypes.Account,
+	genPeerIDs []*peertypes.PeerID,
 	genFiles []string, numValidators int, genesisTime time.Time,
 ) error {
 
@@ -419,12 +483,28 @@ func initGenFiles(
 	authGenState.Accounts = accounts
 	appGenState[authtypes.ModuleName] = clientCtx.JSONMarshaler.MustMarshalJSON(&authGenState)
 
-	// set the balances in the genesis state
-	var bankGenState banktypes.GenesisState
-	clientCtx.JSONMarshaler.MustUnmarshalJSON(appGenState[banktypes.ModuleName], &bankGenState)
+	// set the account perms in the genesis state
+	var permGenState permissiontypes.GenesisState
+	clientCtx.JSONMarshaler.MustUnmarshalJSON(appGenState[permissiontypes.ModuleName], &permGenState)
 
-	bankGenState.Balances = genBalances
-	appGenState[banktypes.ModuleName] = clientCtx.JSONMarshaler.MustMarshalJSON(&bankGenState)
+	permGenState.Params.Enabled = !viper.GetBool(flagDevelopMode)
+	permGenState.AccountList = genPermissions
+	appGenState[permissiontypes.ModuleName] = clientCtx.JSONMarshaler.MustMarshalJSON(&permGenState)
+
+	// set the peer in the genesis state
+	var peerGenState peertypes.GenesisState
+	clientCtx.JSONMarshaler.MustUnmarshalJSON(appGenState[peertypes.ModuleName], &peerGenState)
+
+	peerGenState.Params.Enabled = !viper.GetBool(flagDevelopMode)
+	peerGenState.PeerIDList = genPeerIDs
+	appGenState[peertypes.ModuleName] = clientCtx.JSONMarshaler.MustMarshalJSON(&peerGenState)
+
+	// set the wasm in the genesis state
+	var wasmGenState wasmtypes.GenesisState
+	clientCtx.JSONMarshaler.MustUnmarshalJSON(appGenState[wasmtypes.ModuleName], &wasmGenState)
+
+	wasmGenState.Params.Enabled = !viper.GetBool(flagDevelopMode)
+	appGenState[wasmtypes.ModuleName] = clientCtx.JSONMarshaler.MustMarshalJSON(&wasmGenState)
 
 	appGenStateJSON, err := json.MarshalIndent(appGenState, "", "  ")
 	if err != nil {

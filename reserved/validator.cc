@@ -1,5 +1,5 @@
-#include "xchain/xchain.h"
-#include "xchain/json/json.h"
+#include "mchain/mchain.h"
+#include "mchain/json/json.h"
 
 #define CHECK_ARG(argKey)                             \
     std::string argKey = ctx->arg(#argKey);           \
@@ -10,13 +10,13 @@
 
 std::string Meta(std::string name) { return "M" + name; }
 
-class Validator : public xchain::Contract {};
+class Validator : public mchain::Contract {};
 
-bool isAdmin(xchain::Context* ctx, const std::string &caller);
+bool isAdmin(mchain::Context* ctx, const std::string &caller);
 // initialize method provisioning contract
 // note that creator is important for adding more address into identity list
 DEFINE_METHOD(Validator, initialize) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& creator = ctx->arg("creator");
     if (creator.empty()) {
         ctx->error("missing creator");
@@ -27,7 +27,7 @@ DEFINE_METHOD(Validator, initialize) {
 }
 
 DEFINE_METHOD(Validator, update) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     CHECK_ARG(pub_key);
     CHECK_ARG(power);
     CHECK_ARG(name);
@@ -37,7 +37,7 @@ DEFINE_METHOD(Validator, update) {
         return;
     }
 
-    xchain::json j;
+    mchain::json j;
     j["pub_key"] = pub_key;
     j["power"] = std::atoi(power.c_str());
     j["name"] = name;
@@ -55,7 +55,7 @@ DEFINE_METHOD(Validator, update) {
 }
 
 DEFINE_METHOD(Validator, get) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string key = ctx->arg("name");
     std::string value;
     if (!ctx->get_object(key, &value) || value.empty()) {
@@ -65,7 +65,7 @@ DEFINE_METHOD(Validator, get) {
     ctx->ok(value);
 }
 
-bool isAdmin(xchain::Context* ctx, const std::string &caller) {
+bool isAdmin(mchain::Context* ctx, const std::string &caller) {
     if (caller.empty()) {
         ctx->logf("missing initiator");
         return false;

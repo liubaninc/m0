@@ -43,6 +43,7 @@ func autoMigrate(db *gorm.DB) {
 	db.AutoMigrate(&Validator{})
 	db.AutoMigrate(&ContractUpgrade{})
 	db.AutoMigrate(&ContractInvoke{})
+	db.AutoMigrate(&Events{})
 	// wallet
 	db.AutoMigrate(&MTransaction{})
 	db.AutoMigrate(&User{})

@@ -54,9 +54,9 @@ type xvmCreator struct {
 	wasm2cPath string
 }
 
-// 优先查找跟xchain同级目录的二进制，再在PATH里面找
+// 优先查找跟mchain同级目录的二进制，再在PATH里面找
 func lookupWasm2c() (string, error) {
-	// 首先查找跟xchain同级的目录
+	// 首先查找跟mchain同级的目录
 	wasm2cPath := filepath.Join(filepath.Dir(os.Args[0]), "wasm2c")
 	stat, err := os.Stat(wasm2cPath)
 	if err == nil {

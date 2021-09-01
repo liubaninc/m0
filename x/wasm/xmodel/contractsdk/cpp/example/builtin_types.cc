@@ -1,22 +1,22 @@
 #include <cstdio>
 #include <cinttypes>
-#include "xchain/xchain.h"
+#include "mchain/mchain.h"
 
 
-struct BuiltinTypes : public xchain::Contract {};
+struct BuiltinTypes : public mchain::Contract {};
 
-void print_tx(xchain::Transaction t);
-void print_block(xchain::Block b);
+void print_tx(mchain::Transaction t);
+void print_block(mchain::Block b);
 
 DEFINE_METHOD(BuiltinTypes, initialize) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     ctx->ok("initialize succeed");
 }
 
 DEFINE_METHOD(BuiltinTypes, gettx) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& txid = ctx->arg("txid");
-    xchain::Transaction tx;
+    mchain::Transaction tx;
      
     if (ctx->query_tx(txid, &tx)) {
         print_tx(tx);
@@ -27,9 +27,9 @@ DEFINE_METHOD(BuiltinTypes, gettx) {
 }
 
 DEFINE_METHOD(BuiltinTypes, getblock) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& blockid = ctx->arg("blockid");
-    xchain::Block block;
+    mchain::Block block;
 
     long height=atoll(blockid.c_str());
     if (ctx->query_block(height, &block)) {
@@ -41,10 +41,10 @@ DEFINE_METHOD(BuiltinTypes, getblock) {
 }
 
 DEFINE_METHOD(BuiltinTypes, transfer) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& to = ctx->arg("to");
     const std::string& amount = ctx->arg("amount");
-    xchain::Account account(to);
+    mchain::Account account(to);
     printf("Account name: %s\n", account.get_name().c_str());
     if (account.transfer(amount)) {
         ctx->ok("Transfer success");
@@ -53,7 +53,7 @@ DEFINE_METHOD(BuiltinTypes, transfer) {
     }
 }
 
-void print_block(xchain::Block b) {
+void print_block(mchain::Block b) {
     printf("[Block]:\n");
     printf("blockid: %s\n", b.blockid.c_str());    
     printf("pre_hash: %s\n", b.pre_hash.c_str());    
@@ -69,7 +69,7 @@ void print_block(xchain::Block b) {
     printf("next_hash: %s\n", b.next_hash.c_str());    
 }
 
-void print_tx(xchain::Transaction t) {
+void print_tx(mchain::Transaction t) {
     printf("[Transaction]:\n");
     printf("txid: %s\n", t.txid.c_str());    
     printf("blockid: %s\n", t.blockid.c_str());    

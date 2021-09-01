@@ -44,9 +44,14 @@
               class="menu-row-list"
               v-for="(child, index) in item.children"
               :key="child.id"
-              :class="curIndex == child.preKey + index ? 'curRow' : ''"
+              :class="
+                child.url && $route.fullPath.indexOf(child.url) != -1
+                  ? 'curRow'
+                  : ''
+              "
               @click="selTab(child, index)"
             >
+              <!-- :class="curIndex == child.preKey + index ? 'curRow' : ''" -->
               <router-link :to="`${child.url}?address=${wallet.address}`">
                 <!---list-tab-cur-->
                 <div class="row-list-tab">
@@ -78,45 +83,45 @@
   </div>
 </template>
 <script>
-import { queryBlockChain } from "@/server/block";
-import { localCache } from "@/utils/utils";
-import { leftMenus } from "@/config/leftMenu";
+import { queryBlockChain } from '@/server/block'
+import { localCache } from '@/utils/utils'
+import { leftMenus } from '@/config/leftMenu'
 export default {
   data() {
     return {
       menus: leftMenus,
       wallet: {},
       blockInfo: {},
-      curIndex: "core_0",
-    };
+      curIndex: 'core_0',
+    }
   },
   created() {
-    let wallet = localCache.get("wallet");
+    let wallet = localCache.get('wallet')
     if (wallet) {
-      this.wallet = wallet;
-      this.getBlock();
+      this.wallet = wallet
+      this.getBlock()
     }
   },
   mounted() {
     this.timer = setInterval(() => {
-      this.getBlock();
-    }, 1000 * 60 * 2);
+      this.getBlock()
+    }, 1000 * 60 * 2)
   },
   destroyed() {
-    clearInterval(this.timer);
+    clearInterval(this.timer)
   },
   methods: {
     selTab(child, index) {
-      this.curIndex = child.preKey + index;
+      this.curIndex = child.preKey + index
     },
     async getBlock() {
-      let blockInfo = await queryBlockChain({});
+      let blockInfo = await queryBlockChain({})
       if (blockInfo) {
-        this.blockInfo = blockInfo;
+        this.blockInfo = blockInfo
       }
     },
   },
-};
+}
 </script>
 <style>
 .slide {
@@ -136,7 +141,7 @@ export default {
   height: 28px;
 }
 .silde-top-title {
-  font-family: PingFangSC-Medium, "PingFang SC Medium", "PingFang SC",
+  font-family: PingFangSC-Medium, 'PingFang SC Medium', 'PingFang SC',
     sans-serif;
   font-weight: 500;
   font-style: normal;
@@ -150,7 +155,7 @@ export default {
   width: 18px;
   height: 14px;
   display: inline-block;
-  background: url("../../assets/images/detail/back_icon_default.png");
+  background: url('../../assets/images/detail/back_icon_default.png');
   background-size: 100% 100%;
   background-repeat: no-repeat;
   vertical-align: bottom;
@@ -159,7 +164,7 @@ export default {
   color: #fff;
 }
 .silde-top-title:hover .title-icon {
-  background: url("../../assets/images/detail/back_icon_cur.png");
+  background: url('../../assets/images/detail/back_icon_cur.png');
   background-size: 100% 100%;
 }
 .silde-top-name {
@@ -180,7 +185,7 @@ export default {
   padding: 16px 0;
 }
 .slide-menu-row {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -214,7 +219,7 @@ export default {
   margin: 0 10px 0 0;
 }
 .slide-bt-status {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -222,7 +227,7 @@ export default {
   line-height: 30px;
 }
 .slide-bt-link {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 12px;
@@ -234,7 +239,7 @@ export default {
   margin: 0 0 0 20px;
 }
 .slide-bt-height {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 12px;

@@ -16,9 +16,10 @@ import (
 
 type (
 	Keeper struct {
-		cdc           codec.Marshaler
-		storeKey      sdk.StoreKey
-		memKey        sdk.StoreKey
+		cdc      codec.Marshaler
+		storeKey sdk.StoreKey
+		memKey   sdk.StoreKey
+		// this line is used by starport scaffolding # ibc/keeper/attribute
 		paramSubspace paramtypes.Subspace
 		accountKeeper types.AccountKeeper
 		bankKeeper    types.BankKeeper
@@ -33,6 +34,7 @@ func NewKeeper(
 	cdc codec.Marshaler,
 	storeKey,
 	memKey sdk.StoreKey,
+	// this line is used by starport scaffolding # ibc/keeper/parameter
 	paramstore paramtypes.Subspace,
 	accountKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper,
@@ -41,7 +43,7 @@ func NewKeeper(
 		cdc:           cdc,
 		storeKey:      storeKey,
 		memKey:        memKey,
-		paramSubspace: paramstore,
+		paramSubspace: paramstore.WithKeyTable(types.ParamKeyTable()),
 		bankKeeper:    bankKeeper,
 		accountKeeper: accountKeeper,
 		lockKeys:      make(map[string]*LockedItem),

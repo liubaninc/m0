@@ -14,17 +14,17 @@ var descTpl = `[package]
 name = "main"
 `
 
-var codeTpl = `#include "xchain/xchain.h"
+var codeTpl = `#include "mchain/mchain.h"
 
-struct Hello : public xchain::Contract {};
+struct Hello : public mchain::Contract {};
 
 DEFINE_METHOD(Hello, initialize) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     ctx->ok("initialize succeed");
 }
 
 DEFINE_METHOD(Hello, hello) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     ctx->ok("hello world");
 }
 `
@@ -35,7 +35,7 @@ var assert = require("assert");
 Test("hello", function (t) {
     var contract;
     t.Run("deploy", function (tt) {
-        contract = xchain.Deploy({
+        contract = mchain.Deploy({
             name: "hello",
             code: "../hello.wasm",
             lang: "c",

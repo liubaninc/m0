@@ -146,10 +146,13 @@ images/build-%: reserved
 		--build-arg GO_VER=$(GO_VER) \
 		--build-arg ALPINE_VER=$(ALPINE_VER) \
 		--build-arg GO_TAGS=${GO_TAGS} \
-		-t liubaninc/$*:${COMMIT} \
+		-t ciyuntangquan/$*:${COMMIT} \
 		.
 	@echo "TAG=${COMMIT}" > samples/env
-	docker tag liubaninc/$*:${COMMIT} liuban/$*:latest
+	docker tag ciyuntangquan/$*:${COMMIT} ciyuntangquan/$*:latest
+	docker login -u ciyuntangquan -p chaogaofeng
+	docker push ciyuntangquan/$*:latest
+
 
 images/clean-%:
 	-@for image in "$$(docker images --quiet --filter=reference='liubaninc/$*')"; do \

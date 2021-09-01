@@ -35,6 +35,9 @@ func (k Keeper) ContractAll(c context.Context, req *types.QueryAllContractReques
 		if err != nil {
 			panic(err)
 		}
+		if verData == nil || types.IsDelFlag(verData.PureData.Value) {
+			return nil
+		}
 		account := string(verData.PureData.Value)
 		name := string(key)
 
@@ -87,6 +90,9 @@ func (k Keeper) AccountContractAll(c context.Context, req *types.QueryGetAccount
 		verData, err := k.GetVersionedData(ctx, value)
 		if err != nil {
 			panic(err)
+		}
+		if verData == nil || types.IsDelFlag(verData.PureData.Value) {
+			return nil
 		}
 		account := string(verData.PureData.Value)
 		name := string(key)

@@ -3,6 +3,7 @@ package types
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/liubaninc/m0/x/wasm/xmodel/contract/kernel"
 
 	utxotypes "github.com/liubaninc/m0/x/utxo/types"
 	"github.com/liubaninc/m0/x/wasm/xmodel"
@@ -57,6 +58,10 @@ func (m *MsgUpgrade) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(m.Creator)
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
+	}
+
+	if err := kernel.ValidContractName(m.ContractName); err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "contract name %v, error %v", m.ContractName, err)
 	}
 
 	totalIn := sdk.NewCoins()

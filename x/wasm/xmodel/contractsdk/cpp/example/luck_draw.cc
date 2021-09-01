@@ -1,4 +1,4 @@
-#include "xchain/xchain.h"
+#include "mchain/mchain.h"
 
 const std::string TICKETID = "Luckid_";
 const std::string USERID = "Userid_";
@@ -7,7 +7,7 @@ const std::string RESULT = "result";
 const std::string TICKETS = "tickets";
 
 // 抽奖小游戏模板
-// 参数由xchain::Contract中的context提供
+// 参数由mchain::Contract中的context提供
 class LuckDraw {
 public:
     /*
@@ -32,10 +32,10 @@ public:
     virtual void getResult() = 0;
 };
 
-struct LuckDrawDemo : public LuckDraw, public xchain::Contract {
+struct LuckDrawDemo : public LuckDraw, public mchain::Contract {
 public:
     void initialize() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         const std::string& admin = ctx->arg(ADMIN);
         if (admin.empty()) {
             ctx->error("missing admin address");
@@ -48,7 +48,7 @@ public:
         ctx->ok("initialize success");
     }
 
-    bool isAdmin(xchain::Context* ctx, const std::string& caller) {
+    bool isAdmin(mchain::Context* ctx, const std::string& caller) {
         std::string admin;
         if (!ctx->get_object(ADMIN, &admin)) {
             return false;
@@ -57,7 +57,7 @@ public:
     }
 
     void getLuckid() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         const std::string& caller = ctx->initiator();
         if (caller.empty()) {
             ctx->error("missing initiator");
@@ -102,7 +102,7 @@ public:
     }
 
     void startLuckDraw() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         const std::string& caller = ctx->initiator();
         if (caller.empty()) {
             ctx->error("missing initiator");
@@ -153,7 +153,7 @@ public:
     }
 
     void getResult() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         // 获取总奖券数
         std::string luckuser;
         if (!ctx->get_object(RESULT, &luckuser)) {

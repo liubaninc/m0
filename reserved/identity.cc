@@ -1,8 +1,8 @@
 #include <string>
 #include <vector>
-#include "xchain/xchain.h"
+#include "mchain/mchain.h"
 
-class UnifiedCheck : public xchain::Contract {};
+class UnifiedCheck : public mchain::Contract {};
 
 // define delimiters  used for dividing args
 const std::string DELIMITER_COMMA = ",";
@@ -13,20 +13,20 @@ const std::string PREFIX_ADDRESS = "ADDRESS_";
 const std::string PREFIX_CONTRACT = "CONTRACT_";
 const std::string PREFIX_PEER = "PEER_";
 
-bool isAdmin(xchain::Context* ctx, const std::string &caller);
+bool isAdmin(mchain::Context* ctx, const std::string &caller);
 // return 0 if register pass, otherwise register fail
-int register1(xchain::Context* ctx, const std::string& key, const std::string& prefix);
+int register1(mchain::Context* ctx, const std::string& key, const std::string& prefix);
 // return 0 if unregister pass, otherwise unregister fail
-int unregister(xchain::Context* ctx, const std::string& key, const std::string& prefix);
+int unregister(mchain::Context* ctx, const std::string& key, const std::string& prefix);
 // return 0 if registered, otherwise unregistered
-int registered(xchain::Context* ctx, const std::string& key, const std::string& prefix);
+int registered(mchain::Context* ctx, const std::string& key, const std::string& prefix);
 // return 0 if on, otherwise off
-bool on_off(xchain::Context* ctx);
+bool on_off(mchain::Context* ctx);
 
 // initialize method provisioning contract
 // note that creator is important for adding more address into identity list
 DEFINE_METHOD(UnifiedCheck, initialize) {
-	xchain::Context* ctx = self.context();
+	mchain::Context* ctx = self.context();
 	const std::string& creator = ctx->arg("creator");
 	if (creator.empty()) {
 		ctx->error("missing creator");
@@ -42,7 +42,7 @@ DEFINE_METHOD(UnifiedCheck, initialize) {
 
 // register_address method register addresses to contract
 DEFINE_METHOD(UnifiedCheck, register_address) {
-	xchain::Context* ctx = self.context();
+	mchain::Context* ctx = self.context();
 	if (!isAdmin(ctx, ctx->initiator())) {
         ctx->error("only the admin can invoke");
         return;
@@ -55,7 +55,7 @@ DEFINE_METHOD(UnifiedCheck, register_address) {
 }
 // unregister_address method unregister addresses from contract
 DEFINE_METHOD(UnifiedCheck, unregister_address) {
-	xchain::Context* ctx = self.context();
+	mchain::Context* ctx = self.context();
 	if (!isAdmin(ctx, ctx->initiator())) {
         ctx->error("only the admin can invoke");
         return;
@@ -69,7 +69,7 @@ DEFINE_METHOD(UnifiedCheck, unregister_address) {
 
 // register_contract method register contracts to contract
 DEFINE_METHOD(UnifiedCheck, register_contract) {
-	xchain::Context* ctx = self.context();
+	mchain::Context* ctx = self.context();
 	if (!isAdmin(ctx, ctx->initiator())) {
         ctx->error("only the admin can invoke");
         return;
@@ -82,7 +82,7 @@ DEFINE_METHOD(UnifiedCheck, register_contract) {
 }
 // unregister_contract method unregister contracts to contract
 DEFINE_METHOD(UnifiedCheck, unregister_contract) {
-	xchain::Context* ctx = self.context();
+	mchain::Context* ctx = self.context();
     if (!isAdmin(ctx, ctx->initiator())) {
         ctx->error("only the admin can invoke");
         return;
@@ -96,7 +96,7 @@ DEFINE_METHOD(UnifiedCheck, unregister_contract) {
 
 // register_peer method register peers to contract
 DEFINE_METHOD(UnifiedCheck, register_peer) {
-	xchain::Context* ctx = self.context();
+	mchain::Context* ctx = self.context();
     if (!isAdmin(ctx, ctx->initiator())) {
         ctx->error("only the admin can invoke");
         return;
@@ -109,7 +109,7 @@ DEFINE_METHOD(UnifiedCheck, register_peer) {
 }
 // unregister_peer method register peers to contract
 DEFINE_METHOD(UnifiedCheck, unregister_peer) {
-	xchain::Context* ctx = self.context();
+	mchain::Context* ctx = self.context();
 	if (!isAdmin(ctx, ctx->initiator())) {
         ctx->error("only the admin can invoke");
         return;
@@ -123,7 +123,7 @@ DEFINE_METHOD(UnifiedCheck, unregister_peer) {
 
 // register_id method register ids to contract
 DEFINE_METHOD(UnifiedCheck, register_id) {
-	xchain::Context* ctx = self.context();
+	mchain::Context* ctx = self.context();
 	if (!isAdmin(ctx, ctx->initiator())) {
         ctx->error("only the admin can invoke");
         return;
@@ -136,7 +136,7 @@ DEFINE_METHOD(UnifiedCheck, register_id) {
 }
 // unregister_id method register ids to contract
 DEFINE_METHOD(UnifiedCheck, unregister_id) {
-	xchain::Context* ctx = self.context();
+	mchain::Context* ctx = self.context();
 	if (!isAdmin(ctx, ctx->initiator())) {
         ctx->error("only the admin can invoke");
         return;
@@ -150,7 +150,7 @@ DEFINE_METHOD(UnifiedCheck, unregister_id) {
 
 // register method register to contract
 DEFINE_METHOD(UnifiedCheck, register1) {
-	xchain::Context* ctx = self.context();
+	mchain::Context* ctx = self.context();
 	if (!isAdmin(ctx, ctx->initiator())) {
         ctx->error("only the admin can invoke");
         return;
@@ -182,7 +182,7 @@ DEFINE_METHOD(UnifiedCheck, register1) {
 }
 // unregister method register to contract
 DEFINE_METHOD(UnifiedCheck, unregister) {
-	xchain::Context* ctx = self.context();
+	mchain::Context* ctx = self.context();
 	if (!isAdmin(ctx, ctx->initiator())) {
         ctx->error("only the admin can invoke");
         return;
@@ -215,7 +215,7 @@ DEFINE_METHOD(UnifiedCheck, unregister) {
 
 // register method register to contract
 DEFINE_METHOD(UnifiedCheck, on) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     std::string creator;
     if (!ctx->get_object("creator", &creator)) {
          ctx->error("get creator fail");
@@ -234,7 +234,7 @@ DEFINE_METHOD(UnifiedCheck, on) {
 
 // register method register to contract
 DEFINE_METHOD(UnifiedCheck, off) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     if (ctx->delete_object("on")) {
         ctx->ok("success");
     } else {
@@ -245,7 +245,7 @@ DEFINE_METHOD(UnifiedCheck, off) {
 // identity_check return if is identity
 // keep this method for convenience
 DEFINE_METHOD(UnifiedCheck, identity_check) {
-	xchain::Context* ctx = self.context();
+	mchain::Context* ctx = self.context();
 	if (!on_off(ctx)) {
         ctx->ok("success");
         return;
@@ -274,7 +274,7 @@ DEFINE_METHOD(UnifiedCheck, identity_check) {
 // banned_check return if is banned
 // keep this method for convenience
 DEFINE_METHOD(UnifiedCheck, banned_check) {
-	xchain::Context* ctx = self.context();
+	mchain::Context* ctx = self.context();
 //	if (!on_off(ctx)) {
 //        ctx->ok("success");
 //        return;
@@ -319,7 +319,7 @@ std::string string_last(const std::string& source,
 	return source;
 }
 
-bool isAdmin(xchain::Context* ctx, const std::string &caller) {
+bool isAdmin(mchain::Context* ctx, const std::string &caller) {
     if (caller.empty()) {
         ctx->logf("missing caller");
         return false;
@@ -331,7 +331,7 @@ bool isAdmin(xchain::Context* ctx, const std::string &caller) {
    return true;
 }
 
-bool on_off(xchain::Context* ctx) {
+bool on_off(mchain::Context* ctx) {
     std::string on;
     if (!ctx->get_object("on", &on) || on != "true") {
         return false;
@@ -340,7 +340,7 @@ bool on_off(xchain::Context* ctx) {
 }
 
 // registered is registered return 0 if registered, otherwise unregistered
-int registered(xchain::Context* ctx, const std::string& key, const std::string& prefix) {
+int registered(mchain::Context* ctx, const std::string& key, const std::string& prefix) {
 	const std::string values = ctx->arg(key);
 	std::vector<std::string> value_sets;
 	string_split(values, value_sets, DELIMITER_COMMA);
@@ -356,7 +356,7 @@ int registered(xchain::Context* ctx, const std::string& key, const std::string& 
 }
 // key register to identity contract
 // return 0 if register pass, otherwise register fail
-int register1(xchain::Context* ctx, const std::string& key, const std::string& prefix) {
+int register1(mchain::Context* ctx, const std::string& key, const std::string& prefix) {
 	const std::string values = ctx->arg(key);
 	std::vector<std::string> value_sets;
 	string_split(values, value_sets, DELIMITER_COMMA);
@@ -370,7 +370,7 @@ int register1(xchain::Context* ctx, const std::string& key, const std::string& p
 }
 // key unregister to identity contract
 // return 0 if unregister pass, otherwise unregister fail
-int unregister(xchain::Context* ctx,
+int unregister(mchain::Context* ctx,
                 const std::string& key,
                 const std::string& prefix) {
 	const std::string values = ctx->arg(key);

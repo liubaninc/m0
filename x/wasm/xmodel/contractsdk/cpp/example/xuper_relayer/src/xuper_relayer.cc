@@ -3,8 +3,8 @@
 #include <memory>
 #include <string>
 #include "relayer.pb.h"
-#include "xchain/crypto.h"
-#include "xchain/xchain.h"
+#include "mchain/crypto.h"
+#include "mchain/mchain.h"
 
 // 常量字符串: bucket, 分隔符, 编码等
 // 区块头Bucket
@@ -16,7 +16,7 @@ const char* hextable = "0123456789abcdef";
 // MerkleTree验证时, 用户输入sibling的分隔符
 const char delimiter = ',';
 
-struct XuperRelayer : public xchain::Contract {};
+struct XuperRelayer : public mchain::Contract {};
 
 std::size_t bytes_to_verify_blockid(
     const std::unique_ptr<relayer::InternalBlock>& blockHeader) {
@@ -180,8 +180,8 @@ void calc_blockid(const std::unique_ptr<relayer::InternalBlock>& blockHeader,
     // calc double sha256
     std::string tmp = std::string(offset, 'o');
     std::copy(resultHash, resultHash + offset, &tmp[0]);
-    blockidCal = xchain::crypto::sha256(tmp);
-    blockidCal = xchain::crypto::sha256(blockidCal);
+    blockidCal = mchain::crypto::sha256(tmp);
+    blockidCal = mchain::crypto::sha256(blockidCal);
 
     return;
 }
@@ -205,8 +205,8 @@ void calc_merkle_root(const std::string& txid, int txIndex,
             left = siblingProof;
             right = merkleRoot;
         }
-        merkleRoot = xchain::crypto::sha256(left + right);
-        merkleRoot = xchain::crypto::sha256(merkleRoot);
+        merkleRoot = mchain::crypto::sha256(left + right);
+        merkleRoot = mchain::crypto::sha256(merkleRoot);
         txIndex /= 2;
         i += 1;
     }
@@ -217,11 +217,11 @@ void calc_merkle_root(const std::string& txid, int txIndex,
 bool check_signature(std::string addr, std::string pubkey, std::string digest,
                      std::string sign) {
     std::string calcAddr;
-    if (!xchain::crypto::addr_from_pubkey(pubkey, &calcAddr) ||
+    if (!mchain::crypto::addr_from_pubkey(pubkey, &calcAddr) ||
         addr != calcAddr) {
         return false;
     }
-    if (!xchain::crypto::ecverify(pubkey, sign, digest)) {
+    if (!mchain::crypto::ecverify(pubkey, sign, digest)) {
         return false;
     }
     return true;
@@ -321,7 +321,7 @@ bool encodeHex(const std::string& src, std::string& dst) {
 }
 
 // 3个确认块
-bool within3Confirms(xchain::Context* ctx, const std::string& blockid,
+bool within3Confirms(mchain::Context* ctx, const std::string& blockid,
                      const std::string tipBlockid) {
     int i = 0;
     std::string currBlockid = tipBlockid;
@@ -351,7 +351,7 @@ bool within3Confirms(xchain::Context* ctx, const std::string& blockid,
 }
 
 // 分叉管理
-bool handleFork(xchain::Context* ctx, const std::string& oldTip,
+bool handleFork(mchain::Context* ctx, const std::string& oldTip,
                 const std::string& newTipPre, std::string nextHash) {
     // nextHash是不可见的
     // oldTip是可见的
@@ -418,12 +418,12 @@ bool handleFork(xchain::Context* ctx, const std::string& oldTip,
 
 // 初始化工作，将锚点区块写入，初始化LedgerMeta
 DEFINE_METHOD(XuperRelayer, initialize) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     ctx->ok("initialize succeed");
 }
 
 DEFINE_METHOD(XuperRelayer, initAnchorBlockHeader) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     std::unique_ptr<relayer::LedgerMeta> meta(new relayer::LedgerMeta);
     std::unique_ptr<relayer::InternalBlock> anchorBlockHeader(
         new relayer::InternalBlock);
@@ -467,7 +467,7 @@ DEFINE_METHOD(XuperRelayer, initAnchorBlockHeader) {
 }
 
 DEFINE_METHOD(XuperRelayer, putBlockHeader) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     std::unique_ptr<relayer::LedgerMeta> meta(new relayer::LedgerMeta);
     std::unique_ptr<relayer::InternalBlock> blockHeader(
         new relayer::InternalBlock);
@@ -607,7 +607,7 @@ DEFINE_METHOD(XuperRelayer, putBlockHeader) {
 }
 
 DEFINE_METHOD(XuperRelayer, verifyTx) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string blockid = ctx->arg("blockid");
     const std::string txid = ctx->arg("txid");
     const std::string proofPathStr = ctx->arg("proofPath");
@@ -686,7 +686,7 @@ DEFINE_METHOD(XuperRelayer, verifyTx) {
 
 // 打印区块头
 DEFINE_METHOD(XuperRelayer, printBlockHeader) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string key =
         std::string(blockHeaderBucket) + ctx->arg("blockid");
     std::string blockHeaderStr;

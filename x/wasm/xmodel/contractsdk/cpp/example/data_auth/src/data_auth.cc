@@ -1,11 +1,11 @@
 #include "data_auth.pb.h"
-#include "xchain/table/table.tpl.h"
-#include "xchain/table/types.h"
-#include "xchain/trust_operators/trust_operators.h"
-#include "xchain/xchain.h"
+#include "mchain/table/table.tpl.h"
+#include "mchain/table/types.h"
+#include "mchain/trust_operators/trust_operators.h"
+#include "mchain/mchain.h"
 #include <inttypes.h>
 
-struct DataAuth : public xchain::Contract {
+struct DataAuth : public mchain::Contract {
 public:
   DataAuth() : _data(this->context(), "data_auth") {}
 
@@ -17,20 +17,20 @@ public:
   };
 
 private:
-  xchain::cdt::Table<data> _data;
+  mchain::cdt::Table<data> _data;
 
 public:
   decltype(_data) &get_data() { return _data; }
 };
 
 DEFINE_METHOD(DataAuth, initialize) {
-  xchain::Context *ctx = self.context();
+  mchain::Context *ctx = self.context();
   ctx->ok("initialize succeed");
 }
 
 // store encrypted data with content and expire_time
 DEFINE_METHOD(DataAuth, store) {
-  xchain::Context *ctx = self.context();
+  mchain::Context *ctx = self.context();
   const std::string &dataid = ctx->arg("dataid");
   const std::string &content = ctx->arg("content");
   const std::string &expire = ctx->arg("expire");
@@ -51,7 +51,7 @@ DEFINE_METHOD(DataAuth, store) {
 
 // get a record from table
 DEFINE_METHOD(DataAuth, get) {
-  xchain::Context *ctx = self.context();
+  mchain::Context *ctx = self.context();
   const std::string &dataid = ctx->arg("dataid");
   const std::string &user = ctx->initiator();
   DataAuth::data dat;
@@ -65,7 +65,7 @@ DEFINE_METHOD(DataAuth, get) {
 
 // modify user's one record
 DEFINE_METHOD(DataAuth, modify) {
-  xchain::Context *ctx = self.context();
+  mchain::Context *ctx = self.context();
   const std::string &dataid = ctx->arg("dataid");
   const std::string &content = ctx->arg("content");
   const std::string &expire = ctx->arg("expire");
@@ -88,7 +88,7 @@ DEFINE_METHOD(DataAuth, modify) {
 // delete user's record
 // TODO: owner can delete every owned record
 DEFINE_METHOD(DataAuth, del) {
-  xchain::Context *ctx = self.context();
+  mchain::Context *ctx = self.context();
   const std::string &dataid = ctx->arg("dataid");
   DataAuth::data dat;
   if (!self.get_data().find({{"dataid", dataid}, {"user", ctx->initiator()}},
@@ -108,7 +108,7 @@ DEFINE_METHOD(DataAuth, del) {
 
 // authorize user to use data
 DEFINE_METHOD(DataAuth, authorize) {
-  xchain::Context *ctx = self.context();
+  mchain::Context *ctx = self.context();
   const std::string &dataid = ctx->arg("dataid");
   const std::string &user = ctx->arg("user");
   const std::string &pubkey = ctx->arg("pubkey");
@@ -165,7 +165,7 @@ DEFINE_METHOD(DataAuth, authorize) {
 
 // share plain data to others, create a new record
 DEFINE_METHOD(DataAuth, share) {
-  xchain::Context *ctx = self.context();
+  mchain::Context *ctx = self.context();
   const std::string &dataid = ctx->arg("dataid");
   const std::string &addr = ctx->arg("toaddr");
   const std::string &newid = ctx->arg("newid");
@@ -222,7 +222,7 @@ DEFINE_METHOD(DataAuth, share) {
 
 // add two ciphertext and create a new record
 DEFINE_METHOD(DataAuth, add) {
-  xchain::Context *ctx = self.context();
+  mchain::Context *ctx = self.context();
   const std::string &data1 = ctx->arg("data1");
   const std::string &data2 = ctx->arg("data2");
   const std::string &newid = ctx->arg("newid");
@@ -282,7 +282,7 @@ DEFINE_METHOD(DataAuth, add) {
 
 // sub two ciphertext and create a new record
 DEFINE_METHOD(DataAuth, sub) {
-  xchain::Context *ctx = self.context();
+  mchain::Context *ctx = self.context();
   const std::string &data1 = ctx->arg("data1");
   const std::string &data2 = ctx->arg("data2");
   const std::string &newid = ctx->arg("newid");
@@ -342,7 +342,7 @@ DEFINE_METHOD(DataAuth, sub) {
 
 // multiply two ciphertext and create a new record
 DEFINE_METHOD(DataAuth, mul) {
-  xchain::Context *ctx = self.context();
+  mchain::Context *ctx = self.context();
   const std::string &data1 = ctx->arg("data1");
   const std::string &data2 = ctx->arg("data2");
   const std::string &newid = ctx->arg("newid");

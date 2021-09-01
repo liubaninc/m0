@@ -54,8 +54,8 @@ func newContractProcess(cfg *NativeConfig, name, basedir, chainAddr string, desc
 
 func (c *contractProcess) makeHostProcess() (Process, error) {
 	envs := []string{
-		"XCHAIN_CODE_PORT=" + strconv.Itoa(c.rpcPort),
-		"XCHAIN_CHAIN_ADDR=" + c.chainAddr,
+		"MCHAIN_CODE_PORT=" + strconv.Itoa(c.rpcPort),
+		"MCHAIN_CHAIN_ADDR=" + c.chainAddr,
 	}
 	startcmd, err := c.makeStartCommand()
 	if err != nil {

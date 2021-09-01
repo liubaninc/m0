@@ -60,9 +60,9 @@ RUN make wasm2cclean vue wasm2c build M0_BUILD_OPTIONS=cleveldb,rocksdb,badgerdb
 
 FROM m0-base
 COPY --from=m0 /usr/local/lib /usr/local/lib
+COPY --from=m0 /go/src/github.com/liubaninc/m0/x/wasm/xmodel/contractsdk /contractsdk
 COPY --from=m0 /go/src/github.com/liubaninc/m0/build /usr/local/bin
 COPY --from=m0 /go/src/github.com/liubaninc/m0/build/wasm /wasm
-COPY --from=m0  /go/src/github.com/liubaninc/m0/images/scripts /
 COPY --from=m0  /go/src/github.com/liubaninc/m0/images/wait /
 COPY --from=m0  /go/src/github.com/liubaninc/m0/vue/browser/dist /browser
 COPY --from=m0  /go/src/github.com/liubaninc/m0/vue/wallet/dist /wallet
@@ -70,5 +70,6 @@ COPY --from=m0  /go/src/github.com/liubaninc/m0/images/m0/*.conf /etc/nginx/conf
 # ENV WAIT_VERSION 2.7.2
 # ADD https://github.com/ufoscout/docker-compose-wait/releases/download/$WAIT_VERSION/wait /wait
 RUN chmod +x /wait
+ENV XDEV_ROOT /contractsdk/cpp
 EXPOSE 26656 26657 26660 9090 8080 8086 8088
 CMD ["m0d","start"]

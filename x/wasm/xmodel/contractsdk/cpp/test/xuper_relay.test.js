@@ -168,7 +168,7 @@ NjMyMzg3MDkzMzA1MzczfRJHMEUCIDnZBlnAc1fVN4sxmuiAczRfY5VcAoxfXT/kgoRm5xX7AiEA\
 var relayCodePath = "../build/xuper_relayer.wasm";
 var crossCodePath = "../build/cross_chain.wasm";
 function deployRelay() {
-  return xchain.Deploy({
+  return mchain.Deploy({
     name: "relayer",
     code: relayCodePath,
     lang: "c",
@@ -177,7 +177,7 @@ function deployRelay() {
 }
 
 function deployCross() {
-  return xchain.Deploy({
+  return mchain.Deploy({
     name: "cross_chain",
     code: crossCodePath,
     lang: "c",

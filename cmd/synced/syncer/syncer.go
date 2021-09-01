@@ -8,6 +8,11 @@ import (
 	"strings"
 	"time"
 
+	peertypes "github.com/liubaninc/m0/x/peer/types"
+	permissiontypes "github.com/liubaninc/m0/x/permission/types"
+	pkitypes "github.com/liubaninc/m0/x/pki/types"
+	validatortypes "github.com/liubaninc/m0/x/validator/types"
+
 	"github.com/golang/protobuf/proto"
 	utxotypes "github.com/liubaninc/m0/x/utxo/types"
 	wasmtypes "github.com/liubaninc/m0/x/wasm/types"
@@ -29,6 +34,29 @@ const TIME_FORMAT = "2006-01-02 15:04:05.999"
 
 var (
 	Local, _ = time.LoadLocation("Asia/Shanghai")
+
+	actions = map[string]string{
+		"CreatePeerID":          "新增节点",
+		"UpdatePeerID":          "更新节点",
+		"DeletePeerID":          "删除节点",
+		"SetPermission":         "设置用户权限",
+		"AddRootCert":           "上传根证书",
+		"AddCert":               "上传证书",
+		"RevokeRootCert":        "吊销根证书",
+		"RevokeCert":            "吊销证书",
+		"FreezeCert":            "冻结证书",
+		"UnfreezeCert":          "解冻证书",
+		"CreateValidator":       "新增验证人",
+		"LeaveValidator":        "删除验证人",
+		"Deploy":                "部署合约",
+		"Upgrade":               "升级合约",
+		"Invoke":                "调用合约",
+		"Freeze":                "解冻合约",
+		"Unfreeze":              "冻结合约",
+		"Undeploy":              "销毁合约",
+		"ProposeDeployContract": "申请合约部署",
+		"ApproveDeployContract": "批准合约部署",
+	}
 )
 
 type Syncer struct {
@@ -261,6 +289,10 @@ func (synced *Syncer) processBlock(resultBlock *coretypes.ResultBlock, db *gorm.
 	contractHashs := map[string][]string{}
 	hashMap := map[string]*model.Transaction{}
 	for _, tx := range resultBlock.Block.Txs {
+		if err := synced.processTxEvents(tx.Hash(), block.Time, db); err != nil {
+			return err
+		}
+
 		mtx, err := synced.processTx(tx.Hash(), block.Time)
 		if err != nil {
 			return err
@@ -478,6 +510,56 @@ func (synced *Syncer) processBlock(resultBlock *coretypes.ResultBlock, db *gorm.
 	return nil
 }
 
+func (synced *Syncer) processTxEvents(hash []byte, time string, db *gorm.DB) error {
+	synced.logger.Debug("processTxEvents ...", "hash", hex.EncodeToString(hash))
+	resultTx, err := synced.client.GetTx(hex.EncodeToString(hash))
+	if err != nil {
+		return err
+	}
+
+	var e model.Events
+	e.Hash = resultTx.Hash.String()
+	e.Height = resultTx.Height
+	e.Time = time
+
+	attrs := make([]sdk.Attribute, 0)
+	for _, event := range resultTx.TxResult.Events {
+		if event.Type == "message" {
+			for _, attr := range event.Attributes {
+				switch key := string(attr.Key); key {
+				case sdk.AttributeKeySender:
+					e.Operator = string(attr.Value)
+				case sdk.AttributeKeyModule:
+					e.Route = string(attr.Value)
+				case sdk.AttributeKeyAction:
+					e.Type = actions[string(attr.Value)]
+				default:
+				}
+			}
+		} else {
+			for _, attr := range event.Attributes {
+				switch key := string(attr.Key); key {
+				case peertypes.AttributeKeyPeer:
+					e.Object = string(attr.Value)
+				case permissiontypes.AttributeKeyAddress:
+					e.Object = string(attr.Value)
+				case pkitypes.AttributeKeyCertificate:
+					e.Object = string(attr.Value)
+				case validatortypes.AttributeKeyValidator:
+					e.Object = string(attr.Value)
+				case wasmtypes.AttributeKeyName:
+					e.Object = string(attr.Value)
+				}
+				attrs = append(attrs, sdk.NewAttribute(string(attr.Key), string(attr.Value)))
+			}
+		}
+	}
+	bts, _ := json.Marshal(attrs)
+	e.Detail = string(bts)
+	db.Save(&e)
+	return nil
+}
+
 func (synced *Syncer) processTx(hash []byte, time string) (*model.Transaction, error) {
 	synced.logger.Debug("processTx ...", "hash", hex.EncodeToString(hash))
 	resultTx, err := synced.client.GetTx(hex.EncodeToString(hash))
@@ -529,6 +611,66 @@ func (synced *Syncer) processTx(hash []byte, time string) (*model.Transaction, e
 			umsg = ProcessMsgUpgrade(msg)
 		case *wasmtypes.MsgInvoke:
 			umsg = ProcessMsgInvoke(msg)
+		case *wasmtypes.MsgFreeze:
+			umsg = &model.MsgUTXO{
+				Type: actions[msg.Type()],
+			}
+		case *wasmtypes.MsgUnfreeze:
+			umsg = &model.MsgUTXO{
+				Type: actions[msg.Type()],
+			}
+		case *wasmtypes.MsgUndeploy:
+			umsg = &model.MsgUTXO{
+				Type: actions[msg.Type()],
+			}
+		case *wasmtypes.MsgProposeDeployContract:
+			umsg = &model.MsgUTXO{
+				Type: actions[msg.Type()],
+			}
+		case *wasmtypes.MsgApproveDeployContract:
+			umsg = &model.MsgUTXO{
+				Type: actions[msg.Type()],
+			}
+		case *peertypes.MsgCreatePeerID:
+			umsg = &model.MsgUTXO{
+				Type: actions[msg.Type()],
+			}
+		case *peertypes.MsgDeletePeerID:
+			umsg = &model.MsgUTXO{
+				Type: actions[msg.Type()],
+			}
+		case *permissiontypes.MsgSetPermission:
+			umsg = &model.MsgUTXO{
+				Type: actions[msg.Type()],
+			}
+		case *validatortypes.MsgCreateValidator:
+			umsg = &model.MsgUTXO{
+				Type: actions[msg.Type()],
+			}
+		case *validatortypes.MsgLeaveValidator:
+			umsg = &model.MsgUTXO{
+				Type: actions[msg.Type()],
+			}
+		case *pkitypes.MsgAddRootCert:
+			umsg = &model.MsgUTXO{
+				Type: actions[msg.Type()],
+			}
+		case *pkitypes.MsgAddCert:
+			umsg = &model.MsgUTXO{
+				Type: actions[msg.Type()],
+			}
+		case *pkitypes.MsgFreezeCert:
+			umsg = &model.MsgUTXO{
+				Type: actions[msg.Type()],
+			}
+		case *pkitypes.MsgUnfreezeCert:
+			umsg = &model.MsgUTXO{
+				Type: actions[msg.Type()],
+			}
+		case *pkitypes.MsgRevokeCert:
+			umsg = &model.MsgUTXO{
+				Type: actions[msg.Type()],
+			}
 		default:
 			return nil, fmt.Errorf("not support route %v, type %v", msg.Route(), msg.Type())
 		}

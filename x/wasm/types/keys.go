@@ -27,4 +27,14 @@ const (
 	ExtUtxoTablePrefix      = "E-"
 	ExtUtxoDelTablePrefix   = "ED-"
 	ExtUtxoValueTablePrefix = "EV-"
+
+	StatesKey = "state-value-"
+)
+
+const (
+	ProposeDeployKey = "ProposeDeploy-value-"
+)
+
+const (
+	ApproveDeployKey = "ApproveDeploy-value-"
 )

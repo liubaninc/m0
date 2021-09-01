@@ -1,0 +1,12 @@
+syntax = "proto3";
+package liubaninc.m0.permission;
+
+option go_package = "github.com/liubaninc/m0/x/permission/types";
+
+import "gogoproto/gogo.proto";
+
+message Account {
+  string creator = 1;
+  string address = 2;
+  repeated string perms = 3;
+}

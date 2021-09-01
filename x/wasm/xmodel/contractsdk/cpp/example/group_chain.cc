@@ -1,4 +1,4 @@
-#include "xchain/xchain.h"
+#include "mchain/mchain.h"
 
 const std::string nodeBucket = "NODE";
 const std::string chainBucket = "CHAIN";
@@ -19,16 +19,16 @@ public:
     virtual void listChain() = 0;
 };
 
-class GroupChain : public GroupChainBasic, public xchain::Contract {
+class GroupChain : public GroupChainBasic, public mchain::Contract {
 public:
     void initialize() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         ctx->ok("initialize success");
     }
     void listNode() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         std::string key = nodeBucket + ctx->arg("bcname") + endingSeparator;
-        std::unique_ptr<xchain::Iterator> iter =
+        std::unique_ptr<mchain::Iterator> iter =
             ctx->new_iterator(key, key + "～");
         std::string result;
         while (iter->next()) {
@@ -42,7 +42,7 @@ public:
         ctx->ok(result);
     }
     void addNode() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         const std::string bcname = ctx->arg("bcname");
         if (bcname == "xuper") {
             ctx->error("xuper is forbidden");
@@ -58,7 +58,7 @@ public:
         ctx->error("add node failed");
     }
     void delNode() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         std::string key =
             nodeBucket + ctx->arg("bcname") + endingSeparator + ctx->arg("ip");
         if (ctx->delete_object(key)) {
@@ -68,7 +68,7 @@ public:
         ctx->error("delete node failed");
     }
     void getNode() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         std::string key =
             nodeBucket + ctx->arg("bcname") + endingSeparator + ctx->arg("ip");
         std::string value;
@@ -79,7 +79,7 @@ public:
         ctx->error("ip not exist in white list");
     }
     void changeIP() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         std::string old_key = nodeBucket + ctx->arg("bcname") +
                               endingSeparator + ctx->arg("old_ip");
         std::string new_key = nodeBucket + ctx->arg("bcname") +
@@ -93,7 +93,7 @@ public:
         ctx->error("change ip failed");
     }
     void getChain() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         std::string key = chainBucket + ctx->arg("bcname");
         std::string value;
         if (ctx->get_object(key, &value)) {
@@ -103,7 +103,7 @@ public:
         ctx->error("get chain failed");
     }
     void addChain() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         if (ctx->arg("bcname") == "xuper") {
             ctx->error("xuper is forbidden");
             return;
@@ -116,7 +116,7 @@ public:
         ctx->error("add chain failed");
     }
     void delChain() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         std::string key = chainBucket + ctx->arg("bcname");
         if (ctx->delete_object(key)) {
             ctx->ok("delete chain succeed");
@@ -125,9 +125,9 @@ public:
         ctx->error("delete chain failed");
     }
     void listChain() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         std::string key = chainBucket;
-        std::unique_ptr<xchain::Iterator> iter =
+        std::unique_ptr<mchain::Iterator> iter =
             ctx->new_iterator(key, key + "～");
         std::string result;
         while (iter->next()) {

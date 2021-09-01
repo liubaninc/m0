@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/cosmos/cosmos-sdk/crypto/types"
+
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	utxotypes "github.com/liubaninc/m0/x/utxo/types"
@@ -420,7 +422,7 @@ func (api *API) Sign(c *gin.Context) {
 		}
 	}
 
-	var multiSigPub *multisig.LegacyAminoPubKey
+	var multiSigPub types.PubKey
 	if len(multiAddress) > 0 {
 		if len(multiPublic) > 0 {
 			publicKeyBytes, err := hex.DecodeString(multiPublic)
@@ -433,6 +435,14 @@ func (api *API) Sign(c *gin.Context) {
 				return
 			}
 			if err := api.client.LegacyAmino.UnmarshalBinaryBare(publicKeyBytes, &multiSigPub); err != nil {
+				response.Code = ExecuteCode
+				response.Msg = ERROR_PUBKEY
+				response.Detail = err.Error()
+				api.logger.Error(c.Request.URL.Path, "pub", multiPublic, "error", response.Detail)
+				c.JSON(http.StatusOK, response)
+				return
+			}
+			if err := api.client.LegacyAmino.UnmarshalBinaryBare(publicKeyBytes, multiSigPub.(*multisig.LegacyAminoPubKey)); err != nil {
 				response.Code = ExecuteCode
 				response.Msg = ERROR_PUBKEY
 				response.Detail = err.Error()
@@ -497,12 +507,21 @@ func (api *API) Sign(c *gin.Context) {
 			c.JSON(http.StatusOK, response)
 			return
 		}
+
+		mtx.Signatures = []string{}
+		for _, signature := range signatures {
+			addr, err := sdk.AccAddressFromHex(signature.PubKey.Address().String())
+			if err != nil {
+				panic(err)
+			}
+			mtx.Signatures = append(mtx.Signatures, addr.String())
+		}
 		resp.Hash = result.TxHash
 	} else {
 		if len(multiAddress) > 0 {
 			resp.MultiAddress = multiAddress
 			resp.MultiPublic = multiPublic
-			resp.Threshold = int(multiSigPub.Threshold)
+			resp.Threshold = int(multiSigPub.(*multisig.LegacyAminoPubKey).Threshold)
 		}
 		resp.Signatures = []string{}
 		signatures, _ := txBuilder.GetTx().GetSignaturesV2()
@@ -627,16 +646,16 @@ func (api *API) processTx(tx signing.Tx, commit bool) error {
 	} else {
 		mtx.Confirmed = -1
 	}
-	var signatures []string
-	signs, _ := tx.GetSignaturesV2()
-	for _, signature := range signs {
-		addr, err := sdk.AccAddressFromHex(signature.PubKey.Address().String())
-		if err != nil {
-			panic(err)
-		}
-		signatures = append(signatures, addr.String())
-	}
-	mtx.Signature = strings.Join(signatures, ",")
+	//var signatures []string
+	//signs, _ := tx.GetSignaturesV2()
+	//for _, signature := range signs {
+	//	addr, err := sdk.AccAddressFromHex(signature.PubKey.Address().String())
+	//	if err != nil {
+	//		panic(err)
+	//	}
+	//	signatures = append(signatures, addr.String())
+	//}
+	//mtx.Signature = strings.Join(signatures, ",")
 	bts, _ = api.client.TxConfig.TxJSONEncoder()(tx)
 	mtx.Raw = string(bts)
 	bts, err := json.Marshal(mtx.UTXOMsgs)

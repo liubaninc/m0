@@ -1,0 +1,22 @@
+syntax = "proto3";
+package liubaninc.m0.permission;
+
+// this line is used by starport scaffolding # proto/tx/import
+
+option go_package = "github.com/liubaninc/m0/x/permission/types";
+
+// Msg defines the Msg service.
+service Msg {
+    // this line is used by starport scaffolding # proto/tx/rpc
+  rpc SetPermission(MsgSetPermission) returns (MsgSetPermissionResponse);
+}
+
+// this line is used by starport scaffolding # proto/tx/message
+message MsgSetPermission {
+  string creator = 1;
+  string address = 2;
+  repeated string perms = 3;
+}
+
+message MsgSetPermissionResponse {
+}

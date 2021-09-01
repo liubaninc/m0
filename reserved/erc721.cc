@@ -1,6 +1,6 @@
-#include "xchain/xchain.h"
+#include "mchain/mchain.h"
 
-struct ERC721 : public xchain::Contract {};
+struct ERC721 : public mchain::Contract {};
 
 // split_string split source string into string vector results using delimiter
 void string_split(const std::string& source, std::vector<std::string>& results,
@@ -19,7 +19,7 @@ void string_split(const std::string& source, std::vector<std::string>& results,
 
 // 初始化资产 发行资产NFTs到调用者账户
 DEFINE_METHOD(ERC721, initialize) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& caller = ctx->initiator();
     if (caller.empty()) {
         ctx->error("missing caller");
@@ -60,7 +60,7 @@ DEFINE_METHOD(ERC721, initialize) {
 
 // 增发资产 增发资产NFTs到调用者账户, 仅初始调用者可增发
 DEFINE_METHOD(ERC721, mint) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& caller = ctx->initiator();
     if (caller.empty()) {
         ctx->error("missing caller");
@@ -111,7 +111,7 @@ DEFINE_METHOD(ERC721, mint) {
 
 // 查询NTFs资产发行数量
 DEFINE_METHOD(ERC721, totalSupply) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
 
     int total = 0;
      std::string prefix_key = "totalSupply_";
@@ -128,7 +128,7 @@ DEFINE_METHOD(ERC721, totalSupply) {
 
 // 查询指定账户owner可用NTFs资产数量
 DEFINE_METHOD(ERC721, balance) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
 
     const std::string& caller = ctx->arg("owner");
     if (caller.empty()) {
@@ -149,7 +149,7 @@ DEFINE_METHOD(ERC721, balance) {
 
 // 查询to可以从账户from中代理转出NTFs的可用资产数量
 DEFINE_METHOD(ERC721, allowance) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& from = ctx->arg("from");
     if (from.empty()) {
         ctx->error("missing from");
@@ -176,7 +176,7 @@ DEFINE_METHOD(ERC721, allowance) {
 
 // 资产转移 从调用者账户中往to账户转出NFT资产，
 DEFINE_METHOD(ERC721, transfer) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& from = ctx->initiator();
     if (from.empty()) {
         ctx->error("missing from");
@@ -219,7 +219,7 @@ DEFINE_METHOD(ERC721, transfer) {
 
 // 允许调用者代理某人转移NFT资产。条件是from账户必须经过了approve
 DEFINE_METHOD(ERC721, transferFrom) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& from = ctx->arg("from");
     if (from.empty()) {
         ctx->error("missing from");
@@ -282,7 +282,7 @@ DEFINE_METHOD(ERC721, transferFrom) {
 
 // 批准to能从代理调用账户中转出NFT的资产
 DEFINE_METHOD(ERC721, approve) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& from = ctx->initiator();
     if (from.empty()) {
         ctx->error("missing from");
@@ -321,7 +321,7 @@ DEFINE_METHOD(ERC721, approve) {
 }
 
 DEFINE_METHOD(ERC721, approveAll) {
-    xchain::Context* ctx = self.context();
+    mchain::Context* ctx = self.context();
     const std::string& from = ctx->initiator();
     if (from.empty()) {
         ctx->error("missing from");

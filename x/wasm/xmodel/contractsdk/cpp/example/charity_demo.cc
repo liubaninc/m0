@@ -1,9 +1,9 @@
 #include <iomanip>
 #include <sstream>
-#include "xchain/xchain.h"
+#include "mchain/mchain.h"
 
 // 慈善捐款公示模板
-// 参数由xchain::Contract中的context提供
+// 参数由mchain::Contract中的context提供
 class Charity {
 public:
     /*
@@ -54,7 +54,7 @@ public:
     virtual void queryCosts() = 0;
 };
 
-struct CharityDemo : public Charity, public xchain::Contract {
+struct CharityDemo : public Charity, public mchain::Contract {
 private:
     const std::string USERDONATE = "UserDonate_";
     const std::string ALLDONATE = "AllDonate_";
@@ -90,7 +90,7 @@ private:
         return true;
     }
 
-    bool isAdmin(xchain::Context* ctx, const std::string& caller) {
+    bool isAdmin(mchain::Context* ctx, const std::string& caller) {
         std::string admin;
         if (!ctx->get_object(ADMIN, &admin)) {
             return false;
@@ -100,7 +100,7 @@ private:
 
 public:
     void initialize() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         const std::string& admin = ctx->arg(ADMIN);
         if (admin.empty()) {
             ctx->error("missing admin address");
@@ -116,7 +116,7 @@ public:
     }
 
     void donate() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         const std::string& caller = ctx->initiator();
         if (caller.empty()) {
             ctx->error("missing initiator");
@@ -197,7 +197,7 @@ public:
     }
 
     void cost() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         const std::string& caller = ctx->initiator();
         if (caller.empty()) {
             ctx->error("missing initiator");
@@ -281,7 +281,7 @@ public:
     }
 
     void statistics() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         uint64_t totalCost, balance, totalRec;
         std::string totalCostStr, balanceStr, totalRecStr;
         if (!ctx->get_object(TOTALRECEIVED, &totalRecStr) ||
@@ -298,7 +298,7 @@ public:
     }
 
     void queryDonor() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         // admin can get the asset data of other users
         const std::string& donor = ctx->arg("donor");
         if (donor.empty()) {
@@ -307,7 +307,7 @@ public:
         }
 
         std::string userDonateKey = USERDONATE + donor + "%";
-        std::unique_ptr<xchain::Iterator> iter =
+        std::unique_ptr<mchain::Iterator> iter =
             ctx->new_iterator(userDonateKey, userDonateKey + "~");
         std::string result;
         int donateCnt = 0;
@@ -327,7 +327,7 @@ public:
     }
 
     void queryDonates() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         const std::string& startID = ctx->arg("startid");
         if (startID.empty()) {
             ctx->error("missing 'startid' in request");
@@ -348,7 +348,7 @@ public:
 
         std::string donateKey = ALLDONATE + startID;
         std::string result;
-        std::unique_ptr<xchain::Iterator> iter =
+        std::unique_ptr<mchain::Iterator> iter =
             ctx->new_iterator(donateKey, ALLDONATE + "~");
         int selected = 0;
         while (iter->next() && selected < limit) {
@@ -365,7 +365,7 @@ public:
     }
 
     void queryCosts() {
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         const std::string& startID = ctx->arg("startid");
         if (startID.empty()) {
             ctx->error("missing 'startid' in request");
@@ -386,7 +386,7 @@ public:
 
         std::string costKey = ALLCOST + startID;
         std::string result;
-        std::unique_ptr<xchain::Iterator> iter =
+        std::unique_ptr<mchain::Iterator> iter =
             ctx->new_iterator(costKey, ALLCOST + "~");
         int selected = 0;
         while (iter->next() && selected < limit) {

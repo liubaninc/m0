@@ -75,6 +75,11 @@ func (api *API) Run(port int) {
 	v1.GET("/contracts", api.GetContracts)
 	v1.GET("/contracts/:name", api.GetContract)
 	v1.GET("/contracts/:name/transactions", api.GetContractTransactions)
+	v1.GET("/events/peer", api.GetPeerEvents)
+	v1.GET("/events/validator", api.GetValidatorEvents)
+	v1.GET("/events/cert", api.GetCertEvents)
+	v1.GET("/events/account", api.GetAccountEvents)
+	v1.GET("/events/contract", api.GetContractEvents)
 	// wallet
 	v1.GET("/captcha", GetCaptcha)
 	v1.GET("/captcha/:captchaId", GetCaptchaPNG)
@@ -111,6 +116,7 @@ var (
 	OKMsg = "SUCCESS"
 	// OKCode Ok
 	OKCode   = 200
+	PermCode = 201
 	AuthCode = 3000
 	//RequestCode Api request error
 	RequestCode = 3001

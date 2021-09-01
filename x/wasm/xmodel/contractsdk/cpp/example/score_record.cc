@@ -1,4 +1,4 @@
-#include "xchain/xchain.h"
+#include "mchain/mchain.h"
 
 // 学生成绩上链存证API规范
 // 参数由Context提供
@@ -23,14 +23,14 @@ public:
     virtual void queryOwner() = 0;
 };
 
-struct ScoreRecordDemo : public ScoreRecord, public xchain::Contract {
+struct ScoreRecordDemo : public ScoreRecord, public mchain::Contract {
 private:
     // define the key prefix of buckets
     const std::string OWNER_KEY = "Owner";
     const std::string RECORD_KEY = "R_";
 
     // check if caller is the owner of this contract
-    bool isOwner(xchain::Context* ctx, const std::string& caller) {
+    bool isOwner(mchain::Context* ctx, const std::string& caller) {
         std::string owner;
         if (!ctx->get_object(OWNER_KEY, &owner)) {
             return false;
@@ -41,7 +41,7 @@ private:
 public:
     void initialize() {
         // 获取合约上下文对象
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         // 从合约上下文中获取合约参数, 由合约部署者指定具有写入权限的address
         std::string owner = ctx->arg("owner");
         if (owner.empty()) {
@@ -55,7 +55,7 @@ public:
 
     void addScore() {
         // 获取合约上下文对象
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         // 获取发起者身份
         const std::string& caller = ctx->initiator();
         if (caller.empty()) {
@@ -95,7 +95,7 @@ public:
 
     void queryScore() {
         // 获取合约上下文对象
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
 
         // 从参数中获取用户主键id，必填参数，没有则返回错误
         const std::string& userid = ctx->arg("userid");
@@ -119,7 +119,7 @@ public:
 
     void queryOwner() {
         // 获取合约上下文对象
-        xchain::Context* ctx = this->context();
+        mchain::Context* ctx = this->context();
         std::string owner;
         if (!ctx->get_object(OWNER_KEY, &owner)) {
             // 没查到owner信息，可能

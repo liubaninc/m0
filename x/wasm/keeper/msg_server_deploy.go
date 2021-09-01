@@ -4,41 +4,52 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"time"
-
-	"github.com/cosmos/cosmos-sdk/telemetry"
-
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 
 	"github.com/liubaninc/m0/x/wasm/types"
 
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func (k msgServer) Deploy(goCtx context.Context, msg *types.MsgDeploy) (*types.MsgDeployResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	msgOffset := int32(ctx.Context().Value("msg-index").(int))
+
+	if k.GetParams(ctx).Enabled {
+		hash := tmhash.Sum(append(tmhash.Sum(msg.ContractCode), append([]byte(msg.ContractName), []byte(msg.ContractName)...)...))
+		index := fmt.Sprintf("%X", hash)
+		if _, found := k.GetApproveDeploy(ctx, index); !found {
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "contract was not approved")
+		}
+	}
+
+	msgOffset := int32(ctx.Context().Value(baseapp.KeyMsgOffset).(int))
 	txHash := fmt.Sprintf("%X", tmhash.Sum(ctx.TxBytes()))
-	t := time.Now()
-	defer func() {
-		k.Logger(ctx).Debug("handler", "route", msg.Route(), "msg", msg.Type(), "hash", txHash, "index", msgOffset, "elapsed", time.Now().Sub(t).String())
-	}()
-	if err := k.utxoKeeper.Transfer(ctx, txHash, msgOffset, msg.Creator, msg.Inputs, msg.Outputs); err != nil {
+	attrs, err := k.utxoKeeper.Transfer(ctx, txHash, msgOffset, msg.Creator, msg.Inputs, msg.Outputs)
+	if err != nil {
 		return nil, err
 	}
 	if err := k.RWSet(ctx, txHash, msgOffset, msg.Creator, msg.InputsExt, msg.OutputsExt, []*types.InvokeRequest{msg.ConvertInvokeRequest()}); err != nil {
 		return nil, err
 	}
-	defer telemetry.IncrCounter(1, "new", "contract")
+	k.SetContractState(ctx, msg.ContractName, types.Normarl)
+
 	argsStr, _ := json.Marshal(msg.Args)
+	attrs = append(attrs,
+		sdk.NewAttribute(types.AttributeKeyName, msg.ContractName),
+		sdk.NewAttribute(types.AttributeKeyArg, string(argsStr)),
+	)
 	ctx.EventManager().EmitEvents(sdk.Events{
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
-			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
-			sdk.NewAttribute(types.AttributeKeyCreator, msg.Creator),
+			sdk.NewAttribute(sdk.AttributeKeyModule, msg.Route()),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.Creator),
 		),
-		sdk.NewEvent(types.EventTypeContract, sdk.NewAttribute(types.AttributeKeyName, msg.ContractName),
-			sdk.NewAttribute(types.AttributeKeyArg, string(argsStr))),
+		sdk.NewEvent(
+			msg.Type(),
+			attrs...,
+		),
 	})
 	return &types.MsgDeployResponse{}, nil
 }

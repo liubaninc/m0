@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"strings"
-	"time"
 
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	clienttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/02-client/types"
@@ -79,15 +79,11 @@ func (k Keeper) OnRecvIbcUTXOPacket(ctx sdk.Context, packet channeltypes.Packet,
 	}
 
 	// TODO: packet reception logic
-	msgOffset := int32(ctx.Context().Value("msg-index").(int))
+	msgOffset := int32(ctx.Context().Value(baseapp.KeyMsgOffset).(int))
 	hash := fmt.Sprintf("%X", tmhash.Sum(ctx.TxBytes()))
 	if ctx.IsCheckTx() || ctx.IsReCheckTx() {
 		return packetAck, nil
 	}
-	t := time.Now()
-	defer func() {
-		k.Logger(ctx).Debug("handler", "mibc", "utxo recv", "hash", hash, "index", msgOffset, "elapsed", time.Now().Sub(t).String(), "height", ctx.BlockHeight())
-	}()
 	escrowAddress := types.GetEscrowAddress(packet.GetDestPort(), packet.GetDestChannel())
 	var outputs []*utxotypes.Output
 	totalNeeded := sdk.NewCoins()
@@ -158,9 +154,11 @@ func (k Keeper) OnRecvIbcUTXOPacket(ctx sdk.Context, packet channeltypes.Packet,
 		}
 	}
 
-	if err := k.utxoKeeper.Transfer(ctx, hash, msgOffset, escrowAddress.String(), inputs, outputs); err != nil {
+	attrs, err := k.utxoKeeper.Transfer(ctx, hash, msgOffset, escrowAddress.String(), inputs, outputs)
+	if err != nil {
 		return packetAck, err
 	}
+	_ = attrs
 
 	k.AppendItx(ctx, types.Itx{
 		Creator:         strings.Join([]string{packet.SourceChannel, packet.SourcePort, data.Creator}, "-"),
@@ -175,15 +173,11 @@ func (k Keeper) OnRecvIbcUTXOPacket(ctx sdk.Context, packet channeltypes.Packet,
 // OnAcknowledgementIbcUTXOPacket responds to the the success or failure of a packet
 // acknowledgement written on the receiving chain.
 func (k Keeper) OnAcknowledgementIbcUTXOPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcUTXOPacketData, ack channeltypes.Acknowledgement) error {
-	msgOffset := int32(ctx.Context().Value("msg-index").(int))
+	msgOffset := int32(ctx.Context().Value(baseapp.KeyMsgOffset).(int))
 	hash := fmt.Sprintf("%X", tmhash.Sum(ctx.TxBytes()))
 	if ctx.IsCheckTx() || ctx.IsReCheckTx() {
 		return nil
 	}
-	t := time.Now()
-	defer func() {
-		k.Logger(ctx).Debug("handler", "mibc", "utxo ack", "hash", hash, "index", msgOffset, "elapsed", time.Now().Sub(t).String(), "height", ctx.BlockHeight())
-	}()
 	switch dispatchedAck := ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Error:
 
@@ -223,15 +217,11 @@ func (k Keeper) OnAcknowledgementIbcUTXOPacket(ctx sdk.Context, packet channelty
 // OnTimeoutIbcUTXOPacket responds to the case where a packet has not been transmitted because of a timeout
 func (k Keeper) OnTimeoutIbcUTXOPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcUTXOPacketData) error {
 	// TODO: packet timeout logic
-	msgOffset := int32(ctx.Context().Value("msg-index").(int))
+	msgOffset := int32(ctx.Context().Value(baseapp.KeyMsgOffset).(int))
 	hash := fmt.Sprintf("%X", tmhash.Sum(ctx.TxBytes()))
 	if ctx.IsCheckTx() || ctx.IsReCheckTx() {
 		return nil
 	}
-	t := time.Now()
-	defer func() {
-		k.Logger(ctx).Debug("handler", "mibc", "utxo ack timeout", "hash", hash, "index", msgOffset, "elapsed", time.Now().Sub(t).String(), "height", ctx.BlockHeight(), "check", ctx.IsCheckTx() || ctx.IsReCheckTx())
-	}()
 	k.AppendItx(ctx, types.Itx{
 		Creator:         data.Creator,
 		SourceHash:      data.Hash,
@@ -285,7 +275,7 @@ func (k Keeper) refundPacketToken(ctx sdk.Context, packet channeltypes.Packet, d
 			})
 		}
 	}
-	if err := k.utxoKeeper.Transfer(ctx, hash, msgOffset, escrowAddress.String(), inputs, outputs); err != nil {
+	if _, err := k.utxoKeeper.Transfer(ctx, hash, msgOffset, escrowAddress.String(), inputs, outputs); err != nil {
 		return err
 	}
 	return nil

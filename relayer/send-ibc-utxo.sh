@@ -1,11 +1,24 @@
 #!/bin/bash
 set -e
 
-echo "before send-ibc-utxo... earth ==> mars"
-echo "earth balances $(m0d q bank balances $(m0d keys show alice -a --home ~/.earth/) --output json)"
-echo "mars balances $(m0d q bank balances $(m0d keys show alice -a --home ~/.mars/) --output json  --node tcp://127.0.0.1:26659)"
-echo "hash $(m0d tx mibc send-ibc-utxo mibc channel-0 $(m0d keys show alice -a --home ~/.mars) 13etoken --from alice --home ~/.earth --chain-id earth -y | jq .txhash)"
-sleep 10
-echo "after send-ibc-utxo... earth ==> mars"
-echo "earth balances $(m0d q bank balances $(m0d keys show alice -a --home ~/.earth/) --output json)"
-echo "mars balances $(m0d q bank balances $(m0d keys show alice -a --home ~/.mars/) --output json --node tcp://127.0.0.1:26659)"
+echo "send-ibc-utxo... earth ==> mars"
+echo "before"
+echo "earth chain balances $(m0d q bank balances $(m0d keys show alice -a --home ~/.earth/) --output json)"
+echo "mars chain balances $(m0d q bank balances $(m0d keys show alice -a --home ~/.mars/) --output json  --node tcp://127.0.0.1:26659)"
+echo "hash $(m0d tx mibc send-ibc-utxo mibc channel-0 $(m0d keys show alice -a --home ~/.mars) 13m0token --from alice --home ~/.earth --chain-id earth -y | jq .txhash)"
+sleep 60
+echo "after"
+echo "earth chain  balances $(m0d q bank balances $(m0d keys show alice -a --home ~/.earth/) --output json)"
+echo "mars chain  balances $(m0d q bank balances $(m0d keys show alice -a --home ~/.mars/) --output json --node tcp://127.0.0.1:26659)"
+
+t=$(m0d q bank balances $(m0d keys show alice -a --home ~/.mars/) --output json --node tcp://127.0.0.1:26659 | jq .balances[1].denom | sed 's/\"//g')
+
+echo "send-ibc-utxo... mars==> earth"
+echo "before"
+echo "earth chain balances $(m0d q bank balances $(m0d keys show alice -a --home ~/.earth/) --output json)"
+echo "mars chain balances $(m0d q bank balances $(m0d keys show alice -a --home ~/.mars/) --output json  --node tcp://127.0.0.1:26659)"
+echo "hash $(m0d tx mibc send-ibc-utxo mibc channel-0 $(m0d keys show alice -a --home ~/.earth) 13$t --from alice --home ~/.mars --chain-id mars -y --node tcp://127.0.0.1:26659 | jq .txhash)"
+sleep 60
+echo "after"
+echo "earth chain  balances $(m0d q bank balances $(m0d keys show alice -a --home ~/.earth/) --output json)"
+echo "mars chain  balances $(m0d q bank balances $(m0d keys show alice -a --home ~/.mars/) --output json --node tcp://127.0.0.1:26659)"
