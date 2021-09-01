@@ -90,6 +90,7 @@ func (k Keeper) SelectUtxos(ctx sdk.Context, addr sdk.AccAddress, totalNeed sdk.
 			key := string(iterator.Key())
 			var val types.Input
 			k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &val)
+			val.Amount = val.Amount.Add(val.Amount)
 
 			if k.isLocked(key) {
 				k.Logger(ctx).Debug("select utxo, skip locked", "key", key)
