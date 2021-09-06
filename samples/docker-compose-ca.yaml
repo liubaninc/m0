@@ -1,0 +1,25 @@
+# 启动ca
+version: '2.4'
+
+volumes:
+  ca-CHAINID-NODEID:
+
+networks:
+  default:
+    name: network-CHAINID #链网络定义
+
+services:
+  ca-CHAINID-NODEID:
+    container_name: CHAINID-NODEID
+    image: hyperledger/fabric-ca:latest
+    labels:
+      service: CHAINID
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+    volumes:
+      - ca-CHAINID-NODEID:/etc/hyperledger/fabric-ca-server
+    command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
+    ports:
+      - 7054
+    networks:
+      - default

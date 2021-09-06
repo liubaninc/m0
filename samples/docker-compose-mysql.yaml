@@ -1,0 +1,26 @@
+# 启动mysql
+version: '2.4'
+
+volumes:
+  mysql-CHAINID-NODEID:
+
+networks:
+  default:
+    name: network-CHAINID #链网络定义
+
+services:
+  CHAINID-NODEID:
+    container_name: CHAINID-NODEID
+    image: mysql:latest
+    labels:
+      service: CHAINID
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=m0
+      - MYSQL_ROOT_HOST=%
+    volumes:
+      - mysql-CHAINID-NODEID:/var/lib/mysql
+    ports:
+      - 3306
+    networks:
+      - default
