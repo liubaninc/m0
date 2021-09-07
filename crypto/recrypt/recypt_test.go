@@ -24,7 +24,7 @@ func TestRecrypt(t *testing.T) {
 	if err != nil {
 		t.Errorf("Encrypt %s", err)
 	}
-	fmt.Printf("alice encrypt: chiper %x envelope %x\n", chiperContent, envelope)
+	fmt.Printf("alice encrypt: chiper %s envelope %s\n", chiperContent, envelope)
 
 	// 解密 alice私钥 + proxy公钥
 	content, err := dencrypt(alice_re.PrivateKey, proxy_re.PublicKey, envelope, chiperContent)
@@ -38,7 +38,7 @@ func TestRecrypt(t *testing.T) {
 	if err != nil {
 		t.Errorf("ReEnvelope %s", err)
 	}
-	fmt.Printf("bob reEnvelope: %x\n", reEnvelope)
+	fmt.Printf("bob reEnvelope: %s\n", reEnvelope)
 
 	// bob 私钥解密 + proxy公钥
 	content, err = dencrypt(bob_re.PrivateKey, proxy_re.PublicKey, reEnvelope, chiperContent)
@@ -66,7 +66,7 @@ func TestRecrypt2(t *testing.T) {
 	if err != nil {
 		t.Errorf("Encrypt %s", err)
 	}
-	fmt.Printf("alice encrypt: chiper %x envelope %x\n", chiperContent, envelope)
+	fmt.Printf("alice encrypt: chiper %s envelope %s\n", chiperContent, envelope)
 
 	// alice解密
 	content, err := Dencrypt(alice, alice_pub, envelope, chiperContent)
@@ -80,7 +80,7 @@ func TestRecrypt2(t *testing.T) {
 	if err != nil {
 		t.Errorf("ReEnvelope %s", err)
 	}
-	fmt.Printf("bob reEnvelope: %x\n", reEnvelope)
+	fmt.Printf("bob reEnvelope: %s\n", reEnvelope)
 
 	// bob 解密
 	content, err = Dencrypt(bob, alice_pub, reEnvelope, chiperContent)
@@ -94,7 +94,7 @@ func TestRecrypt2(t *testing.T) {
 	if err != nil {
 		t.Errorf("ReEnvelope %s", err)
 	}
-	fmt.Printf("carol reEnvelope: %x\n", reEnvelope)
+	fmt.Printf("carol reEnvelope: %s\n", reEnvelope)
 
 	// carol 解密
 	content, err = Dencrypt(carol, bob_pub, rereEnvelope, chiperContent)

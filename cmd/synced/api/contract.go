@@ -90,6 +90,16 @@ type ContractTransactionsRequest struct {
 	Invoke bool `form:"invoke" json:"invoke" xml:"invoke"`
 }
 
+// @查询合约交易
+// @Summary 查询合约交易
+// @Description
+// @Tags request
+// @Accept  json
+// @Produce json
+// @Param tx body ContractTransactionsRequest true "请求信息"
+// @Success 200 {object} Response
+// @Security ApiKeyAuth
+// @Router /contracts/:name/transactions [get]
 func (api *API) GetContractTransactions(c *gin.Context) {
 	var request ContractTransactionsRequest
 	response := &Response{
@@ -166,7 +176,14 @@ func (api *API) GetContractTransactions(c *gin.Context) {
 	}
 
 	var contract model.Contract
-	if result := api.db.Where("name = ?", c.Param("name")).Last(&contract); result.Error != nil {
+	result := api.db.Where("name = ?", c.Param("name")).Last(&contract)
+	if result.Error != nil && result.Error.Error() == "record not found" {
+		api.logger.Info("GetContractTransactions", "error", result.Error)
+		response.Data = "record not found"
+		c.JSON(http.StatusOK, response)
+		return
+	}
+	if result.Error != nil {
 		api.logger.Error("GetContractTransactions", "error", result.Error)
 		response.Code = ExecuteCode
 		response.Msg = result.Error.Error()

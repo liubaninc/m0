@@ -65,13 +65,20 @@ func (t *Transaction) FillConfirmed(height int64, address string, coins ...strin
 		t.AddressCoins, _ = outputs.SafeSub(inputs)
 	} else {
 		inputs := sdk.NewCoins()
+		outputs := sdk.NewCoins()
 		for _, msg := range t.UTXOMsgs {
 			for _, input := range msg.Inputs {
 				coin, _ := sdk.ParseCoinNormalized(input.Amount)
 				inputs = inputs.Add(coin)
 			}
 		}
-		t.AddressCoins = inputs
+		for _, msg := range t.UTXOMsgs {
+			for _, output := range msg.Outputs {
+				coin, _ := sdk.ParseCoinNormalized(output.Amount)
+				outputs = outputs.Add(coin)
+			}
+		}
+		t.AddressCoins, _ = outputs.SafeSub(inputs)
 	}
 	t.Assets = strings.Trim(t.Assets, ",")
 }
@@ -158,13 +165,20 @@ func (t *MTransaction) FillConfirmed(address string, coins ...string) {
 		t.AddressCoins, _ = outputs.SafeSub(inputs)
 	} else {
 		inputs := sdk.NewCoins()
+		outputs := sdk.NewCoins()
 		for _, msg := range t.UTXOMsgs {
 			for _, input := range msg.Inputs {
 				coin, _ := sdk.ParseCoinNormalized(input.Amount)
 				inputs = inputs.Add(coin)
 			}
 		}
-		t.AddressCoins = inputs
+		for _, msg := range t.UTXOMsgs {
+			for _, output := range msg.Outputs {
+				coin, _ := sdk.ParseCoinNormalized(output.Amount)
+				outputs = outputs.Add(coin)
+			}
+		}
+		t.AddressCoins, _ = outputs.SafeSub(inputs)
 	}
 	t.Assets = strings.Trim(t.Assets, ",")
 }

@@ -59,6 +59,15 @@ definitions:
     required:
     - name
     type: object
+  api.ContractTransactionsRequest:
+    properties:
+      invoke:
+        type: boolean
+      page_num:
+        type: integer
+      page_size:
+        type: integer
+    type: object
   api.MultiAccountImportRequest:
     properties:
       multi_sig:
@@ -654,6 +663,29 @@ paths:
       summary: 下载存证文件
       tags:
       - claim
+  /contracts/:name/transactions:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 请求信息
+        in: body
+        name: tx
+        required: true
+        schema:
+          $ref: '#/definitions/api.ContractTransactionsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 查询合约交易
+      tags:
+      - request
   /download/{hash}:
     get:
       consumes:
@@ -777,16 +809,11 @@ paths:
       summary: 合约详情
       tags:
       - contract
-  /mcontract/history/list/{account}/{contractName}:
+  /mcontract/history/list/{contractName}:
     get:
       consumes:
       - application/json
       parameters:
-      - description: 账户名
-        in: path
-        name: account
-        required: true
-        type: string
       - description: 合约名称
         in: path
         name: contractName
@@ -866,7 +893,7 @@ paths:
             $ref: '#/definitions/api.Response'
       security:
       - ApiKeyAuth: []
-      summary: 升级/冻结/解冻/删除合约
+      summary: 合约部署/升级/冻结/解冻/删除
       tags:
       - contract
   /mcontract/template/function/insert:
@@ -966,15 +993,11 @@ paths:
       summary: 合约模板导入
       tags:
       - contractTemplate
-  /mcontract/template/list/{account}:
+  /mcontract/template/list:
     post:
       consumes:
       - application/json
       parameters:
-      - description: 账户名
-        in: path
-        name: account
-        type: string
       - description: 请求信息
         in: body
         name: prequest

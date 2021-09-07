@@ -108,10 +108,10 @@ func (api *API) Run(port int) {
 	v1.POST("/claims/:account/get", api.Claim)
 	v1.POST("/user/logout", api.UserLogout)
 	//钱包合约模块
-	v1.POST("/mcontract/template/list/:account", api.MContractTemplateList)
+	v1.POST("/mcontract/template/list", api.MContractTemplateList)
 	v1.GET("/mcontract/template/get/:id", api.GetMContractTemplate)
 	v1.GET("/mcontract/get/:id", api.GetMContract)
-	v1.GET("/mcontract/history/list/:account/:contractName", api.MContractHistoryList)
+	v1.GET("/mcontract/history/list/:contractName", api.MContractHistoryList)
 	v1.POST("/mcontract/list/:account", api.MContractList)
 	v1.POST("mcontract/tx/sign", api.MContractSign)
 	v1.POST("/mcontract/operate", api.OperateContract)

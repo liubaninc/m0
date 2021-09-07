@@ -6,7 +6,6 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"errors"
-	"fmt"
 	"io"
 )
 
@@ -70,7 +69,6 @@ func pkcs7UnPadding(src []byte) ([]byte, error) {
 	unpadding := int(src[length-1])
 
 	if unpadding > aes.BlockSize || unpadding == 0 {
-		fmt.Println("chaogaofeng====", unpadding)
 		return nil, errors.New("Invalid pkcs7 padding (unpadding > aes.BlockSize || unpadding == 0)")
 	}
 

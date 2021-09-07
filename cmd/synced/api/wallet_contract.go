@@ -17,6 +17,7 @@ import (
 	"path"
 	"path/filepath"
 	"strconv"
+	"strings"
 )
 
 type Contract struct {
@@ -56,7 +57,7 @@ func (api *API) MContractTemplateFunctionInsert(c *gin.Context) {
 	args := c.PostForm("args")
 	template_id, _ := strconv.Atoi(c.PostForm("template_id"))
 
-	if result := api.db.Save(&model.MContracTemplateFunction{Description: description, Name: name, Args: args, TemplateId: uint(template_id)}); result.Error != nil {
+	if result := api.db.Save(&model.MContractTemplateFunction{Description: description, Name: name, Args: args, TemplateId: uint(template_id)}); result.Error != nil {
 		response.Code = ExecuteCode
 		response.Msg = ERROR_DB
 		response.Detail = result.Error.Error()
@@ -92,11 +93,10 @@ func (api *API) MContractTemplateInsert(c *gin.Context) {
 	codefile, _ := c.FormFile("codefile")
 	file, _ := codefile.Open()
 	code, _ := ioutil.ReadAll(file)
-	fmt.Println("file size = ", len(code))
 	account := c.PostForm("account")
 	acct := &model.Account{}
 	if len(account) > 0 {
-		acct = api.getAccount(c, account, api.userID(c))
+		acct = api.getAccountByAddress(c, account, api.userID(c))
 		if acct == nil {
 			response.Code = ExecuteCode
 			response.Msg = ERROR_ACCT_NO
@@ -107,7 +107,7 @@ func (api *API) MContractTemplateInsert(c *gin.Context) {
 		}
 	}
 
-	if result := api.db.Save(&model.MContracTemplate{
+	if result := api.db.Save(&model.MContractTemplate{
 		Address:     acct.Address,
 		Description: description,
 		Language:    language,
@@ -129,11 +129,10 @@ func (api *API) MContractTemplateInsert(c *gin.Context) {
 // @Tags contractTemplate
 // @Accept  json
 // @Produce json
-// @Param account path string false "账户名"
 // @Param prequest body PageRequest true "请求信息"
 // @Success 200 {object} Response
 // @Security ApiKeyAuth
-// @Router /mcontract/template/list/{account} [POST]
+// @Router /mcontract/template/list [POST]
 func (api *API) MContractTemplateList(c *gin.Context) {
 	var request PageRequest
 	response := &Response{
@@ -157,24 +156,8 @@ func (api *API) MContractTemplateList(c *gin.Context) {
 	}
 	offset := (request.PageNum - 1) * request.PageSize
 
-	name := c.Param("account")
-	acct := &model.Account{}
-	if len(name) > 0 && "undefined" != name {
-		acct = api.getAccount(c, name, api.userID(c))
-		if acct == nil {
-			response.Code = ExecuteCode
-			response.Msg = ERROR_ACCT_NO
-			response.Detail = fmt.Sprintf("user %s 's account %s not exist", api.userName(c), name)
-			api.logger.Error(c.Request.URL.Path, "error", response.Detail)
-			c.JSON(http.StatusOK, response)
-			return
-		}
-	}
-
-	var templates []*model.MContracTemplate
-	if result := api.db.Table(new(model.MContracTemplate).TableName()).Select("id,created_at,name,description,language,address").Where(&model.MContracTemplate{
-		Address: acct.Address,
-	}).Offset(offset).Limit(request.PageSize).Scan(&templates); result.Error != nil {
+	var templates []*model.MContractTemplate
+	if result := api.db.Table(new(model.MContractTemplate).TableName()).Select("id,created_at,name,description,language,address").Offset(offset).Limit(request.PageSize).Scan(&templates); result.Error != nil {
 		response.Code = ExecuteCode
 		response.Msg = ERROR_DB
 		response.Detail = result.Error.Error()
@@ -184,9 +167,7 @@ func (api *API) MContractTemplateList(c *gin.Context) {
 	}
 
 	var total int64
-	if result := api.db.Model(&model.MContracTemplate{}).Where(&model.MContracTemplate{
-		Address: acct.Address,
-	}).Count(&total); result.Error != nil {
+	if result := api.db.Model(&model.MContractTemplate{}).Count(&total); result.Error != nil {
 		response.Code = ExecuteCode
 		response.Msg = ERROR_DB
 		response.Detail = result.Error.Error()
@@ -227,8 +208,8 @@ func (api *API) GetMContractTemplate(c *gin.Context) {
 	}
 
 	id, _ := strconv.Atoi(c.Param("id"))
-	var template model.MContracTemplate
-	if result := api.db.Table(new(model.MContracTemplate).TableName()).Select("id,created_at,name,description,language,address").Where("id = ?", id).Scan(&template); result.RowsAffected == 0 {
+	var template model.MContractTemplate
+	if result := api.db.Table(new(model.MContractTemplate).TableName()).Select("id,created_at,name,description,language,address").Where("id = ?", id).Scan(&template); result.RowsAffected == 0 {
 		response.Code = ExecuteCode
 		response.Msg = ERROR_FILE_NO
 		response.Detail = fmt.Sprintf("template not exist")
@@ -236,9 +217,9 @@ func (api *API) GetMContractTemplate(c *gin.Context) {
 		c.JSON(http.StatusOK, response)
 		return
 	}
-	var templatefunctions []model.MContracTemplateFunction
+	var templatefunctions []model.MContractTemplateFunction
 	if result := api.db.Where("template_id = ?", template.ID).Find(&templatefunctions); result.RowsAffected > 0 {
-		template.MContracTemplateFunctions = templatefunctions
+		template.MContractTemplateFunctions = templatefunctions
 	}
 	response.Data = template
 	c.JSON(http.StatusOK, response)
@@ -280,32 +261,19 @@ func (api *API) GetMContract(c *gin.Context) {
 // @Tags contract
 // @Accept  json
 // @Produce json
-// @Param account path string true "账户名"
 // @Param contractName path string true "合约名称"
 // @Success 200 {object} Response
 // @Security ApiKeyAuth
-// @Router /mcontract/history/list/{account}/{contractName} [get]
+// @Router /mcontract/history/list/{contractName} [get]
 func (api *API) MContractHistoryList(c *gin.Context) {
 	response := &Response{
 		Code: OKCode,
 		Msg:  OKMsg,
 	}
 	contractName := c.Param("contractName")
-	accountName := c.Param("account")
-	acct := api.getAccount(c, accountName, api.userID(c))
-	if acct == nil {
-		response.Code = ExecuteCode
-		response.Msg = ERROR_ACCT_NO
-		response.Detail = fmt.Sprintf("user %s 's account %s not exist", api.userName(c), accountName)
-		api.logger.Error(c.Request.URL.Path, "error", response.Detail)
-		c.JSON(http.StatusOK, response)
-		return
-	}
-
 	var contracts []*model.MContract
 	if result := api.db.Where(&model.MContract{
-		Address: acct.Address,
-		Name:    contractName,
+		Name: contractName,
 	}).Order("Version desc").Find(&contracts); result.Error != nil {
 		response.Code = ExecuteCode
 		response.Msg = ERROR_DB
@@ -353,7 +321,7 @@ func (api *API) MContractList(c *gin.Context) {
 	offset := (request.PageNum - 1) * request.PageSize
 
 	name := c.Param("account")
-	acct := api.getAccount(c, name, api.userID(c))
+	acct := api.getAccountByAddress(c, name, api.userID(c))
 	if acct == nil {
 		response.Code = ExecuteCode
 		response.Msg = ERROR_ACCT_NO
@@ -364,7 +332,7 @@ func (api *API) MContractList(c *gin.Context) {
 	}
 
 	var contracts []*model.MContract
-	if result := api.db.Where("address = ? AND status <> ?", acct.Address, WASMContractStatusDeleted).Order("UpdatedAt desc").Offset(offset).Limit(request.PageSize).Find(&contracts); result.Error != nil {
+	if result := api.db.Where("address = ? AND status <> ?", acct.Address, WASMContractStatusDeleted).Order("updated_at desc").Offset(offset).Limit(request.PageSize).Find(&contracts); result.Error != nil {
 		response.Code = ExecuteCode
 		response.Msg = ERROR_DB
 		response.Detail = result.Error.Error()
@@ -620,7 +588,7 @@ func (api *API) MContractSign(c *gin.Context) {
 }
 
 // @合约部署/升级/冻结/解冻/删除
-// @Summary 升级/冻结/解冻/删除合约
+// @Summary 合约部署/升级/冻结/解冻/删除
 // @Description
 // @Tags contract
 // @Accept  multipart/form-data
@@ -654,7 +622,7 @@ func (api *API) OperateContract(c *gin.Context) {
 
 	if err != nil {
 		response.Code = ExecuteCode
-		if err.Error() == "ciphertext decryption failed" {
+		if strings.Contains(err.Error(), "ciphertext decryption failed") {
 			response.Msg = ERROR_PASSWORD
 		} else {
 			response.Msg = ERROR_SEND
@@ -726,13 +694,15 @@ func (api *API) CreateMContract(c *gin.Context) {
 	accountName := c.PostForm("account_name")
 	name := c.PostForm("name")
 	args := c.PostForm("args")
+	if len(args) == 0 {
+		args = "{}"
+	}
 	version := c.PostForm("version")
 	description := c.PostForm("description")
 	opreraType, _ := strconv.Atoi(c.PostForm("type"))
 	templateId, _ := strconv.Atoi(c.PostForm("template_id"))
-	fmt.Printf("type = %d ,template_id = %d, account_name = %s \n", opreraType, templateId, accountName)
 
-	acct := api.getAccount(c, accountName, api.userID(c))
+	acct := api.getAccountByAddress(c, accountName, api.userID(c))
 	if acct == nil {
 		response.Code = ExecuteCode
 		response.Msg = ERROR_ACCT_NO
@@ -744,23 +714,27 @@ func (api *API) CreateMContract(c *gin.Context) {
 
 	var contract model.MContract
 	if result := api.db.Where(&model.MContract{
-		Name:    name,
-		Address: acct.Address,
-		Version: version,
+		Name: name,
+		//Address: acct.Address,
+		//Version: version,
 	}).Find(&contract); result.RowsAffected > 0 {
 		response.Code = ExecuteCode
 		response.Msg = ERROR_EXIST
-		response.Detail = fmt.Sprintf("account %s's contract %s.%s alreay exist", accountName, name, version)
+		response.Detail = fmt.Sprintf("contract %s alreay exist", name)
 		api.logger.Error(c.Request.URL.Path, "error", response.Detail)
 		c.JSON(http.StatusOK, response)
 		return
 	}
 	//生成方式为上传合约时，保存文件
 	if int8(opreraType) == MContractCustomType {
-		response = api.uploadMContractFile(c, acct, version)
+		response = api.uploadMContractFile(c, name, acct, version)
 		if response.Code != OKCode {
 			c.JSON(http.StatusOK, response)
 			return
+		}
+		if len(fileName) == 0 {
+			file, _ := c.FormFile("file")
+			fileName = file.Filename
 		}
 	}
 
@@ -914,9 +888,9 @@ func (api *API) DownloadMContractFile(c *gin.Context) {
 		return
 	}
 
-	//dst := filepath.Join(viper.GetString(flags.FlagHome), "upload/contract", contract.Version, contract.Address, contract.FileName)
+	//dst := filepath.Join(viper.GetString(flags.FlagHome), "upload/contract", contract.Version, contract.Address, contract.Name,contract.FileName)
 
-	dst := filepath.Join(home, "upload/contract", contract.Version, contract.Address, contract.FileName)
+	dst := filepath.Join(home, "upload/contract", contract.Version, contract.Address, contract.Name, contract.FileName)
 
 	fileContentDisposition := "attachment;filename=\"" + contract.FileName + "\""
 	c.Header("Content-Type", "application/octet-stream")
@@ -925,7 +899,7 @@ func (api *API) DownloadMContractFile(c *gin.Context) {
 }
 
 // 上传合约文件
-func (api *API) uploadMContractFile(c *gin.Context, acct *model.Account, version string) *Response {
+func (api *API) uploadMContractFile(c *gin.Context, name string, acct *model.Account, version string) *Response {
 	response := &Response{
 		Code: OKCode,
 		Msg:  OKMsg,
@@ -955,12 +929,12 @@ func (api *API) uploadMContractFile(c *gin.Context, acct *model.Account, version
 		return response
 	}
 
-	//if err := tmos.EnsureDir(filepath.Join(viper.GetString(flags.FlagHome), "upload/contract/", version, acct.Address), 0700); err != nil {
-	if err := tmos.EnsureDir(filepath.Join(home, "upload/contract/", version, acct.Address), 0700); err != nil {
+	//if err := tmos.EnsureDir(filepath.Join(viper.GetString(flags.FlagHome), "upload/contract/", version, acct.Address,name), 0700); err != nil {
+	if err := tmos.EnsureDir(filepath.Join(home, "upload/contract/", version, acct.Address, name), 0700); err != nil {
 		panic(err)
 	}
-	//dst := filepath.Join(viper.GetString(flags.FlagHome), "upload/contract", version, acct.Address, filepath.Base(file.Filename))
-	dst := filepath.Join(home, "upload/contract", version, acct.Address, filepath.Base(file.Filename))
+	//dst := filepath.Join(viper.GetString(flags.FlagHome), "upload/contract", version, acct.Address,name, filepath.Base(file.Filename))
+	dst := filepath.Join(home, "upload/contract", version, acct.Address, name, filepath.Base(file.Filename))
 	if tmos.FileExists(dst) {
 		response.Code = ExecuteCode
 		response.Msg = ERROR_FILE_EXIST
@@ -995,7 +969,7 @@ func (api *API) contractTx(c *gin.Context, handle string, password string, commi
 		var code []byte
 		//模板部署
 		if contract.Type == MContractTemplateType {
-			var template model.MContracTemplate
+			var template model.MContractTemplate
 			if result := api.db.First(&template, contract.TemplateId); result.RowsAffected > 0 {
 				code = template.CodeFile
 				contract.Description = template.Description
@@ -1003,7 +977,7 @@ func (api *API) contractTx(c *gin.Context, handle string, password string, commi
 
 		} else {
 			//codeFile := filepath.Join(viper.GetString(flags.FlagHome), "upload/contract", contract.Version, contract.Address, contract.FileName)
-			codeFile := filepath.Join(home, "upload/contract", contract.Version, contract.Address, contract.FileName)
+			codeFile := filepath.Join(home, "upload/contract", contract.Version, contract.Address, contract.Name, contract.FileName)
 			if !tmos.FileExists(codeFile) {
 				return nil, nil, fmt.Errorf("file %s not exist", contract.FileName)
 			}
@@ -1014,8 +988,8 @@ func (api *API) contractTx(c *gin.Context, handle string, password string, commi
 		}
 		msg, err = api.client.DeployMsg(contract.Address, contract.Name, code, contract.Args, contract.Description, contract.Fees)
 	case WASMContractHandleUpgrade:
-		//codeFile := filepath.Join(viper.GetString(flags.FlagHome), "upload/contract", contract.Version, contract.Address, contract.FileName)
-		codeFile := filepath.Join(home, "upload/contract", contract.Version, contract.Address, contract.FileName)
+		//codeFile := filepath.Join(viper.GetString(flags.FlagHome), "upload/contract", contract.Version, contract.Address,contract.FileName, contract.FileName)
+		codeFile := filepath.Join(home, "upload/contract", contract.Version, contract.Address, contract.Name, contract.FileName)
 		if !tmos.FileExists(codeFile) {
 			return nil, nil, fmt.Errorf("file %s not exist", contract.FileName)
 		}
@@ -1126,4 +1100,15 @@ func (api *API) contractTx(c *gin.Context, handle string, password string, commi
 		resp.Hash = fmt.Sprintf("%X", tmhash.Sum(bts))
 	}
 	return &resp, txBuilder.GetTx(), nil
+}
+
+func (api *API) getAccountByAddress(c *gin.Context, address string, usrID uint) *model.Account {
+	var acct model.Account
+	if result := api.db.Where(&model.Account{
+		Address: address,
+		UserID:  usrID,
+	}).Find(&acct); result.RowsAffected == 0 {
+		return nil
+	}
+	return &acct
 }

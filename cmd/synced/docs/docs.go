@@ -711,6 +711,44 @@ var doc = `{
                 }
             }
         },
+        "/contracts/:name/transactions": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "request"
+                ],
+                "summary": "查询合约交易",
+                "parameters": [
+                    {
+                        "description": "请求信息",
+                        "name": "tx",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.ContractTransactionsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/download/{hash}": {
             "get": {
                 "security": [
@@ -906,7 +944,7 @@ var doc = `{
                 }
             }
         },
-        "/mcontract/history/list/{account}/{contractName}": {
+        "/mcontract/history/list/{contractName}": {
             "get": {
                 "security": [
                     {
@@ -924,13 +962,6 @@ var doc = `{
                 ],
                 "summary": "合约历史列表",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "账户名",
-                        "name": "account",
-                        "in": "path",
-                        "required": true
-                    },
                     {
                         "type": "string",
                         "description": "合约名称",
@@ -1010,7 +1041,7 @@ var doc = `{
                 "tags": [
                     "contract"
                 ],
-                "summary": "升级/冻结/解冻/删除合约",
+                "summary": "合约部署/升级/冻结/解冻/删除",
                 "parameters": [
                     {
                         "type": "string",
@@ -1204,7 +1235,7 @@ var doc = `{
                 }
             }
         },
-        "/mcontract/template/list/{account}": {
+        "/mcontract/template/list": {
             "post": {
                 "security": [
                     {
@@ -1222,12 +1253,6 @@ var doc = `{
                 ],
                 "summary": "合约模板列表",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "账户名",
-                        "name": "account",
-                        "in": "path"
-                    },
                     {
                         "description": "请求信息",
                         "name": "prequest",
@@ -1763,6 +1788,20 @@ var doc = `{
                 "password": {
                     "description": "账户密码",
                     "type": "string"
+                }
+            }
+        },
+        "api.ContractTransactionsRequest": {
+            "type": "object",
+            "properties": {
+                "invoke": {
+                    "type": "boolean"
+                },
+                "page_num": {
+                    "type": "integer"
+                },
+                "page_size": {
+                    "type": "integer"
                 }
             }
         },

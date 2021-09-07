@@ -130,6 +130,8 @@ type Exporter interface {
 	// It returns an error if the key does not exist or a wrong encryption passphrase is supplied.
 	ExportPrivKeyArmor(uid, encryptPassphrase string) (armor string, err error)
 	ExportPrivKeyArmorByAddress(address sdk.Address, encryptPassphrase string) (armor string, err error)
+
+	ExportPrivateKeyObject(uid string) (types.PrivKey, error)
 }
 
 // UnsafeExporter is implemented by key stores that support unsafe export

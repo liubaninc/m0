@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -37,42 +38,48 @@ import (
 // @in header
 // @name Authorization
 func main() {
+	flag.Parse()
 	logger := log.NewTMLogger(log.NewSyncWriter(os.Stdout))
-
 	//Keyring.Key("faucet")
 	kr, err := keyring.New("m0", keyring.BackendMemory, ".", os.Stdin)
 	if err != nil {
 		panic(err)
 	}
-	if _, err := kr.NewAccount("faucet", flagFaucetAccount, keyring.DefaultBIP39Passphrase, sdk.GetConfig().GetFullFundraiserPath(), hd.Secp256k1); err != nil {
+	if _, err := kr.NewAccount("faucet", *faucetAccount, keyring.DefaultBIP39Passphrase, sdk.GetConfig().GetFullFundraiserPath(), hd.Secp256k1); err != nil {
 		panic(err)
 	}
-	mode := flagDBMode
-	client := msdk.MustNew(flagRPCHost, kr)
-	dbUser := flagDBUser
-	dbPassword := flagDBPassword
-	dbHost := flagDBHost
-	dbPort := flagDBPort
-	dbName := flagDBName
+	client := msdk.MustNew(*RPCHost, kr)
+
 	var conn gorm.Dialector
-	switch mode {
+	switch *mode {
 	case "mysql":
-		dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", dbUser, dbPassword, dbHost, dbPort, dbName)
+		dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", *dbUser, *dbPassword, *dbHost, *dbPort, *dbName)
 		conn = mysql.Open(dsn)
 	case "postgres":
-		dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable TimeZone=Asia/Shanghai", dbHost, dbUser, dbPassword, dbName, dbPort)
+		dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable TimeZone=Asia/Shanghai", *dbHost, *dbUser, *dbPassword, *dbName, *dbPort)
 		conn = postgres.Open(dsn)
 	case "sqlserver":
 
 	case "sqlite":
-		conn = sqlite.Open(dbName + ".db")
+		conn = sqlite.Open(*dbName + ".db")
 	default:
 		panic("not support db mode")
 	}
 	model := model.New(conn, logger)
 	syncer.New(model.DB, client, logger).Run()
-	api.New(model.DB, client, logger).Run(flagPort)
+	api.New(model.DB, client, logger).Run(*port)
 }
+
+var RPCHost = flag.String("rpc-host", flagRPCHost, "node rpc host")
+var mode = flag.String("db-mode", flagDBMode, "database mode, mysql,postgres,sqlserver,sqlite")
+var dbHost = flag.String("db-host", flagDBHost, "database host")
+var dbPort = flag.Int("db-port", flagDBPort, "database port")
+var dbUser = flag.String("db-user", flagDBUser, "database user")
+var dbPassword = flag.String("db-pass", flagDBPassword, "database password")
+var dbName = flag.String("db-name", flagDBName, "database name")
+var port = flag.Int("port", flagPort, "listen port")
+var faucetAccount = flag.String("faucet-account", flagFaucetAccount, "faucet account mnemonic")
+var faucetCoin = flag.String("faucet-coin", flagFaucetCoin, "faucet amount")
 
 const (
 	flagRPCHost       = "tcp://localhost:26657"

@@ -73,6 +73,9 @@ import (
 	pkimodule "github.com/liubaninc/m0/x/pki"
 	pkimodulekeeper "github.com/liubaninc/m0/x/pki/keeper"
 	pkimoduletypes "github.com/liubaninc/m0/x/pki/types"
+	storagemodule "github.com/liubaninc/m0/x/storage"
+	storagemodulekeeper "github.com/liubaninc/m0/x/storage/keeper"
+	storagemoduletypes "github.com/liubaninc/m0/x/storage/types"
 	"github.com/liubaninc/m0/x/utxo"
 	utxokeeper "github.com/liubaninc/m0/x/utxo/keeper"
 	utxotypes "github.com/liubaninc/m0/x/utxo/types"
@@ -103,6 +106,7 @@ var (
 		params.AppModuleBasic{},
 		ibc.AppModuleBasic{},
 		// this line is used by starport scaffolding # stargate/app/moduleBasic
+		storagemodule.AppModuleBasic{},
 		peermodule.AppModuleBasic{},
 		mibcmodule.AppModuleBasic{},
 		pkimodule.AppModuleBasic{},
@@ -163,6 +167,8 @@ type App struct {
 
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
+	StorageKeeper storagemodulekeeper.Keeper
+
 	PeerKeeper       peermodulekeeper.Keeper
 	ScopedMibcKeeper capabilitykeeper.ScopedKeeper
 	MibcKeeper       mibcmodulekeeper.Keeper
@@ -205,6 +211,7 @@ func New(
 		govtypes.StoreKey, paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey,
 		evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
 		// this line is used by starport scaffolding # stargate/app/storeKey
+		storagemoduletypes.StoreKey,
 		peermoduletypes.StoreKey,
 		mibcmoduletypes.StoreKey,
 		pkimoduletypes.StoreKey,
@@ -262,6 +269,13 @@ func New(
 	)
 
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
+
+	app.StorageKeeper = *storagemodulekeeper.NewKeeper(
+		appCodec,
+		keys[storagemoduletypes.StoreKey],
+		keys[storagemoduletypes.MemStoreKey],
+	)
+	storageModule := storagemodule.NewAppModule(appCodec, app.StorageKeeper)
 	app.UtxoKeeper = *utxokeeper.NewKeeper(
 		appCodec,
 		keys[utxotypes.StoreKey],
@@ -341,6 +355,7 @@ func New(
 		ibc.NewAppModule(app.IBCKeeper),
 		params.NewAppModule(app.ParamsKeeper),
 		// this line is used by starport scaffolding # stargate/app/appModule
+		storageModule,
 		peerModule,
 		mibcModule,
 		pkiModule,
@@ -372,6 +387,7 @@ func New(
 		banktypes.ModuleName,
 		ibchost.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
+		storagemoduletypes.ModuleName,
 		peermoduletypes.ModuleName,
 		mibcmoduletypes.ModuleName,
 		pkimoduletypes.ModuleName,
@@ -579,6 +595,7 @@ func initParamsKeeper(appCodec codec.BinaryMarshaler, legacyAmino *codec.LegacyA
 	paramsKeeper.Subspace(banktypes.ModuleName)
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
+	paramsKeeper.Subspace(storagemoduletypes.ModuleName)
 	paramsKeeper.Subspace(peermoduletypes.ModuleName)
 	paramsKeeper.Subspace(mibcmoduletypes.ModuleName)
 	paramsKeeper.Subspace(pkimoduletypes.ModuleName)

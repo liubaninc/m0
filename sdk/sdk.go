@@ -178,6 +178,11 @@ func (c Client) SignTx(from string, multiSigAddrStr string, txBuilder client.TxB
 		return err
 	}
 
+	if len(multiSigAddrStr) > 0 {
+		// Multisigs only support LEGACY_AMINO_JSON signing
+		txf = txf.WithSignMode(signingtypes.SignMode_SIGN_MODE_LEGACY_AMINO_JSON)
+	}
+
 	err = tx.Sign(txf, clientCtx.GetFromName(), txBuilder, overwriteSig)
 	if err != nil {
 		return err
