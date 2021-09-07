@@ -1,6 +1,6 @@
 #!/bin/bash
 # 构建区块链网络拓扑案例, 生成各进程的docker-compose yaml文件
-c_num=${1:-1} # CA服务个数 默认1个
+c_num=${1:-0} # CA服务个数 默认1个
 s_num=${2:-1} # 种子节点个数 默认1个
 v_num=${3:-4} # 验证节点个数 默认4个
 n_num=${4:-2} # 数据节点个数 默认2个
@@ -71,6 +71,6 @@ echo "种子列表: $seeds"
 echo "节点列表: $peers"
 echo "数据节点": $nids
 echo "***************************************"
-echo "$seeds" > ./${chain_id}/seeds
-echo "$peers" > ./${chain_id}/peers
-echo "$validators" > ./${chain_id}/validators
+echo "$seeds" > $(dirname $0)/${chain_id}/seeds
+echo "$peers" > $(dirname $0)/${chain_id}/peers
+echo "$validators" > $(dirname $0)/${chain_id}/validators
