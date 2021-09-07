@@ -7,7 +7,7 @@
 # 1、生成节点配置（根据前置条件中1）
 # 2、获得链配置信息（根据前置条件中2）
 # 3、启动节点
-# 结果:（生成新加入节点，启动需要的 yaml 文件）
+# 结果:
 # 启动节点
 
 version: '2.4'
@@ -22,7 +22,7 @@ networks:
 services:
   CHAINID-NODEID:
     container_name: CHAINID-NODEID
-    image: liuban/m0:TAG
+    image: ciyuntangquan/m0:TAG
     # restart: always
     labels:
       service: CHAINID
@@ -36,8 +36,11 @@ services:
       - M0D_HOME=/var/tq/production/CHAINID-NODEID/.m0
       - M0D_LOG_LEVEL=info
       - M0D_INSTRUMENTATION_PROMETHEUS=true
+      - M0D_P2P_PEX=true
       - M0D_P2P_SEED_MODE=SEEDMODE
       - M0D_P2P_SEEDS=SEEDNODES
+      - M0D_P2P_PERSISTENT_PEERS=PEERNODES
+      - M0D_DATA_OTHER_PATHS=
       - WAIT_HOSTS=NODERPC
       - WAIT_HOSTS_TIMEOUT=300
       - WAIT_SLEEP_INTERVAL=30
@@ -49,27 +52,31 @@ services:
         set -ex
         /wait
         if [ ! -e /var/tq/production/CHAINID-NODEID/.m0/config/genesis.json ]; then
-        echo "NODEKEY" | m0d init NODEID --recover  --home /var/tq/production/CHAINID-NODEID/.m0
-        wget http://NODERPC/genesis -q
-        cat genesis | jq .result.genesis > /var/tq/production/CHAINID-NODEID/.m0/config/genesis.json
-        # wget http://NODERPC/net_info -q
+          echo "NODEKEY" | m0d init NODEID --recover  --home /var/tq/production/CHAINID-NODEID/.m0
+          wget http://NODERPC/genesis -q
+          cat genesis | jq .result.genesis > /var/tq/production/CHAINID-NODEID/.m0/config/genesis.json
         fi
 
-        nohup m0d start > m0.log 2>&1 &
+        if [ ! -d /var/tq/production/CHAINID-NODEID/.m0/ca ]; then
+          ln -s /var/tq/production/ca /var/tq/production/CHAINID-NODEID/.m0/ca
+        fi
+        sed -i "s/addr_book_strict = true/addr_book_strict = false/g" /var/tq/production/CHAINID-NODEID/.m0/config/config.toml
+        nohup m0d start --pruning nothing --p2p.laddr tcp://CHAINID-NODEID:26656 > m0.log 2>&1 &
         
         export WAIT_HOSTS=127.0.0.1:26657
         /wait
-        if [ SYNCED ];then
+        if [ SYNCED == true ];then
           nginx -g "daemon off;" &
           nohup synced start  > synced.log 2>&1 &
         fi
-        if [ AUTOMATIC ];then
-          m0d automatic  > automatic.log 2>&1 &
+        if [ AUTOMATIC == true ];then
+          m0d automatic > automatic.log 2>&1 &
         fi
 
         tail -f m0.log
     volumes:
       - data-CHAINID:/var/tq/production
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       #- 1317  # API(HTTP)
       #- 9090  # GRPC (TCP)

@@ -9,7 +9,7 @@
 # 2、生成节点配置（根据前置条件中3）
 # 3、使用1结果
 # 4、启动节点
-# 结果: （生成启动节点需要的 yaml 文件）
+# 结果:
 # 启动节点
 
 version: '2.4'
@@ -24,7 +24,7 @@ networks:
 services:
   CHAINID-NODEID:
     container_name: CHAINID-NODEID
-    image: liuban/m0:TAG
+    image: ciyuntangquan/m0:TAG
     # restart: always
     labels:
       service: CHAINID
@@ -35,16 +35,18 @@ services:
       - M0D_GENESIS_TIME=GENESISTIME
       - M0D_NODE_IP=VALIDATORIP
       - M0D_NODE_VALIDATOR_KEY=VALIDATORKEY
+      - M0D_DEV_MODE=DEVMODE
       # 节点参数
       - M0D_MONIKER=NODEID
       - NODE_MNEMONIC=NODEKEY
-      #- M0D_CHAIN_ID=CHAINID
       - M0D_CONSENSUS_CREATE_EMPTY_BLOCKS=true
       - M0D_HOME=/var/tq/production/CHAINID-NODEID/.m0
       - M0D_LOG_LEVEL=info
       - M0D_INSTRUMENTATION_PROMETHEUS=true
+      - M0D_P2P_PEX=true
       - M0D_P2P_SEED_MODE=SEEDMODE
       - M0D_P2P_SEEDS=SEEDNODES
+      - M0D_P2P_PERSISTENT_PEERS=PEERNODES
       - WAIT_HOSTS_TIMEOUT=300
       - WAIT_SLEEP_INTERVAL=30
       - WAIT_HOST_CONNECT_TIMEOUT=30
@@ -54,26 +56,32 @@ services:
       - |
         set -ex
         if [ ! -e /var/tq/production/CHAINID-NODEID/.m0/config/genesis.json ]; then
-        echo "NODEKEY" | m0d init NODEID --recover --home /var/tq/production/CHAINID-NODEID/.m0
-        m0d testnet
-        cp -r mytestnet/node0/.m0/config/genesis.json /var/tq/production/CHAINID-NODEID/.m0/config
+          echo "NODEKEY" | m0d init NODEID --recover --home /var/tq/production/CHAINID-NODEID/.m0
+          m0d testnet
+          cp -r mytestnet/node0/.m0/config/genesis.json /var/tq/production/CHAINID-NODEID/.m0/config
+          cp -r mytestnet/ca /var/tq/production/ca
         fi
 
-        nohup m0d start > m0.log 2>&1 &
+        if [ ! -d /var/tq/production/CHAINID-NODEID/.m0/ca ]; then
+          ln -s /var/tq/production/ca /var/tq/production/CHAINID-NODEID/.m0/ca
+        fi
+        sed -i "s/addr_book_strict = true/addr_book_strict = false/g" /var/tq/production/CHAINID-NODEID/.m0/config/config.toml
+        nohup m0d start --pruning nothing --p2p.laddr tcp://CHAINID-NODEID:26656 > m0.log 2>&1 &
         
         export WAIT_HOSTS=127.0.0.1:26657
         /wait
-        if [ SYNCED ];then
+        if [ SYNCED == true ];then
           nginx -g "daemon off;" &
           nohup synced start  > synced.log 2>&1 &
         fi
-        if [ AUTOMATIC ];then
+        if [ AUTOMATIC == true ];then
           m0d automatic > automatic.log 2>&1 &
         fi
         
         tail -f m0.log
     volumes:
       - data-CHAINID:/var/tq/production
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       #- 1317  # API(HTTP)
       #- 9090  # GRPC (TCP)

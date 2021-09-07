@@ -646,16 +646,18 @@ func (api *API) processTx(tx signing.Tx, commit bool) error {
 	} else {
 		mtx.Confirmed = -1
 	}
-	//var signatures []string
-	//signs, _ := tx.GetSignaturesV2()
-	//for _, signature := range signs {
-	//	addr, err := sdk.AccAddressFromHex(signature.PubKey.Address().String())
-	//	if err != nil {
-	//		panic(err)
-	//	}
-	//	signatures = append(signatures, addr.String())
-	//}
-	//mtx.Signature = strings.Join(signatures, ",")
+	if len(mtx.Signature) == 0 {
+		var signatures []string
+		signs, _ := tx.GetSignaturesV2()
+		for _, signature := range signs {
+			addr, err := sdk.AccAddressFromHex(signature.PubKey.Address().String())
+			if err != nil {
+				panic(err)
+			}
+			signatures = append(signatures, addr.String())
+		}
+		mtx.Signature = strings.Join(signatures, ",")
+	}
 	bts, _ = api.client.TxConfig.TxJSONEncoder()(tx)
 	mtx.Raw = string(bts)
 	bts, err := json.Marshal(mtx.UTXOMsgs)

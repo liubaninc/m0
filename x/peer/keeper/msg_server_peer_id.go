@@ -16,11 +16,11 @@ func (k msgServer) CreatePeerID(goCtx context.Context, msg *types.MsgCreatePeerI
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, fmt.Sprintf("certificate %s/%s not found in pki module", msg.CertIssuer, msg.CertSerialNum))
 	}
 
-	// Check if the value already exists
-	_, isFound := k.GetPeerID(ctx, msg.Index)
-	if isFound {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, fmt.Sprintf("nodeID %v already set", msg.Index))
-	}
+	//// Check if the value already exists
+	//_, isFound := k.GetPeerID(ctx, msg.Index)
+	//if isFound {
+	//	return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, fmt.Sprintf("nodeID %v already set", msg.Index))
+	//}
 
 	var peerID = types.PeerID{
 		Index:         msg.Index,
