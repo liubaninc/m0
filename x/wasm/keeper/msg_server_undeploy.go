@@ -22,8 +22,11 @@ func (k msgServer) Undeploy(goCtx context.Context, msg *types.MsgUndeploy) (*typ
 	if err != nil {
 		panic(err)
 	}
+	if c == nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "contract not exist")
+	}
 	if c.Initiator != msg.Creator {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "contract %s invalid owner", msg.ContractName)
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "contract invalid owner")
 	}
 
 	msgOffset := int32(ctx.Context().Value(baseapp.KeyMsgOffset).(int))

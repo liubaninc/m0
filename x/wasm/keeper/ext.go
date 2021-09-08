@@ -10,6 +10,13 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+func (k Keeper) DelLastVersionedData(ctx sdk.Context, bucket string, key []byte) {
+	store := ctx.KVStore(k.storeKey)
+	bucketAndKey := types.MakeRawKey(bucket, key)
+	store.Delete(append([]byte(types.ExtUtxoTablePrefix), bucketAndKey...))
+	store.Delete(append([]byte(types.ExtUtxoDelTablePrefix), bucketAndKey...))
+}
+
 func (k Keeper) SetVersionedData(ctx sdk.Context, data *xmodel.VersionedData) {
 	store := ctx.KVStore(k.storeKey)
 	bucketAndKey := types.MakeRawKey(data.PureData.Bucket, data.PureData.Key)

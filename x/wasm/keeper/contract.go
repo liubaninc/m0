@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"bytes"
 	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/store/prefix"
@@ -111,44 +112,20 @@ func (k Keeper) RemoveContractState(ctx sdk.Context, name string) {
 }
 
 func (k Keeper) RemoveContract(ctx sdk.Context, contract *types.Contract, hash string, msgOffset int32) {
-	k.SetVersionedData(ctx, &xmodel.VersionedData{
-		RefTxid:      []byte(hash),
-		RefMsgOffset: msgOffset,
-		RefOffset:    0,
-		PureData: &xmodel.PureData{
-			Key:    []byte(contract.Name),
-			Value:  []byte(types.DelFlag),
-			Bucket: kernel.Contract2AccountBucket,
-		},
-	})
-	k.SetVersionedData(ctx, &xmodel.VersionedData{
-		RefTxid:      []byte(hash),
-		RefMsgOffset: msgOffset,
-		RefOffset:    0,
-		PureData: &xmodel.PureData{
-			Key:    []byte(contract.Initiator + kernel.Account2ContractSeparator + contract.Name),
-			Value:  []byte(types.DelFlag),
-			Bucket: kernel.Account2ContractBucket,
-		},
-	})
-	k.SetVersionedData(ctx, &xmodel.VersionedData{
-		RefTxid:      []byte(hash),
-		RefMsgOffset: msgOffset,
-		RefOffset:    0,
-		PureData: &xmodel.PureData{
-			Key:    []byte(bridge.ContractCodeDescKey(contract.Name)),
-			Value:  []byte(types.DelFlag),
-			Bucket: "contract",
-		},
-	})
-	k.SetVersionedData(ctx, &xmodel.VersionedData{
-		RefTxid:      []byte(hash),
-		RefMsgOffset: msgOffset,
-		RefOffset:    0,
-		PureData: &xmodel.PureData{
-			Key:    []byte(bridge.ContractNumberKey(contract.Name)),
-			Value:  []byte(types.DelFlag),
-			Bucket: "contract",
-		},
-	})
+
+	k.DelLastVersionedData(ctx, kernel.Contract2AccountBucket, []byte(contract.Name))
+	k.DelLastVersionedData(ctx, kernel.Account2ContractBucket, []byte(contract.Initiator+kernel.Account2ContractSeparator+contract.Name))
+	k.DelLastVersionedData(ctx, "contract", bridge.ContractCodeKey(contract.Name))
+	k.DelLastVersionedData(ctx, "contract", bridge.ContractCodeDescKey(contract.Name))
+	k.DelLastVersionedData(ctx, "contract", bridge.ContractNumberKey(contract.Name))
+
+	iter := k.IterVersioned(ctx, contract.Name, nil, nil)
+	for ; iter.Valid(); iter.Next() {
+		key := bytes.TrimPrefix(bytes.TrimPrefix(iter.Key(), []byte(types.ExtUtxoTablePrefix)), []byte(types.ExtUtxoDelTablePrefix))
+		bucket, key, err := types.ParseRawKey(key)
+		if err != nil {
+			panic(err)
+		}
+		k.DelLastVersionedData(ctx, bucket, key)
+	}
 }
