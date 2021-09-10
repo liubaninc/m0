@@ -52,8 +52,8 @@ var (
 		"Deploy":                "部署合约",
 		"Upgrade":               "升级合约",
 		"Invoke":                "调用合约",
-		"Freeze":                "解冻合约",
-		"Unfreeze":              "冻结合约",
+		"Freeze":                "冻结合约",
+		"Unfreeze":              "解冻合约",
 		"Undeploy":              "销毁合约",
 		"ProposeDeployContract": "申请合约部署",
 		"ApproveDeployContract": "批准合约部署",
@@ -1173,6 +1173,25 @@ func (synced *Syncer) ContractTxResultCheck(resultTx *coretypes.ResultTx) {
 			} else {
 				status = 8
 			}
+		case *wasmtypes.MsgFreeze:
+			if resultTx.TxResult.Code == 0 {
+				status = 4
+
+			} else {
+				log = resultTx.TxResult.Log
+			}
+		case *wasmtypes.MsgUnfreeze:
+			if resultTx.TxResult.Code == 0 {
+				status = 5
+			} else {
+				log = resultTx.TxResult.Log
+			}
+		case *wasmtypes.MsgUndeploy:
+			if resultTx.TxResult.Code == 0 {
+				status = 9
+			} else {
+				log = resultTx.TxResult.Log
+			}
 		default:
 			return
 		}
@@ -1189,9 +1208,18 @@ func (synced *Syncer) ContractTxResultCheck(resultTx *coretypes.ResultTx) {
 		//升级成功修改历史版本状态
 		if status == 8 {
 			var contracts []*model.MContract
-			if result := synced.db.Where("name = ? AND address = ? AND status <> ?", t.Name, t.Address, status).Order("Version desc").Find(&contracts); result.RowsAffected > 0 {
-				for contract, _ := range contracts {
-					synced.db.First(contract).Update("status", 9)
+			if result := synced.db.Where("name = ? AND address = ?", t.Name, t.Address).Order("updated_at desc").Find(&contracts); result.RowsAffected > 0 {
+				for index, contract := range contracts {
+					if contract.Status == 0 {
+						synced.db.Delete(&model.MContract{}, contract.ID)
+					} else {
+						//除了最近的的记录，将历史记录状态修改为删除状态
+						if index == 0 {
+							continue
+						}
+						contract.Status = 9
+						synced.db.Save(&contract)
+					}
 				}
 			}
 		}

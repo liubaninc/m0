@@ -860,8 +860,41 @@ var doc = `{
                         "description": "模板ID",
                         "name": "template_id",
                         "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "操作类型upgrade create",
+                        "name": "mode",
+                        "in": "formData"
                     }
                 ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/mcontract/download/sdk": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SDK"
+                ],
+                "summary": "下载SDK文件",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1054,6 +1087,13 @@ var doc = `{
                         "type": "string",
                         "description": "合约操作：undeploy删除合约 deploy部署合约 upgrade升级合约 freeze冻结合约 unfreeze解冻合约",
                         "name": "mode",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "账户名称",
+                        "name": "accountName",
                         "in": "formData",
                         "required": true
                     },
@@ -1261,6 +1301,42 @@ var doc = `{
                         "schema": {
                             "$ref": "#/definitions/api.PageRequest"
                         }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/mcontract/transactions/{hash}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "contract"
+                ],
+                "summary": "交易详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "交易Hash",
+                        "name": "hash",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {

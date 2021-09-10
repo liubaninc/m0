@@ -753,6 +753,10 @@ paths:
         in: formData
         name: template_id
         type: integer
+      - description: 操作类型upgrade create
+        in: formData
+        name: mode
+        type: string
       produces:
       - application/json
       responses:
@@ -787,6 +791,22 @@ paths:
       summary: 下载合约文件
       tags:
       - contract
+  /mcontract/download/sdk:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 下载SDK文件
+      tags:
+      - SDK
   /mcontract/get/{id}:
     get:
       consumes:
@@ -872,6 +892,11 @@ paths:
       - description: 合约操作：undeploy删除合约 deploy部署合约 upgrade升级合约 freeze冻结合约 unfreeze解冻合约
         in: formData
         name: mode
+        required: true
+        type: string
+      - description: 账户名称
+        in: formData
+        name: accountName
         required: true
         type: string
       - description: 账户密码
@@ -1016,6 +1041,28 @@ paths:
       summary: 合约模板列表
       tags:
       - contractTemplate
+  /mcontract/transactions/{hash}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 交易Hash
+        in: path
+        name: hash
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 交易详情
+      tags:
+      - contract
   /mcontract/tx/download/{hash}:
     get:
       consumes:

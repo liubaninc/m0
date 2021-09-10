@@ -88,6 +88,12 @@ func (api *API) Run(port int) {
 	v1.POST("/user/login", api.UserLogin)
 	v1.GET("/download/:hash", api.DownloadTx)
 	v1.GET("/claims/download/:user/:account/:name", api.DownloadClaim)
+
+	//钱包合约模块
+	v1.GET("/mcontract/tx/download/:hash", api.DownloadMContractTx)
+	v1.GET("/mcontract/download/:id", api.DownloadMContractFile)
+	v1.GET("/mcontract/download/sdk", api.DownloadSDk)
+
 	v1.Use(api.authorize)
 	v1.POST("/account/mnemonic", api.AccountMnemonic)
 	v1.POST("/account/create", api.AccountCreate)
@@ -108,6 +114,7 @@ func (api *API) Run(port int) {
 	v1.POST("/claims/:account/get", api.Claim)
 	v1.POST("/user/logout", api.UserLogout)
 	//钱包合约模块
+	v1.GET("/mcontract/transactions/:hash", api.GetContractTx)
 	v1.POST("/mcontract/template/list", api.MContractTemplateList)
 	v1.GET("/mcontract/template/get/:id", api.GetMContractTemplate)
 	v1.GET("/mcontract/get/:id", api.GetMContract)
@@ -117,8 +124,7 @@ func (api *API) Run(port int) {
 	v1.POST("/mcontract/operate", api.OperateContract)
 	v1.POST("/mcontract/create", api.CreateMContract)
 	v1.POST("/mcontract/tx/upload", api.MContractUploadTx)
-	v1.GET("/mcontract/tx/download/:hash", api.DownloadMContractTx)
-	v1.GET("/mcontract/download/:id", api.DownloadMContractFile)
+
 	v1.POST("/mcontract/template/insert/:account", api.MContractTemplateInsert)
 	v1.POST("/mcontract/template/function/insert", api.MContractTemplateFunctionInsert)
 	if err := router.Run(fmt.Sprintf(":%d", port)); err != nil {

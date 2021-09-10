@@ -28,8 +28,16 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-func (req *UTXORequest) ValidateBasic(self_check bool, destroy bool) error {
-	if _, err := sdk.AccAddressFromBech32(req.From); err != nil {
+func (api *API) ValidateBasic(self_check bool, destroy bool, req *UTXORequest, c *gin.Context) error {
+	// 用户账户地址检查
+	var acct model.Account
+	if result := api.db.Where(&model.Account{
+		Name:   req.From,
+		UserID: api.userID(c),
+	}).First(&acct); result.Error != nil {
+		return result.Error
+	}
+	if _, err := sdk.AccAddressFromBech32(acct.Address); err != nil {
 		return fmt.Errorf("发送方 %s %s", req.From, ERROR_ADDRESS)
 	}
 	for _, receiver := range req.Receivers {
@@ -38,7 +46,7 @@ func (req *UTXORequest) ValidateBasic(self_check bool, destroy bool) error {
 				return fmt.Errorf("接收方 %s %s", receiver.To, ERROR_ADDRESS)
 			}
 
-			if self_check && strings.Compare(req.From, receiver.To) == 0 {
+			if self_check && strings.Compare(acct.Address, receiver.To) == 0 {
 				return fmt.Errorf("接收方 %s %s", receiver.To, ERROR_ADDRESS_SELF)
 			}
 		}
@@ -60,8 +68,8 @@ func (api *API) getUtxoResponse(c *gin.Context, tp string, request *UTXORequest)
 	// 用户账户地址检查
 	var acct model.Account
 	if result := api.db.Where(&model.Account{
-		Address: request.From,
-		UserID:  api.userID(c),
+		Name:   request.From,
+		UserID: api.userID(c),
 	}).First(&acct); result.Error != nil {
 		return nil, result.Error
 	}
@@ -78,11 +86,11 @@ func (api *API) getUtxoResponse(c *gin.Context, tp string, request *UTXORequest)
 	var err error
 	switch tp {
 	case "mint":
-		msg, err = api.client.IssueMsg(request.From, tos, amounts, request.Desc, fee)
+		msg, err = api.client.IssueMsg(acct.Address, tos, amounts, request.Desc, fee)
 	case "burn":
-		msg, err = api.client.DestroyMsg(request.From, strings.Join(amounts, ","), request.Desc, fee)
+		msg, err = api.client.DestroyMsg(acct.Address, strings.Join(amounts, ","), request.Desc, fee)
 	case "transfer":
-		msg, err = api.client.SendMsg(request.From, tos, amounts, request.Desc, fee)
+		msg, err = api.client.SendMsg(acct.Address, tos, amounts, request.Desc, fee)
 	default:
 		panic("unknown tp")
 	}
@@ -91,7 +99,7 @@ func (api *API) getUtxoResponse(c *gin.Context, tp string, request *UTXORequest)
 	}
 
 	var resp TxResponse
-	txBuilder, err := api.client.GenerateTx(request.From, fee, request.Memo, 0, msg)
+	txBuilder, err := api.client.GenerateTx(acct.Address, fee, request.Memo, 0, msg)
 	if err != nil {
 		return nil, err
 	}
@@ -204,7 +212,7 @@ func (api *API) Mint(c *gin.Context) {
 		return
 	}
 
-	if err := request.ValidateBasic(false, false); err != nil {
+	if err := api.ValidateBasic(false, false, &request, c); err != nil {
 		response.Code = RequestCode
 		response.Msg = ERROR_REQ
 		response.Detail = err.Error()
@@ -255,7 +263,7 @@ func (api *API) Burn(c *gin.Context) {
 		return
 	}
 
-	if err := request.ValidateBasic(false, true); err != nil {
+	if err := api.ValidateBasic(false, true, &request, c); err != nil {
 		response.Code = RequestCode
 		response.Msg = ERROR_REQ
 		response.Detail = err.Error()
@@ -306,7 +314,7 @@ func (api *API) Transfer(c *gin.Context) {
 		return
 	}
 
-	if err := request.ValidateBasic(true, false); err != nil {
+	if err := api.ValidateBasic(true, false, &request, c); err != nil {
 		response.Code = ExecuteCode
 		response.Msg = err.Error()
 		response.Detail = err.Error()

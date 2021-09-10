@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/multisig"
+	"github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -14,6 +15,7 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"path"
 	"path/filepath"
 	"strconv"
@@ -274,7 +276,7 @@ func (api *API) MContractHistoryList(c *gin.Context) {
 	var contracts []*model.MContract
 	if result := api.db.Where(&model.MContract{
 		Name: contractName,
-	}).Order("Version desc").Find(&contracts); result.Error != nil {
+	}).Order("version desc").Find(&contracts); result.Error != nil {
 		response.Code = ExecuteCode
 		response.Msg = ERROR_DB
 		response.Detail = result.Error.Error()
@@ -342,9 +344,7 @@ func (api *API) MContractList(c *gin.Context) {
 	}
 
 	var total int64
-	if result := api.db.Model(&model.MContract{}).Where(&model.MContract{
-		Address: acct.Address,
-	}).Count(&total); result.Error != nil {
+	if result := api.db.Model(&model.MContract{}).Where("address = ? AND status <> ?", acct.Address, WASMContractStatusDeleted).Count(&total); result.Error != nil {
 		response.Code = ExecuteCode
 		response.Msg = ERROR_DB
 		response.Detail = result.Error.Error()
@@ -458,7 +458,7 @@ func (api *API) MContractSign(c *gin.Context) {
 		}
 	}
 
-	var multiSigPub *multisig.LegacyAminoPubKey
+	var multiSigPub types.PubKey
 	if len(multiAddress) > 0 {
 		if len(multiPublic) > 0 {
 			publicKeyBytes, err := hex.DecodeString(multiPublic)
@@ -478,13 +478,21 @@ func (api *API) MContractSign(c *gin.Context) {
 				c.JSON(http.StatusOK, response)
 				return
 			}
+			if err := api.client.LegacyAmino.UnmarshalBinaryBare(publicKeyBytes, multiSigPub.(*multisig.LegacyAminoPubKey)); err != nil {
+				response.Code = ExecuteCode
+				response.Msg = ERROR_PUBKEY
+				response.Detail = err.Error()
+				api.logger.Error(c.Request.URL.Path, "pub", multiPublic, "error", response.Detail)
+				c.JSON(http.StatusOK, response)
+				return
+			}
 		} else {
 			res, err := api.client.GetAccount(multiAddress)
 			if err != nil {
 				response.Code = ExecuteCode
-				response.Msg = err.Error()
+				response.Msg = ERROR_PUBKEY
 				response.Detail = "not multi public address"
-				api.logger.Error(c.Request.URL.Path, "address", multiAddress, "error", response.Detail)
+				api.logger.Error(c.Request.URL.Path, "address", multiAddress, "error", err.Error())
 				c.JSON(http.StatusOK, response)
 				return
 			}
@@ -520,7 +528,7 @@ func (api *API) MContractSign(c *gin.Context) {
 		result, err := api.client.BroadcastTx(txBuilder.GetTx())
 		if err != nil {
 			response.Code = ExecuteCode
-			response.Msg = err.Error()
+			response.Msg = ERROR_SEND
 			response.Detail = err.Error()
 			api.logger.Error(c.Request.URL.Path, "error", response.Detail)
 			c.JSON(http.StatusOK, response)
@@ -528,7 +536,7 @@ func (api *API) MContractSign(c *gin.Context) {
 		}
 		if result.Code != 0 {
 			response.Code = ExecuteCode
-			response.Msg = result.RawLog
+			response.Msg = ERROR_SEND
 			response.Detail = result.RawLog
 			api.logger.Error(c.Request.URL.Path, "error", response.Detail)
 			c.JSON(http.StatusOK, response)
@@ -539,7 +547,7 @@ func (api *API) MContractSign(c *gin.Context) {
 		if len(multiAddress) > 0 {
 			resp.MultiAddress = multiAddress
 			resp.MultiPublic = multiPublic
-			resp.Threshold = int(multiSigPub.Threshold)
+			resp.Threshold = int(multiSigPub.(*multisig.LegacyAminoPubKey).Threshold)
 		}
 		resp.Signatures = []string{}
 		signatures, _ := txBuilder.GetTx().GetSignaturesV2()
@@ -573,9 +581,22 @@ func (api *API) MContractSign(c *gin.Context) {
 		default:
 			status = -1
 		}
+
 		if result := api.db.First(&mtx).Updates(&model.MContract{
-			Status: status,
-			Hash:   resp.Hash}); result.Error != nil {
+			Status:    status,
+			Hash:      resp.Hash,
+			Signature: mtx.Signature + "," + acct.Address}); result.Error != nil {
+			response.Code = ExecuteCode
+			response.Msg = ERROR_DB
+			response.Detail = result.Error.Error()
+			api.logger.Error("ContractTx", "error", response.Detail)
+			c.JSON(http.StatusOK, response)
+		}
+	}
+	if len(resp.Signatures) != 0 {
+		signatureStr := strings.Join(resp.Signatures, ",")
+		if result := api.db.First(&mtx).Updates(&model.MContract{
+			Signature: signatureStr}); result.Error != nil {
 			response.Code = ExecuteCode
 			response.Msg = ERROR_DB
 			response.Detail = result.Error.Error()
@@ -595,8 +616,9 @@ func (api *API) MContractSign(c *gin.Context) {
 // @Produce json
 // @Param id formData string true "合约Id"
 // @Param mode formData string true "合约操作：undeploy删除合约 deploy部署合约 upgrade升级合约 freeze冻结合约 unfreeze解冻合约"
+// @Param accountName formData string true "账户名称"
 // @Param password formData string true "账户密码"
-//@Param commit formData bool true "是否提交到节点"
+// @Param commit formData bool true "是否提交到节点"
 // @Success 200 {object} Response
 // @Security ApiKeyAuth
 // @Router /mcontract/operate [post]
@@ -609,24 +631,68 @@ func (api *API) OperateContract(c *gin.Context) {
 	mode := c.PostForm("mode")
 	commit, _ := strconv.ParseBool(c.PostForm("commit"))
 	password := c.PostForm("password")
-	var contract model.MContract
-	if result := api.db.First(&contract, id); result.RowsAffected == 0 {
+	accountName := c.PostForm("accountName")
+
+	var acct model.Account
+	if result := api.db.Where(&model.Account{
+		Name:   accountName,
+		UserID: api.userID(c),
+	}).First(&acct); result.Error != nil {
 		response.Code = ExecuteCode
-		response.Msg = ERROR_NO
-		response.Detail = fmt.Sprintf("account %s 's contract %s not exist", contract.Address, contract.Name)
+		response.Msg = ERROR_DB
+		response.Detail = fmt.Sprintf("query account %s db error", accountName)
+		api.logger.Error(c.Request.URL.Path, "error", response.Detail)
+		c.JSON(http.StatusOK, response)
+	}
+
+	kb := api.getKeyBase(c)
+	if err := kb.ImportPrivKey(acct.Name, acct.PrivateKey, password); err != nil {
+		response.Msg = ERROR_SEND
+		if strings.Contains(err.Error(), "ciphertext decryption failed") {
+			response.Msg = ERROR_PASSWORD
+		}
+		response.Detail = err.Error()
 		api.logger.Error(c.Request.URL.Path, "error", response.Detail)
 		c.JSON(http.StatusOK, response)
 		return
 	}
-	data, tx, err := api.contractTx(c, mode, password, commit, &contract)
+	var contract model.MContract
+	if result := api.db.First(&contract, id); result.RowsAffected == 0 {
+		response.Code = ExecuteCode
+		response.Msg = ERROR_NO
+		response.Detail = fmt.Sprintf("contract %s not exist", contract.Name)
+		api.logger.Error(c.Request.URL.Path, "error", response.Detail)
+		c.JSON(http.StatusOK, response)
+		return
+	}
+	//删除操作,未上链只删除库
+	if mode == WASMContractHandleUndeploy {
+		if contract.Status == WASMContractStatusPending || contract.Status == WASMContractStatusFail {
+			//删除合约文件
+			if contract.Type == MContractCustomType {
+				api.deleteMContractFile(contract.FileName, contract.Name, contract.Address, contract.Version)
+			}
+			api.db.Delete(&model.MContract{}, id)
+			//
+			response.Data = contract
+			c.JSON(http.StatusOK, response)
+			return
+		}
+	}
+
+	data, tx, err := api.contractTx(c, mode, password, acct, commit, &contract)
 
 	if err != nil {
-		response.Code = ExecuteCode
-		if strings.Contains(err.Error(), "ciphertext decryption failed") {
-			response.Msg = ERROR_PASSWORD
-		} else {
-			response.Msg = ERROR_SEND
+		//升级操作失败的时候，删除数据库中创建的升级合约
+		if mode == WASMContractHandleUpgrade {
+			if contract.Type == MContractCustomType {
+				api.deleteMContractFile(contract.FileName, contract.Name, contract.Address, contract.Version)
+			}
+			api.db.Delete(&model.MContract{}, id)
 		}
+		//-----
+		response.Code = ExecuteCode
+		response.Msg = ERROR_SEND
 		response.Detail = err.Error()
 		api.logger.Error(c.Request.URL.Path, "error", response.Detail)
 		c.JSON(http.StatusOK, response)
@@ -634,35 +700,50 @@ func (api *API) OperateContract(c *gin.Context) {
 	}
 
 	status := contract.Status
-	if commit {
-		switch mode {
-		case WASMContractHandleDeploy:
-			status = WASMContractStatusGoing
-		case WASMContractHandleUpgrade:
-			status = WASMContractStatusUpgradePending
-		case WASMContractHandleFreeze:
+	//if commit {
+	switch mode {
+	case WASMContractHandleDeploy:
+		status = WASMContractStatusGoing
+	case WASMContractHandleUpgrade:
+		status = WASMContractStatusUpgradePending
+	case WASMContractHandleFreeze:
+		if commit {
 			status = WASMContractStatusFrozen
-		case WASMContractHandleUnfreeze:
-			status = WASMContractStatusUnfrozen
-		case WASMContractHandleUndeploy:
-			status = WASMContractStatusDeleted
-		default:
-			status = -1
 		}
-
+	case WASMContractHandleUnfreeze:
+		if commit {
+			status = WASMContractStatusUnfrozen
+		}
+	case WASMContractHandleUndeploy:
+		if commit {
+			status = WASMContractStatusDeleted
+		}
+	default:
+		status = contract.Status
 	}
+
+	//}
+	if commit && mode == WASMContractHandleUndeploy {
+		//删除合约文件
+		if contract.Type == MContractCustomType {
+			api.deleteMContractFile(contract.FileName, contract.Name, contract.Address, contract.Version)
+		}
+	}
+	signatureStr := strings.Join(data.Signatures, ",")
 	bts, _ := api.client.TxConfig.TxJSONEncoder()(tx)
 	if result := api.db.Model(&contract).Updates(&model.MContract{
-		Status: status,
-		Hash:   data.Hash,
-		Raw:    string(bts),
-		Mode:   mode}); result.Error != nil {
+		Status:    status,
+		Hash:      data.Hash,
+		Raw:       string(bts),
+		Mode:      mode,
+		Signature: signatureStr}); result.Error != nil {
 		response.Code = ExecuteCode
 		response.Msg = ERROR_DB
 		response.Detail = result.Error.Error()
 		api.logger.Error("ContractTx", "error", response.Detail)
 		c.JSON(http.StatusOK, response)
 	}
+
 	response.Data = contract
 	c.JSON(http.StatusOK, response)
 }
@@ -682,6 +763,7 @@ func (api *API) OperateContract(c *gin.Context) {
 // @Param type formData int true "生成方式：1 自定义合约上传 2 模板合约"
 // @Param file_name formData string false "文件名称"
 // @Param template_id formData int false "模板ID"
+// @Param mode formData string false "操作类型upgrade create"
 // @Success 200 {object} Response
 // @Security ApiKeyAuth
 // @Router /mcontract/create [post]
@@ -701,6 +783,7 @@ func (api *API) CreateMContract(c *gin.Context) {
 	description := c.PostForm("description")
 	opreraType, _ := strconv.Atoi(c.PostForm("type"))
 	templateId, _ := strconv.Atoi(c.PostForm("template_id"))
+	mod := c.PostForm("mode")
 
 	acct := api.getAccountByAddress(c, accountName, api.userID(c))
 	if acct == nil {
@@ -718,16 +801,19 @@ func (api *API) CreateMContract(c *gin.Context) {
 		//Address: acct.Address,
 		//Version: version,
 	}).Find(&contract); result.RowsAffected > 0 {
-		response.Code = ExecuteCode
-		response.Msg = ERROR_EXIST
-		response.Detail = fmt.Sprintf("contract %s alreay exist", name)
-		api.logger.Error(c.Request.URL.Path, "error", response.Detail)
-		c.JSON(http.StatusOK, response)
-		return
+		if (mod == WASMContractHandleUpgrade && strings.Compare(contract.Version, version) == 0) || mod != WASMContractHandleUpgrade {
+			response.Code = ExecuteCode
+			response.Msg = ERROR_EXIST
+			response.Detail = fmt.Sprintf("contract %s %s alreay exist", name, version)
+			api.logger.Error(c.Request.URL.Path, "error", response.Detail)
+			c.JSON(http.StatusOK, response)
+			return
+		}
+
 	}
 	//生成方式为上传合约时，保存文件
 	if int8(opreraType) == MContractCustomType {
-		response = api.uploadMContractFile(c, name, acct, version)
+		response = api.uploadMContractFile(c, name, acct, version, mod)
 		if response.Code != OKCode {
 			c.JSON(http.StatusOK, response)
 			return
@@ -751,6 +837,11 @@ func (api *API) CreateMContract(c *gin.Context) {
 		Address:      acct.Address,
 	}
 	if result := api.db.Save(wasm); result.Error != nil {
+		//删除已保存的合约文件
+		if int8(opreraType) == MContractCustomType {
+			api.deleteMContractFile(fileName, name, acct.Address, version)
+		}
+
 		response.Code = ExecuteCode
 		response.Msg = ERROR_DB
 		response.Detail = result.Error.Error()
@@ -820,6 +911,7 @@ func (api *API) MContractUploadTx(c *gin.Context) {
 		c.JSON(http.StatusOK, response)
 		return
 	}
+
 	mResponse := &MContractSignRespose{
 		Name:        contract.Name,
 		Args:        contract.Args,
@@ -827,6 +919,13 @@ func (api *API) MContractUploadTx(c *gin.Context) {
 		Description: contract.Description,
 		Address:     contract.Address,
 		Mode:        contract.Mode,
+		Signature:   contract.Signature,
+		Hash:        hash,
+	}
+	if len(mResponse.Signature) > 0 {
+		mResponse.Signatures = strings.Split(mResponse.Signature, ",")
+	} else {
+		mResponse.Signatures = []string{}
 	}
 	response.Data = mResponse
 	c.JSON(http.StatusOK, response)
@@ -887,19 +986,51 @@ func (api *API) DownloadMContractFile(c *gin.Context) {
 		c.JSON(http.StatusOK, response)
 		return
 	}
+	dst := ""
+	fileName := ""
+	if contract.Type == MContractTemplateType {
+		var template model.MContractTemplate
+		if result := api.db.First(&template, contract.TemplateId); result.Error != nil {
+			response.Code = ExecuteCode
+			response.Msg = ERROR_FILE_NO
+			response.Detail = fmt.Sprintf("template file not exist")
+			api.logger.Error(c.Request.URL.Path, "error", response.Detail)
+			c.JSON(http.StatusOK, response)
+			return
+		}
+		codeFile := template.CodeFile
+		fileName = contract.Name + ".wasm"
+		if err := tmos.EnsureDir(filepath.Join(home, "upload/contract/", contract.Version, contract.Address, contract.Name), 0700); err != nil {
+			panic(err)
+		}
+		dst = filepath.Join(home, "upload/contract", contract.Version, contract.Address, contract.Name, filepath.Base(fileName))
+		if !tmos.FileExists(dst) {
+			if file, err := os.Create(dst); err != nil {
+				response.Code = ExecuteCode
+				response.Msg = ERROR_FILE_WRITE
+				response.Detail = err.Error()
+				api.logger.Error(c.Request.URL.Path, "file", filepath.Base(contract.Name+".wasm"), "error", err.Error())
+				return
+			} else {
+				file.Write(codeFile)
+				defer file.Close()
+			}
+		}
 
-	//dst := filepath.Join(viper.GetString(flags.FlagHome), "upload/contract", contract.Version, contract.Address, contract.Name,contract.FileName)
+	} else if contract.Type == MContractCustomType {
+		fileName = contract.FileName
+		//dst = filepath.Join(viper.GetString(flags.FlagHome), "upload/contract", contract.Version, contract.Address, contract.Name,contract.FileName)
+		dst = filepath.Join(home, "upload/contract", contract.Version, contract.Address, contract.Name, fileName)
+	}
 
-	dst := filepath.Join(home, "upload/contract", contract.Version, contract.Address, contract.Name, contract.FileName)
-
-	fileContentDisposition := "attachment;filename=\"" + contract.FileName + "\""
+	fileContentDisposition := "attachment;filename=\"" + fileName + "\""
 	c.Header("Content-Type", "application/octet-stream")
 	c.Header("Content-Disposition", fileContentDisposition)
 	c.File(dst)
 }
 
 // 上传合约文件
-func (api *API) uploadMContractFile(c *gin.Context, name string, acct *model.Account, version string) *Response {
+func (api *API) uploadMContractFile(c *gin.Context, name string, acct *model.Account, version string, mod string) *Response {
 	response := &Response{
 		Code: OKCode,
 		Msg:  OKMsg,
@@ -936,11 +1067,15 @@ func (api *API) uploadMContractFile(c *gin.Context, name string, acct *model.Acc
 	//dst := filepath.Join(viper.GetString(flags.FlagHome), "upload/contract", version, acct.Address,name, filepath.Base(file.Filename))
 	dst := filepath.Join(home, "upload/contract", version, acct.Address, name, filepath.Base(file.Filename))
 	if tmos.FileExists(dst) {
-		response.Code = ExecuteCode
-		response.Msg = ERROR_FILE_EXIST
-		response.Detail = fmt.Sprintf("file %s alreay exist", file.Filename)
-		api.logger.Error(c.Request.URL.Path, "error", response.Detail)
-		return response
+		if mod == WASMContractHandleUpgrade {
+			api.deleteMContractFile(file.Filename, name, acct.Address, version)
+		} else {
+			response.Code = ExecuteCode
+			response.Msg = ERROR_FILE_EXIST
+			response.Detail = fmt.Sprintf("file %s alreay exist", file.Filename)
+			api.logger.Error(c.Request.URL.Path, "error", response.Detail)
+			return response
+		}
 	}
 	if err := c.SaveUploadedFile(file, dst); err != nil {
 		response.Code = ExecuteCode
@@ -953,14 +1088,21 @@ func (api *API) uploadMContractFile(c *gin.Context, name string, acct *model.Acc
 	return response
 }
 
-func (api *API) contractTx(c *gin.Context, handle string, password string, commit bool, contract *model.MContract) (*TxResponse, signing.Tx, error) {
-	var acct model.Account
-	if result := api.db.Where(&model.Account{
-		Address: contract.Address,
-		UserID:  api.userID(c),
-	}).First(&acct); result.Error != nil {
-		return nil, nil, result.Error
+func (api *API) deleteMContractFile(filename, name, address, version string) {
+
+	//if err := tmos.EnsureDir(filepath.Join(viper.GetString(flags.FlagHome), "upload/contract/", version, acct.Address,name), 0700); err != nil {
+	if err := tmos.EnsureDir(filepath.Join(home, "upload/contract/", version, address, name), 0700); err != nil {
+		panic(err)
 	}
+	//dst := filepath.Join(viper.GetString(flags.FlagHome), "upload/contract", version, acct.Address,name, filepath.Base(file.Filename))
+	dst := filepath.Join(home, "upload/contract", version, address, name, filepath.Base(filename))
+	if tmos.FileExists(dst) {
+		err := os.Remove(dst)
+		panic(err)
+	}
+}
+
+func (api *API) contractTx(c *gin.Context, handle string, password string, acct model.Account, commit bool, contract *model.MContract) (*TxResponse, signing.Tx, error) {
 
 	var msg sdk.Msg
 	var err error
@@ -986,7 +1128,7 @@ func (api *API) contractTx(c *gin.Context, handle string, password string, commi
 				return nil, nil, err
 			}
 		}
-		msg, err = api.client.DeployMsg(contract.Address, contract.Name, code, contract.Args, contract.Description, contract.Fees)
+		msg, err = api.client.DeployMsg(acct.Address, contract.Name, code, contract.Args, contract.Description, contract.Fees)
 	case WASMContractHandleUpgrade:
 		//codeFile := filepath.Join(viper.GetString(flags.FlagHome), "upload/contract", contract.Version, contract.Address,contract.FileName, contract.FileName)
 		codeFile := filepath.Join(home, "upload/contract", contract.Version, contract.Address, contract.Name, contract.FileName)
@@ -997,13 +1139,13 @@ func (api *API) contractTx(c *gin.Context, handle string, password string, commi
 		if er != nil {
 			return nil, nil, er
 		}
-		msg, err = api.client.UpgradeMsg(contract.Address, contract.Name, code, contract.Description, contract.Fees)
+		msg, err = api.client.UpgradeMsg(acct.Address, contract.Name, code, contract.Description, contract.Fees)
 	case WASMContractHandleFreeze:
-		msg, err = api.client.FreezeMsg(contract.Address, contract.Name)
+		msg, err = api.client.FreezeMsg(acct.Address, contract.Name)
 	case WASMContractHandleUnfreeze:
-		msg, err = api.client.UnfreezeMsg(contract.Address, contract.Name)
+		msg, err = api.client.UnfreezeMsg(acct.Address, contract.Name)
 	case WASMContractHandleUndeploy:
-		msg, err = api.client.UndeployMsg(contract.Address, contract.Name)
+		msg, err = api.client.UndeployMsg(acct.Address, contract.Name)
 	default:
 		panic("unknown handle")
 	}
@@ -1012,13 +1154,13 @@ func (api *API) contractTx(c *gin.Context, handle string, password string, commi
 	}
 
 	bts, _ := json.Marshal(&Contract{
-		Name:        contract.Name,
-		Args:        contract.Args,
-		Description: contract.Description,
-		Version:     contract.Version,
+		Name: contract.Name,
+		Args: contract.Args,
+		//Description: contract.Description,
+		Version: contract.Version,
 	})
 	var resp TxResponse
-	txBuilder, err := api.client.GenerateTx(contract.Address, contract.Fees, string(bts), 0, msg)
+	txBuilder, err := api.client.GenerateTx(acct.Address, contract.Fees, string(bts), 0, msg)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -1100,6 +1242,80 @@ func (api *API) contractTx(c *gin.Context, handle string, password string, commi
 		resp.Hash = fmt.Sprintf("%X", tmhash.Sum(bts))
 	}
 	return &resp, txBuilder.GetTx(), nil
+}
+
+// @交易详情
+// @Summary 交易详情
+// @Description
+// @Tags contract
+// @Accept  json
+// @Produce json
+// @Param hash path string true "交易Hash"
+// @Success 200 {object} Response
+// @Security ApiKeyAuth
+// @Router /mcontract/transactions/{hash} [get]
+func (api *API) GetContractTx(c *gin.Context) {
+	response := &Response{
+		Code: OKCode,
+		Msg:  OKMsg,
+	}
+
+	var transaction model.Transaction
+	cond := map[string]interface{}{}
+	cond["hash"] = c.Param("hash")
+	if result := api.db.Preload("UTXOMsgs").Preload("UTXOMsgs.Inputs").Preload("UTXOMsgs.Outputs").Preload("UTXOMsgs.ContractRequests").Find(&transaction, cond); result.Error != nil {
+		api.logger.Error("GetTransaction", "error", result.Error)
+		response.Code = ExecuteCode
+		response.Msg = result.Error.Error()
+	} else if result.RowsAffected > 0 {
+		var blockchain model.BlockChain
+		if result := api.db.Last(&blockchain); result.Error != nil {
+			api.logger.Error("GetTransactions", "error", result.Error)
+			response.Code = ExecuteCode
+			response.Msg = result.Error.Error()
+			c.JSON(http.StatusOK, response)
+			return
+		}
+
+		transaction.FillConfirmed(blockchain.BlockNum, c.Query("address"), c.Query("coin"))
+		response.Data = transaction
+		c.JSON(http.StatusOK, response)
+		return
+	}
+
+	var mtransaction model.MContract
+	if result := api.db.Find(&mtransaction, cond); result.Error != nil {
+		api.logger.Error("GetContractTx", "error", result.Error)
+		response.Code = ExecuteCode
+		response.Msg = result.Error.Error()
+	} else if result.RowsAffected > 0 {
+		if len(mtransaction.Signature) > 0 {
+			mtransaction.Signatures = strings.Split(mtransaction.Signature, ",")
+		} else {
+			mtransaction.Signatures = []string{}
+		}
+		response.Data = mtransaction
+	}
+	c.JSON(http.StatusOK, response)
+}
+
+// @下载SDK文件
+// @Summary 下载SDK文件
+// @Description
+// @Tags SDK
+// @Accept  json
+// @Produce json
+// @Success 200 {object} Response
+// @Security ApiKeyAuth
+// @Router /mcontract/download/sdk [get]
+func (api *API) DownloadSDk(c *gin.Context) {
+	str, _ := os.Getwd()
+	dst := filepath.Join(str, "cmd/synced", "M0-SDK-GolangV1.0.zip")
+
+	fileContentDisposition := "attachment;filename=\"" + "M0-SDK-GolangV1.0.zip" + "\""
+	c.Header("Content-Type", "application/octet-stream")
+	c.Header("Content-Disposition", fileContentDisposition)
+	c.File(dst)
 }
 
 func (api *API) getAccountByAddress(c *gin.Context, address string, usrID uint) *model.Account {

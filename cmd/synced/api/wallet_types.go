@@ -134,12 +134,15 @@ type MContractRequest struct {
 	TemplateId  uint   `json:"template_id"`  //创建模板合约，模板Id
 }
 type MContractSignRespose struct {
-	Name        string `json:"name" binding:"required"` // 合约名称
-	Args        string `json:"args"`                    //合约参数
-	Version     string `json:"version"`                 // 合约版本
-	Description string `json:"description"`             // 合约描述
-	Address     string `json:"address"`                 //发起人
-	Mode        string `json:"mode"`                    //合约操作
+	Name        string   `json:"name" binding:"required"` // 合约名称
+	Args        string   `json:"args"`                    //合约参数
+	Version     string   `json:"version"`                 // 合约版本
+	Description string   `json:"description"`             // 合约描述
+	Address     string   `json:"address"`                 //发起人
+	Mode        string   `json:"mode"`                    //合约操作
+	Signature   string   `json:"signature"`               //签名地址
+	Signatures  []string `json:"signatures"`              // 已签名数
+	Hash        string   `json:"hash"`
 }
 
 const (
@@ -173,6 +176,7 @@ var (
 	ERROR_FILE_EXIST   = "文件已存在"
 	ERROR_FILE_NO      = "文件不存在"
 	ERROR_FILE_READ    = "读取文件错误"
+	ERROR_FILE_WRITE   = "读取写入错误"
 	ERROR_FILE_FORMAT  = "文件格式不正确"
 	ERROR_FILE_SIZE    = "文件大于要求"
 	ERROR_NO           = "查询不存在"

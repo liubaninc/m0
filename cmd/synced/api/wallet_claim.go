@@ -403,7 +403,7 @@ func (api *API) ClaimTx(c *gin.Context) {
 
 	id := uuid()
 	req := &UTXORequest{
-		From: acct.Address,
+		From: acct.Name,
 		Receivers: []Receiver{
 			{
 				To:     acct.Address,
