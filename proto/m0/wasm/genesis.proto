@@ -1,0 +1,25 @@
+syntax = "proto3";
+package liubaninc.m0.wasm;
+
+// this line is used by starport scaffolding # genesis/proto/import
+import "gogoproto/gogo.proto";
+import "m0/wasm/approve_deploy.proto";
+import "m0/wasm/propose_deploy.proto";
+
+option go_package = "github.com/liubaninc/m0/x/wasm/types";
+
+// GenesisState defines the wasm module's genesis state.
+message GenesisState {
+		// params defines all the paramaters of the module.
+		Params params = 3 [(gogoproto.nullable) = false];
+    // this line is used by starport scaffolding # genesis/proto/state
+		repeated ApproveDeploy approveDeployList = 2; // this line is used by starport scaffolding # genesis/proto/stateField
+		repeated ProposeDeploy proposeDeployList = 1; // this line is used by starport scaffolding # genesis/proto/stateField
+    // this line is used by starport scaffolding # ibc/genesis/proto
+}
+
+// Params defines the parameters for the module.
+message Params {
+	option (gogoproto.goproto_stringer)       = false;
+	bool   enabled = 2 [(gogoproto.moretags) = "yaml:\"enabled,omitempty\""];
+}

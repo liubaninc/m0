@@ -1,0 +1,15 @@
+syntax = "proto3";
+package liubaninc.m0.mibc;
+
+// this line is used by starport scaffolding # genesis/proto/import
+import "m0/mibc/itx.proto";
+
+option go_package = "github.com/liubaninc/m0/x/mibc/types";
+
+// GenesisState defines the mibc module's genesis state.
+message GenesisState {
+    // this line is used by starport scaffolding # genesis/proto/state
+		repeated Itx itxList = 2; // this line is used by starport scaffolding # genesis/proto/stateField
+		uint64 itxCount = 3; // this line is used by starport scaffolding # genesis/proto/stateField
+    string port_id = 1; // this line is used by starport scaffolding # genesis/proto/stateField
+}
