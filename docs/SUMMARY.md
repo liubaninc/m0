@@ -12,6 +12,8 @@
 
 - ## [技术文档](spec/README.md)
 
+- ## [消息结构](data/README.md)
+
 - ## [合约开发](contract/README.md)
 
 - ## [合约应用](dapp/README.md)
