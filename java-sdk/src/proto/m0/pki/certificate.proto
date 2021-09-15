@@ -1,0 +1,22 @@
+syntax = "proto3";
+package liubaninc.m0.pki;
+
+option go_package = "github.com/liubaninc/m0/x/pki/types";
+
+message Certificate {
+  string creator = 1;
+  string pemCert = 3;
+  string subject = 4; 
+  string subjectKeyID = 5; 
+  string serialNumber = 6; 
+  string issuer = 7; 
+  string authorityKeyID = 8; 
+  string rootSubject = 9; 
+  string rootSubjectKeyID = 10;
+  bool isRoot = 11;
+}
+
+message CertificateIdentifier {
+  string issuer = 1;
+  string serialNumber = 2;
+}

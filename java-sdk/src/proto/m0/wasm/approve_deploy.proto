@@ -1,0 +1,15 @@
+syntax = "proto3";
+package liubaninc.m0.wasm;
+
+option go_package = "github.com/liubaninc/m0/x/wasm/types";
+
+import "gogoproto/gogo.proto";
+
+message ApproveDeploy {
+  string creator = 1;
+  string index = 2;
+  string contractName = 3; 
+  bytes contractCodeHash = 4;
+  string initArgs = 5;
+  repeated string approval = 6;
+}

@@ -1,0 +1,25 @@
+syntax = "proto3";
+package liubaninc.m0.pki;
+
+option go_package = "github.com/liubaninc/m0/x/pki/types";
+
+import "gogoproto/gogo.proto";
+
+import "m0/pki/certificate.proto";
+
+message Certificates {
+  string creator = 1;
+  CertificatesIdentifier identifier = 2 [(gogoproto.nullable) = false];
+  repeated CertificateIdentifier items = 3 [(gogoproto.nullable) = false];
+  bool disable = 12;
+}
+
+message ChildCertificates {
+  CertificatesIdentifier identifier = 2 [(gogoproto.nullable) = false];
+  repeated CertificatesIdentifier items = 3 [(gogoproto.nullable) = false];
+}
+
+message CertificatesIdentifier {
+  string subject = 1;
+  string subjectKeyID = 2;
+}

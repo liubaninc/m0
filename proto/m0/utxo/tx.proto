@@ -1,0 +1,50 @@
+syntax = "proto3";
+package liubaninc.m0.utxo;
+
+// this line is used by starport scaffolding # proto/tx/import
+import "m0/utxo/input.proto";
+
+option go_package = "github.com/liubaninc/m0/x/utxo/types";
+
+// Msg defines the Msg service.
+service Msg {
+  // this line is used by starport scaffolding # proto/tx/rpc
+  rpc Issue(MsgIssue) returns (MsgIssueResponse);
+  rpc Send(MsgSend) returns (MsgSendResponse);
+  rpc Destroy(MsgDestroy) returns (MsgDestroyResponse);
+}
+
+// this line is used by starport scaffolding # proto/tx/message
+message MsgIssue {
+  string creator = 1;
+  string desc = 2;
+
+  repeated Input inputs = 10;
+  repeated Output outputs = 11;
+}
+
+message MsgIssueResponse {
+}
+
+message MsgSend {
+  string creator = 1;
+  string desc = 2;
+
+  repeated Input inputs = 10;
+  repeated Output outputs = 11;
+}
+
+message MsgSendResponse {
+}
+
+message MsgDestroy {
+  string creator = 1;
+  string desc = 2;
+
+  repeated Input inputs = 10;
+  repeated Output outputs = 11;
+}
+
+message MsgDestroyResponse {
+}
+

@@ -1,0 +1,13 @@
+syntax = "proto3";
+package liubaninc.m0.wasm;
+
+option go_package = "github.com/liubaninc/m0/x/wasm/types";
+
+import "gogoproto/gogo.proto";
+import "m0/xmodel/xmodel.proto";
+
+message Contract {
+  string name = 1;
+  string initiator = 2;
+  xmodel.WasmCodeDesc desc = 3;
+}

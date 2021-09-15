@@ -1,0 +1,14 @@
+syntax = "proto3";
+package liubaninc.m0.utxo;
+
+option go_package = "github.com/liubaninc/m0/x/utxo/types";
+
+import "gogoproto/gogo.proto";
+
+message Token {
+  string name = 2;
+  string issuer = 3; 
+  string issue_tx = 4;
+  string supply = 5; 
+  string circulating = 6; 
+}

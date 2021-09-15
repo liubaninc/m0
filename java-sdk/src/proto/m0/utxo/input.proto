@@ -1,0 +1,23 @@
+syntax = "proto3";
+package liubaninc.m0.utxo;
+
+option go_package = "github.com/liubaninc/m0/x/utxo/types";
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+message Input {
+  string ref_tx = 1;
+  int32  ref_msg = 2;
+  int32  ref_offset = 3;
+  string from_addr = 4;
+  cosmos.base.v1beta1.Coin amount = 5 [(gogoproto.nullable) = false];
+  int64  frozen_height = 7;
+}
+
+message Output {
+  string to_addr = 1;
+  cosmos.base.v1beta1.Coin amount = 2 [(gogoproto.nullable) = false];
+  int64  frozen_height = 4;
+  bool change = 5;
+}
