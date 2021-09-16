@@ -1,0 +1,14 @@
+server {
+	listen       80;
+	server_name _;
+  	#此处是代理，可以不用
+	 location ^~/api/{
+		proxy_pass  http://8.131.229.225:8080;
+	 }
+
+	location / {
+		root /usr/share/nginx/m0-wallet/;
+		index  index.html index.htm;
+		try_files $uri $uri/ /index.html;
+	}	  
+ }
