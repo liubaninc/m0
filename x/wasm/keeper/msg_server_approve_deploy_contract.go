@@ -13,7 +13,7 @@ func (k msgServer) ApproveDeployContract(goCtx context.Context, msg *types.MsgAp
 
 	proposeDeploy, found := k.GetProposeDeploy(ctx, msg.Index)
 	if !found {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "index is not proposing")
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "contract is not proposing")
 	}
 
 	isProposer := false
@@ -25,12 +25,12 @@ func (k msgServer) ApproveDeployContract(goCtx context.Context, msg *types.MsgAp
 	}
 
 	if !isProposer {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid proposer")
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid proposer: no permission")
 	}
 
 	for _, proposer := range proposeDeploy.Approved {
 		if proposer == msg.Creator {
-			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "already approved")
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid proposer: already approved")
 		}
 	}
 

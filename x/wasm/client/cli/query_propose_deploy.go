@@ -44,7 +44,7 @@ func CmdListProposeDeploy() *cobra.Command {
 
 func CmdShowProposeDeploy() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "show-propose-deploy [index]",
+		Use:   "show-propose-deploy [name]",
 		Short: "shows a proposeDeploy",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {

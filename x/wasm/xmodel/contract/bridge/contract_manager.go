@@ -53,7 +53,7 @@ func (c *contractManager) DeployContract(contextConfig *contract.ContextConfig, 
 	descbuf, _ = proto.Marshal(&desc)
 
 	store.Put("contract", ContractCodeDescKey(contractName), descbuf)
-	store.Put("contract", contractCodeKey(contractName), code)
+	store.Put("contract", ContractCodeKey(contractName), code)
 	store.Put("contract", ContractNumberKey(contractName), []byte(strconv.FormatUint(number, 10)))
 
 	contractType, err := getContractType(&desc)
@@ -131,7 +131,7 @@ func (c *contractManager) UpgradeContract(contextConfig *contract.ContextConfig,
 
 	store := contextConfig.XMCache
 	store.Put("contract", ContractCodeDescKey(contractName), descbuf)
-	store.Put("contract", contractCodeKey(contractName), code)
+	store.Put("contract", ContractCodeKey(contractName), code)
 
 	cp := newCodeProvider(store)
 
@@ -175,7 +175,7 @@ func ContractCodeDescKey(contractName string) []byte {
 	return []byte(contractName + "." + "desc")
 }
 
-func contractCodeKey(contractName string) []byte {
+func ContractCodeKey(contractName string) []byte {
 	return []byte(contractName + "." + "code")
 }
 

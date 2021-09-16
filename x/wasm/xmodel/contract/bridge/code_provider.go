@@ -24,7 +24,7 @@ func newCodeProvider(xstore xmodelStore) ContractCodeProvider {
 }
 
 func (c *codeProvider) GetContractCode(name string) ([]byte, error) {
-	value, err := c.xstore.Get("contract", contractCodeKey(name))
+	value, err := c.xstore.Get("contract", ContractCodeKey(name))
 	if err != nil {
 		return nil, fmt.Errorf("get contract code for '%s' error:%s", name, err)
 	}

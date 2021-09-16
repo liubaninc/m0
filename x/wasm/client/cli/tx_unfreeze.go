@@ -14,7 +14,7 @@ var _ = strconv.Itoa(0)
 
 func CmdUnfreeze() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "unfreeze [contract_name]",
+		Use:   "unfreeze [name]",
 		Short: "unfreeze an wasm contract",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {

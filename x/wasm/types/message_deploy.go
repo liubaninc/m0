@@ -3,6 +3,7 @@ package types
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/liubaninc/m0/x/wasm/xmodel/contract/kernel"
 
 	"github.com/gogo/protobuf/proto"

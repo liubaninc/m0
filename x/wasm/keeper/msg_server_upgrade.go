@@ -18,9 +18,9 @@ func (k msgServer) Upgrade(goCtx context.Context, msg *types.MsgUpgrade) (*types
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	if state, found := k.GetContractState(ctx, msg.ContractName); !found {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "contract %s not exist", msg.ContractName)
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "contract not exist")
 	} else if state != types.Normarl {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "contract %s was not normal state", msg.ContractName)
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "contract was not normal state")
 	}
 
 	msgOffset := int32(ctx.Context().Value(baseapp.KeyMsgOffset).(int))

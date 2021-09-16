@@ -13,7 +13,7 @@ func (k msgServer) Unfreeze(goCtx context.Context, msg *types.MsgUnfreeze) (*typ
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	if state, found := k.GetContractState(ctx, msg.ContractName); !found {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "contract %s not exist", msg.ContractName)
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "contract not exist")
 	} else if state == types.Normarl {
 		return nil, nil
 	}
@@ -23,7 +23,7 @@ func (k msgServer) Unfreeze(goCtx context.Context, msg *types.MsgUnfreeze) (*typ
 		panic(err)
 	}
 	if c.Initiator != msg.Creator {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "contract %s invalid owner", msg.ContractName)
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "contract invalid owner")
 	}
 
 	k.SetContractState(ctx, msg.ContractName, types.Normarl)

@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -17,10 +18,14 @@ func (k msgServer) Deploy(goCtx context.Context, msg *types.MsgDeploy) (*types.M
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	if k.GetParams(ctx).Enabled {
-		hash := tmhash.Sum(append(tmhash.Sum(msg.ContractCode), append([]byte(msg.ContractName), []byte(msg.ContractName)...)...))
-		index := fmt.Sprintf("%X", hash)
-		if _, found := k.GetApproveDeploy(ctx, index); !found {
+		approved, found := k.GetApproveDeploy(ctx, msg.ContractName);
+		if !found {
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "contract was not approved")
+		}
+		hash := tmhash.Sum(append(tmhash.Sum(msg.ContractCode), append([]byte(msg.ContractName), []byte(msg.Args)...)...))
+		hash2 := tmhash.Sum(append(approved.ContractCodeHash, append([]byte(approved.ContractName), []byte(approved.InitArgs)...)...))
+		if bytes.Compare(hash, hash2) != 0 {
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "contract was dismatch approved")
 		}
 	}
 

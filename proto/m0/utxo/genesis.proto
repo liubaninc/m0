@@ -1,0 +1,19 @@
+syntax = "proto3";
+package liubaninc.m0.utxo;
+
+// this line is used by starport scaffolding # genesis/proto/import
+import "gogoproto/gogo.proto";
+import "m0/utxo/params.proto";
+import "m0/utxo/token.proto";
+import "m0/utxo/input.proto";
+
+option go_package = "github.com/liubaninc/m0/x/utxo/types";
+
+// GenesisState defines the utxo module's genesis state.
+message GenesisState {
+    // this line is used by starport scaffolding # genesis/proto/state
+    // this line is used by starport scaffolding # ibc/genesis/proto
+    Params params = 1 [(gogoproto.nullable) = false];
+    repeated Token tokenList = 2;
+    repeated Input inputList = 3;
+}

@@ -14,7 +14,7 @@ var _ = strconv.Itoa(0)
 
 func CmdUndeploy() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "undeploy [contract_name]",
+		Use:   "undeploy [name]",
 		Short: "kill an wasm contract",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {

@@ -2,29 +2,25 @@ package keeper
 
 import (
 	"context"
-	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/liubaninc/m0/x/wasm/types"
-	"github.com/tendermint/tendermint/crypto/tmhash"
 )
 
 func (k msgServer) ProposeDeployContract(goCtx context.Context, msg *types.MsgProposeDeployContract) (*types.MsgProposeDeployContractResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	hash := tmhash.Sum(append(msg.ContractCodeHash, append([]byte(msg.ContractName), []byte(msg.ContractName)...)...))
-	index := fmt.Sprintf("%X", hash)
-	if _, found := k.GetProposeDeploy(ctx, index); found {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "index is proposing")
+	if _, found := k.GetProposeDeploy(ctx, msg.ContractName); found {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "contract is proposing")
 	}
 
-	if _, found := k.GetApproveDeploy(ctx, index); found {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "index already approved")
+	if _, found := k.GetApproveDeploy(ctx, msg.ContractName); found {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "contract already approved")
 	}
 
 	proposeDeploy := types.ProposeDeploy{
 		Creator:          msg.Creator,
-		Index:            index,
+		Index:            msg.ContractName,
 		ContractName:     msg.ContractName,
 		ContractCodeHash: msg.ContractCodeHash,
 		InitArgs:         msg.InitArgs,

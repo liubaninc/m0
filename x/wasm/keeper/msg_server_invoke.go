@@ -20,9 +20,9 @@ func (k msgServer) Invoke(goCtx context.Context, msg *types.MsgInvoke) (*types.M
 
 	for _, cr := range msg.ContractRequests {
 		if state, found := k.GetContractState(ctx, cr.ContractName); !found {
-			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "contract %s not exist", cr.ContractName)
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "contract not exist")
 		} else if state != types.Normarl {
-			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "contract %s was not normal state", cr.ContractName)
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "contract was not normal state")
 		}
 	}
 

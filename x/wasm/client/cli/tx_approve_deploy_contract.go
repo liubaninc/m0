@@ -14,7 +14,7 @@ var _ = strconv.Itoa(0)
 
 func CmdApproveDeployContract() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "approve-deploy-contract [index]",
+		Use:   "approve-deploy-contract [name]",
 		Short: "approve a deploy of contract",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
