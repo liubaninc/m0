@@ -157,7 +157,7 @@
     <div class="dialog" v-if="isDelte">
       <div class="dialog-main del-dialog">
         <div class="dialog-main-title">
-          <span class="main-title-name">模板详情</span>
+          <span class="main-title-name"> 删除确认</span>
           <a
             href="javascript:;"
             class="iconfont m0-guanbi"
