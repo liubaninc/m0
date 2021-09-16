@@ -73,6 +73,8 @@
                   placeholder="请输入存证信息"
                   resize="none"
                   v-model="eviDesc"
+                  maxlength="50"
+                  show-word-limit
                 >
                 </el-input>
               </div>
@@ -87,6 +89,8 @@
                   placeholder="请输入备注信息"
                   resize="none"
                   v-model="eviBankup"
+                  maxlength="50"
+                  show-word-limit
                 >
                 </el-input>
               </div>
@@ -100,7 +104,7 @@
             <div class="assets-info-row more-assets-row">
               <div class="info-row-left">
                 <span class="row-name"> 当前钱包类型 </span>
-                <div class="">{{ wallet.threshold | walType }}钱包</div>
+                <div class="">{{ wallet.threshold | walType }}</div>
               </div>
               <template v-if="wallet.threshold > 0">
                 <div>
@@ -135,7 +139,7 @@
         >
         <a
           href="javascript:;"
-          class="cm-btn-295px cm-btn-border009F72 evidence-btn"
+          class="cm-btn-295px cm-btn-bg4acb9b evidence-btn"
           @click="saveUpload"
           >上传存证</a
         >
@@ -144,41 +148,41 @@
   </div>
 </template>
 <script>
-import { saveEvidence } from "@/server/dapps/evidence";
-import { localCache } from "@/utils/utils";
+import { saveEvidence } from '@/server/dapps/evidence'
+import { localCache } from '@/utils/utils'
 
 export default {
   data() {
     return {
-      pwd: "",
-      eviName: "",
-      eviDesc: "",
-      eviBankup: "",
-      pwd: "",
+      pwd: '',
+      eviName: '',
+      eviDesc: '',
+      eviBankup: '',
+      pwd: '',
       fileList: [],
-      upfileName: "",
+      upfileName: '',
       wallet: {},
-    };
+    }
   },
   created() {
-    let wallet = localCache.get("wallet");
+    let wallet = localCache.get('wallet')
     if (wallet) {
-      this.wallet = wallet;
+      this.wallet = wallet
     }
   },
   methods: {
     async saveUpload() {
-      let { eviName, eviDesc, eviBankup, pwd, upfileName, wallet } = this;
+      let { eviName, eviDesc, eviBankup, pwd, upfileName, wallet } = this
       if (!eviName) {
-        this.$message.error("请输入存证名称");
-        return;
+        this.$message.error('请输入存证名称')
+        return
       }
 
-      let reg = /^[\u4E00-\u9FA5a-zA-Z0-9_]{1,}$/;
+      let reg = /^[\u4E00-\u9FA5a-zA-Z0-9_]{1,}$/
 
       if (!reg.test(eviName)) {
-        this.$message.error("存证名称只允许输入字母数字中文及_");
-        return;
+        this.$message.error('存证名称只允许输入字母数字中文及_')
+        return
       }
 
       // if (!upfileName) {
@@ -187,8 +191,8 @@ export default {
       // }
 
       if (!eviDesc) {
-        this.$message.error("请输入上传存证信息");
-        return;
+        this.$message.error('请输入上传存证信息')
+        return
       }
       // if (!eviBankup) {
       //   this.$message.error("请输入备注信息");
@@ -196,10 +200,17 @@ export default {
       // }
 
       if (!pwd) {
-        this.$message.error("请输入密码");
-        return;
+        this.$message.error('请输入密码')
+        return
       }
-      let commit = wallet.threshold > 1 ? false : true;
+      let commit = wallet.threshold > 1 ? false : true
+
+      this.loading = this.$loading({
+        lock: true,
+        text: '存证上传中...',
+        spinner: 'el-icon-loading',
+        background: 'rgba(0, 0, 0, 0.7)',
+      })
       let saveRes = await saveEvidence.call(this, {
         account: wallet.name,
         commit,
@@ -208,44 +219,47 @@ export default {
         memo: eviBankup,
         name: eviName,
         password: pwd,
-      });
+      })
       if (saveRes) {
-        this.$router.push(`/dapps/evidence/evidSuccess?name=${saveRes.name}`);
+        this.loading.close()
+        this.$router.push(`/dapps/evidence/evidSuccess?name=${saveRes.name}`)
+      } else {
+        this.loading.close()
       }
     },
     clearOldVal() {
-      let uploadFilesArr = this.$refs.upload.uploadFiles; //上传文件列表
+      let uploadFilesArr = this.$refs.upload.uploadFiles //上传文件列表
       if (uploadFilesArr.length == 0) {
       } else {
-        this.$refs.upload.uploadFiles = [];
+        this.$refs.upload.uploadFiles = []
       }
     },
 
     actionUrl() {
-      return window.location.origin + `/api/claims/${this.wallet.name}/upload`;
+      return window.location.origin + `/api/claims/${this.wallet.name}/upload`
     },
     headers() {
       return {
-        Authorization: localCache.get("authorization") || "",
-      };
+        Authorization: localCache.get('authorization') || '',
+      }
     },
     uploadError(error) {
-      this.$message.error(err);
+      this.$message.error(err)
     },
     uploadChange(file, fileList) {
-      this.fileList.splice(0, 1, file);
+      this.fileList.splice(0, 1, file)
     },
     uploadSuccess(res) {
       if (res.code == 200) {
-        this.upfileName = res.data;
+        this.upfileName = res.data
       } else if (res.code == 3002) {
-        this.$message.error(res.msg);
+        this.$message.error(res.msg)
       }
     },
   },
-};
+}
 </script>
-<style>
+<style scoped>
 .detail-warpper {
   margin: 0 auto;
   color: #fff;
@@ -253,7 +267,7 @@ export default {
 
 /*detail start* */
 .assets-title {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -278,7 +292,7 @@ export default {
 }
 .singleevid .row-name {
   width: 100px;
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -291,7 +305,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -323,7 +337,7 @@ export default {
   align-items: flex-start;
 }
 .assets-info-desc {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;

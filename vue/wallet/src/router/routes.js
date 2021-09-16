@@ -343,17 +343,17 @@ export let routes = [
                 /* webpackChunkName: "destory/destorySuccess" */ "@/views/assets/destory/destorySuccess"
               ),
           },
-          {
-            path: "signMore",
-            name: "多签交易签名",
-            meta: {
-              isNeedLogin: !0,
-            },
-            component: () =>
-              import(
-                /* webpackChunkName: "destory/signMore" */ "@/views/assets/signature/index2"
-              ),
-          },
+          // {
+          //   path: "signMore",
+          //   name: "多签交易签名",
+          //   meta: {
+          //     isNeedLogin: !0,
+          //   },
+          //   component: () =>
+          //     import(
+          //       /* webpackChunkName: "destory/signMore" */ "@/views/assets/signature/index2"
+          //     ),
+          // },
           {
             path: "signature",
             name: "多签交易签名",
@@ -365,18 +365,22 @@ export let routes = [
                 /* webpackChunkName: "destory/signature" */ "@/views/assets/signature"
               ),
           },
+        ],
+      },
+      {
+        path: "/download",
+        component: Viewport,
+        children: [
           {
-            path: "signing1",
-            name: "签名已提交",
+            path: "",
+            name: "下载中心",
             meta: {
               isNeedLogin: !0,
             },
             component: () =>
-              import(
-                /* webpackChunkName: "destory/signing1" */ "@/views/assets/signature/index1"
-              ),
+              import(/* webpackChunkName: "download/index" */ "@/views/download"),
           },
-        ],
+        ]
       },
       {
         path: "/wallet",
@@ -471,74 +475,135 @@ export let routes = [
         ],
       },
       {
-        path: "/audit",
+        path: "/ctractMarket",
         component: Viewport,
         children: [
           {
-            path: "node",
-            name: "节点管理",
+            path: "",
+            name: "合约市场",
             meta: {
               isNeedLogin: !0,
             },
             component: () =>
-              import(/* webpackChunkName: "audit/node" */ "@/views/audit/node"),
+              import(/* webpackChunkName: "ctractMarket/contractTemp" */ "@/views/ctractMarket/contractTemp"),
           },
           {
-            path: "cert",
-            name: "认证管理",
+            path: "useTemp",
+            name: "使用合约模板",
             meta: {
               isNeedLogin: !0,
             },
             component: () =>
-              import(/* webpackChunkName: "audit/cert" */ "@/views/audit/cert"),
-          },
-          {
-            path: "checkPerson",
-            name: "验证人管理",
-            meta: {
-              isNeedLogin: !0,
-            },
-            component: () =>
-              import(/* webpackChunkName: "audit/checkPerson" */ "@/views/audit/checkPerson"),
-          },
-          {
-            path: "user",
-            name: "用户管理",
-            meta: {
-              isNeedLogin: !0,
-            },
-            component: () =>
-              import(/* webpackChunkName: "audit/user" */ "@/views/audit/user"),
-          },
-          {
-            path: "cert",
-            name: "证书管理",
-            meta: {
-              isNeedLogin: !0,
-            },
-            component: () =>
-              import(/* webpackChunkName: "audit/cert" */ "@/views/audit/cert"),
-          },
-          {
-            path: "contract",
-            name: "合约管理",
-            meta: {
-              isNeedLogin: !0,
-            },
-            component: () =>
-              import(/* webpackChunkName: "audit/contract" */ "@/views/audit/contract"),
-          },
-          {
-            path: "noAuth",
-            name: "无权限",
-            meta: {
-              isNeedLogin: !0,
-            },
-            component: () =>
-              import(/* webpackChunkName: "authority/noAuth" */ "@/views/authority/noAuth"),
+              import(/* webpackChunkName: "ctractMarket/useTemp" */ "@/views/ctractMarket/contractTemp/useTemp"),
           },
         ],
       },
+
+      {
+        path: "/mycontract",
+        component: Viewport,
+        children: [
+          {
+            path: "",
+            name: "我的合约",
+            meta: {
+              isNeedLogin: !0,
+            },
+            component: () =>
+              import(/* webpackChunkName: "mycontract/index" */ "@/views/myContract"),
+          },
+          {
+            path: "detail",
+            name: "合约详情",
+            meta: {
+              isNeedLogin: !0,
+            },
+            component: () =>
+              import(/* webpackChunkName: "mycontract/detail" */ "@/views/myContract/detail"),
+          },
+          {
+            path: "create",
+            name: "合约创建",
+            meta: {
+              isNeedLogin: !0,
+            },
+            component: () =>
+              import(/* webpackChunkName: "mycontract/create" */ "@/views/myContract/create"),
+          },
+          {
+            path: "signature",
+            name: "多签合约签名",
+            meta: {
+              isNeedLogin: !0,
+            },
+            component: Viewport,
+            children: [
+              {
+                path: "",
+                name: "多签合约签名",
+                meta: {
+                  isNeedLogin: !0,
+                },
+                component: () =>
+                  import(/* webpackChunkName: "mycontract/signature" */ "@/views/myContract/signature"),
+              },
+              {
+                path: "opSuccess",
+                name: "多签合约签名成功",
+                meta: {
+                  isNeedLogin: !0,
+                },
+                component: () =>
+                  import(/* webpackChunkName: "mycontract/opSuccess" */ "@/views/myContract/signature/opSuccess"),
+              },
+            ]
+          },
+          {
+            path: "deploy",
+            name: "部署模块",
+            component: Viewport,
+            children: [
+              {
+                path: "",
+                name: "部署合约",
+                meta: {
+                  isNeedLogin: !0,
+                },
+                component: () =>
+                  import(/* webpackChunkName: "mycontract/deploy" */ "@/views/myContract/deploy"),
+              },
+              {
+                path: "moreDeploy",
+                name: "多签部署合约",
+                meta: {
+                  isNeedLogin: !0,
+                },
+                component: () =>
+                  import(/* webpackChunkName: "mycontract/moreDeploy" */ "@/views/myContract/deploy/moreDeploy"),
+              },
+              {
+                path: "singleDeploy",
+                name: "单签部署合约",
+                meta: {
+                  isNeedLogin: !0,
+                },
+                component: () =>
+                  import(/* webpackChunkName: "mycontract/singleDeploy" */ "@/views/myContract/deploy/singleDeploy"),
+              },
+            ]
+
+          },
+          {
+            path: "upgrade",
+            name: "合约升级",
+            meta: {
+              isNeedLogin: !0,
+            },
+            component: () =>
+              import(/* webpackChunkName: "mycontract/upgrade" */ "@/views/myContract/upgrade"),
+          },
+        ],
+      }
     ],
   },
 

@@ -652,6 +652,7 @@ func (api *API) OperateContract(c *gin.Context) {
 			response.Msg = ERROR_PASSWORD
 		}
 		response.Detail = err.Error()
+		response.Code = ExecuteCode
 		api.logger.Error(c.Request.URL.Path, "error", response.Detail)
 		c.JSON(http.StatusOK, response)
 		return
@@ -746,6 +747,53 @@ func (api *API) OperateContract(c *gin.Context) {
 
 	response.Data = contract
 	c.JSON(http.StatusOK, response)
+}
+
+// @合约删除
+// @Summary 合约删除
+// @Description
+// @Tags contract
+// @Accept  json
+// @Produce json
+// @Param id path string true "合约Id"
+// @Success 200 {object} Response
+// @Security ApiKeyAuth
+// @Router /mcontract/delete/{id} [post]
+func (api *API) DeleteContract(c *gin.Context) {
+	response := &Response{
+		Code: OKCode,
+		Msg:  OKMsg,
+	}
+	id, _ := strconv.Atoi(c.Param("id"))
+
+	var contract model.MContract
+	if result := api.db.First(&contract, id); result.RowsAffected == 0 {
+		response.Code = ExecuteCode
+		response.Msg = ERROR_NO
+		response.Detail = fmt.Sprintf("contract %d not exist", id)
+		api.logger.Error(c.Request.URL.Path, "error", response.Detail)
+		c.JSON(http.StatusOK, response)
+		return
+	}
+	//删除操作,未上链只删除库
+	if contract.Status == WASMContractStatusPending || contract.Status == WASMContractStatusFail {
+		//删除合约文件
+		if contract.Type == MContractCustomType {
+			api.deleteMContractFile(contract.FileName, contract.Name, contract.Address, contract.Version)
+		}
+		api.db.Delete(&model.MContract{}, id)
+		//
+		response.Data = contract
+		c.JSON(http.StatusOK, response)
+		return
+	} else {
+		response.Code = AuthCode
+		response.Msg = ERROR_AUTH
+		response.Detail = fmt.Sprintf("contract %s cannot delete", contract.Name)
+		api.logger.Error(c.Request.URL.Path, "error", response.Detail)
+		c.JSON(http.StatusOK, response)
+		return
+	}
 }
 
 // @合约创建
@@ -1098,7 +1146,9 @@ func (api *API) deleteMContractFile(filename, name, address, version string) {
 	dst := filepath.Join(home, "upload/contract", version, address, name, filepath.Base(filename))
 	if tmos.FileExists(dst) {
 		err := os.Remove(dst)
-		panic(err)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
@@ -1191,7 +1241,7 @@ func (api *API) contractTx(c *gin.Context, handle string, password string, acct 
 			}
 			// 广播交易
 			//api.client.WithBroadcastMode("sync")
-			result, err := api.client.BroadcastTx(txBuilder.GetTx())
+			result, err := api.client.WithBroadcastMode("sync").BroadcastTx(txBuilder.GetTx())
 			if err != nil {
 				return nil, nil, err
 			}
@@ -1223,11 +1273,10 @@ func (api *API) contractTx(c *gin.Context, handle string, password string, acct 
 		if err := api.client.WithKeyring(kb).SignTx(acct.Name, "", txBuilder, true); err != nil {
 			return nil, nil, err
 		}
-
 		if commit {
 			// 广播交易
 			//api.client.WithBroadcastMode("sync")
-			result, err := api.client.BroadcastTx(txBuilder.GetTx())
+			result, err := api.client.WithBroadcastMode("sync").BroadcastTx(txBuilder.GetTx())
 			if err != nil {
 				return nil, nil, err
 			}

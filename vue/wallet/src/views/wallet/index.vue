@@ -99,14 +99,13 @@ export default {
       this.$router.push(`/wallet/importTypes`)
     },
     async getWallets(pageNum, pageSize) {
-      let { accounts, page_num, page_size, page_total } =
-        await queryWalletLists({
-          page_num: pageNum,
-          page_size: pageSize,
-        })
+      let { accounts, page_num, page_size, total } = await queryWalletLists({
+        page_num: pageNum,
+        page_size: pageSize,
+      })
       this.walletLists = accounts
       this.page_num = page_num
-      this.page_total = page_total
+      this.page_total = total
       this.page_size = page_size
     },
   },

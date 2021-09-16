@@ -11,6 +11,9 @@
       </div>
     </router-link>
     <div class="cm-header-user">
+      <div>
+        <a href="javascript:;" @click="$router.push(`/download`)">下载中心</a>
+      </div>
       <div class="header-user-item">
         <!-- <span class="user-name"
           > -->
@@ -27,35 +30,35 @@
 </template>
 
 <script>
-import { layoutUser } from "@/server/user/login";
-import { localCache } from "@/utils/utils";
+import { layoutUser } from '@/server/user/login'
+import { localCache } from '@/utils/utils'
 export default {
   data() {
     return {
       user: {},
-    };
+    }
   },
   created() {
-    let user = localCache.get("loginUser");
+    let user = localCache.get('loginUser')
     if (user) {
-      this.user = user;
+      this.user = user
     }
   },
   methods: {
     async loginOut() {
-      let outRes = await layoutUser({});
-      localCache.remove("authorization");
-      localCache.remove("loginUser");
-      this.$router.replace("/login");
+      let outRes = await layoutUser({})
+      localCache.remove('authorization')
+      localCache.remove('loginUser')
+      this.$router.replace('/login')
     },
   },
-};
+}
 </script>
 <style scoped>
 .commonHeader {
   padding: 0;
   /* width: 1200px; */
-  width: 90%;
+  width: 98%;
   margin: 0 auto;
   display: flex;
   justify-items: center;
@@ -107,7 +110,7 @@ export default {
 
 .options-item {
   display: block;
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   color: #009f72;
@@ -146,7 +149,7 @@ export default {
   height: 26px;
 }
 .cm-logo-text {
-  font-family: "ArialMT", "Arial", sans-serif;
+  font-family: 'ArialMT', 'Arial', sans-serif;
   font-weight: 400;
   font-size: 16px;
   color: #ffffff;

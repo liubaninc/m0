@@ -1,4 +1,6 @@
 // @ts-nocheck
+import { contractStatusText, btnStatus, txtStatus } from './status'
+
 /**
  * @param {*} size
  */
@@ -44,7 +46,7 @@ export let dateFormat = (date, fmt) => {
 };
 
 export let walType = (type) => {
-  return type > 0 ? "多签" : "单签";
+  return type > 0 ? "多签钱包" : "单签钱包";
 };
 
 export let formateAmount = (amount) => {
@@ -60,4 +62,7 @@ export default {
   dateFormat,
   walType,
   formateAmount,
+  contractStatusText,
+  btnStatus,
+  txtStatus
 };

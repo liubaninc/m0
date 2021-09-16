@@ -52,6 +52,8 @@
                     v-model="walletWord"
                     clearable
                     resize="none"
+                    maxlength="50"
+                    show-word-limit
                   >
                     <!-- :autosize="{ minRows: 2, maxRows: 4 }" -->
                   </el-input>

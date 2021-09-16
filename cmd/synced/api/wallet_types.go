@@ -195,4 +195,5 @@ var (
 	ERROR_SIGN_TX      = "签名文件不存在"
 	ERROR_SIGN         = "签名错误"
 	ERROR_SEND         = "交易上链失败，请重试或联系开发人员"
+	ERROR_AUTH         = "没有权限"
 )

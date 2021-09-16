@@ -769,6 +769,28 @@ paths:
       summary: 创建合约
       tags:
       - contract
+  /mcontract/delete/{id}:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 合约Id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 合约删除
+      tags:
+      - contract
   /mcontract/download/{id}:
     get:
       consumes:

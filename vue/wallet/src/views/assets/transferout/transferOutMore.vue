@@ -149,84 +149,84 @@
   </div>
 </template>
 <script>
-import { queryAssetsByAddress, transferOutAssets } from "@/server/assets";
-import { localCache } from "@/utils/utils";
+import { queryAssetsByAddress, transferOutAssets } from '@/server/assets'
+import { localCache } from '@/utils/utils'
 
 export default {
   data() {
     return {
       assetInfo: {},
-      coin: "",
-      to: "",
-      amount: "",
-      pwd: "",
+      coin: '',
+      to: '',
+      amount: '',
+      pwd: '',
       keysInput: [],
       wallet: {},
-    };
+    }
   },
   created() {
-    let { coin } = this.$route.query;
-    let wallet = localCache.get("wallet");
+    let { coin } = this.$route.query
+    let wallet = localCache.get('wallet')
     if (coin && wallet) {
-      this.coin = coin;
-      this.wallet = wallet;
-      this.getAssetsInfo(wallet.address, this.coin);
+      this.coin = coin
+      this.wallet = wallet
+      this.getAssetsInfo(wallet.address, this.coin)
     }
   },
   methods: {
     async transferOutAsset() {
-      let { wallet, pwd, amount, to, keysInput } = this;
+      let { wallet, pwd, amount, to, keysInput } = this
 
       if (!to) {
-        this.$message.error(`目标地址不能为空`);
-        return;
+        this.$message.error(`目标地址不能为空`)
+        return
       }
 
       if (!amount) {
-        this.$message.error(`转出数量不能为空`);
-        return;
+        this.$message.error(`转出数量不能为空`)
+        return
       }
 
       if (!pwd) {
-        this.$message.error(`密码不能为空`);
-        return;
+        this.$message.error(`密码不能为空`)
+        return
       }
 
       if (keysInput.length) {
         keysInput.forEach((item) => {
-          let mnt = /[^0-9](.+)?/gi.exec(item["amount"]);
+          let mnt = /[^0-9](.+)?/gi.exec(item['amount'])
           if (!mnt) {
-            item["amount"] = "" + item["amount"] + this.coin;
+            item['amount'] = '' + item['amount'] + this.coin
           }
-        });
+        })
       }
       let trxs = await transferOutAssets.call(this, {
-        from: wallet.address,
+        from: wallet.name,
         tos: [{ to, amount: amount + this.coin }, ...keysInput],
         password: pwd,
         commit: wallet.threshold > 1 ? !1 : !0,
-      });
+      })
       if (trxs) {
-        this.$router.push(`/assets/transferOutIng?hash=${trxs.hash}`);
+        this.$router.push(`/assets/transferOutIng?hash=${trxs.hash}`)
       }
     },
     addRow() {
-      this.keysInput.push({ to: "", amount: "" });
+      this.keysInput.push({ to: '', amount: '' })
     },
     delRow(index) {
-      this.keysInput.splice(index, 1);
+      this.keysInput.splice(index, 1)
     },
     async getAssetsInfo(addrs, coin) {
       let { address, coins } = await queryAssetsByAddress({
         address: addrs,
         coin,
-      });
+      })
       if (coins && coins.length) {
-        this.assetInfo = coins[0];
+        this.assetInfo = coins[0]
       }
     },
   },
-};
+}
 </script>
 <style scoped>
 .detail-warpper {
@@ -236,7 +236,7 @@ export default {
 
 /*detail start* */
 .assets-title {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -275,7 +275,7 @@ export default {
 }
 .transferout .row-name {
   width: 100px;
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -288,7 +288,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -320,7 +320,7 @@ export default {
   align-items: flex-start;
 }
 .assets-info-desc {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -352,7 +352,7 @@ export default {
   line-height: 40px;
   padding: 0 0 0 20px;
 
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -375,7 +375,7 @@ export default {
   width: 80%;
 }
 .del-row {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;

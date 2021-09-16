@@ -102,9 +102,9 @@
   </div>
 </template>
 <script>
-import { localCache } from "@/utils/utils";
-import { queryEvidenceDetail } from "@/server/dapps/evidence";
-import { queryTrxDetail } from "@/server/transaction";
+import { localCache } from '@/utils/utils'
+import { queryEvidenceDetail } from '@/server/dapps/evidence'
+import { queryTrxDetail } from '@/server/transaction'
 
 export default {
   data() {
@@ -113,36 +113,36 @@ export default {
       eviDetail: {},
       trxInfo: {},
       loginUser: {},
-    };
+    }
   },
   async created() {
-    let { name } = this.$route.query;
-    let wallet = localCache.get("wallet");
-    let loginUser = localCache.get("loginUser");
+    let { name } = this.$route.query
+    let wallet = localCache.get('wallet')
+    let loginUser = localCache.get('loginUser')
     if (wallet) {
-      this.wallet = wallet;
-      this.loginUser = loginUser;
-      let eviInfo = await this.getEviDetail(wallet.name, name);
-      this.getTrxInfo(eviInfo.thash, wallet.address);
+      this.wallet = wallet
+      this.loginUser = loginUser
+      let eviInfo = await this.getEviDetail(wallet.name, name)
+      this.getTrxInfo(eviInfo.thash, wallet.address)
     }
   },
   methods: {
     toEviList() {
-      this.$router.push("/dapps/evidence");
+      this.$router.push('/dapps/evidence')
     },
 
     downLoadSign() {
-      let { wallet, eviDetail, loginUser } = this;
+      let { wallet, eviDetail, loginUser } = this
       if (wallet && eviDetail) {
-        let origin = window.location.origin;
-        let elink = document.createElement("a");
-        elink.download = wallet.address;
-        elink.style.display = "none";
+        let origin = window.location.origin
+        let elink = document.createElement('a')
+        elink.download = wallet.address
+        elink.style.display = 'none'
         // elink.href = `${origin}/api/claims/download/${loginUser.name}/${wallet.name}/${eviDetail.name}`;
-        elink.href = `${origin}/api/download/${eviDetail.thash}`;
-        document.body.appendChild(elink);
-        elink.click();
-        document.body.removeChild(elink);
+        elink.href = `${process.env.VUE_APP_PRO_BASE_URL}/download/${eviDetail.thash}`
+        document.body.appendChild(elink)
+        elink.click()
+        document.body.removeChild(elink)
       }
     },
 
@@ -150,24 +150,24 @@ export default {
       let eviDetail = await queryEvidenceDetail({
         account,
         name,
-      });
+      })
       if (eviDetail) {
-        this.eviDetail = eviDetail;
+        this.eviDetail = eviDetail
       }
-      return eviDetail;
+      return eviDetail
     },
     async getTrxInfo(hash, address, coin) {
       let trxInfo = await queryTrxDetail({
         hash,
         address,
         // coin,
-      });
+      })
       if (trxInfo) {
-        this.trxInfo = trxInfo;
+        this.trxInfo = trxInfo
       }
     },
   },
-};
+}
 </script>
 <style>
 .wallet {
@@ -220,7 +220,7 @@ export default {
 }
 .form-info-row {
   display: flex;
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -252,7 +252,7 @@ export default {
 
 .info-row-name {
   width: 100px;
-  font-family: "PingFangSC-Medium", "PingFang SC Medium", "PingFang SC",
+  font-family: 'PingFangSC-Medium', 'PingFang SC Medium', 'PingFang SC',
     sans-serif;
   font-weight: 500;
   font-style: normal;
@@ -261,7 +261,7 @@ export default {
 }
 
 .wallet-btn-default {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -276,7 +276,7 @@ export default {
 
 .wallet-ct-success {
   text-align: center;
-  font-family: "PingFangSC-Medium", "PingFang SC Medium", "PingFang SC",
+  font-family: 'PingFangSC-Medium', 'PingFang SC Medium', 'PingFang SC',
     sans-serif;
   font-weight: 500;
   font-style: normal;
@@ -311,7 +311,7 @@ export default {
   justify-content: center;
 }
 .evid-desc {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;

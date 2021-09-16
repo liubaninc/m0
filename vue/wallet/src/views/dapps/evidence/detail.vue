@@ -49,7 +49,7 @@
               <span class="row-name">文件名 </span>
               <div class="cm-row-bg row-line">
                 <span class="cm-text-overflow txt-row-line">
-                  {{ eviDetail.file || "---" }}</span
+                  {{ eviDetail.file || '---' }}</span
                 >
               </div>
             </div>
@@ -193,8 +193,8 @@
   </div>
 </template>
 <script>
-import { queryEvidenceDetail, verifyFile } from "@/server/dapps/evidence";
-import { localCache } from "@/utils/utils";
+import { queryEvidenceDetail, verifyFile } from '@/server/dapps/evidence'
+import { localCache } from '@/utils/utils'
 
 export default {
   data() {
@@ -203,130 +203,130 @@ export default {
       loginUser: {},
       eviDetail: {},
       isShowVerDia: false,
-      upfileName: "",
+      upfileName: '',
       fileList: [],
       isShowSuccess: false,
       isShowError: false,
-      curFileMd5: "",
-    };
+      curFileMd5: '',
+    }
   },
   computed: {
     uploadParams() {
       return {
         verify: true,
-      };
+      }
     },
     actionUrl() {
-      return window.location.origin + `/api/claims/${this.wallet.name}/upload`;
+      return window.location.origin + `/api/claims/${this.wallet.name}/upload`
     },
     headers() {
       return {
-        Authorization: localCache.get("authorization") || "",
-      };
+        Authorization: localCache.get('authorization') || '',
+      }
     },
   },
   created() {
-    let { name } = this.$route.query;
-    let wallet = localCache.get("wallet");
-    let loginUser = localCache.get("loginUser");
+    let { name } = this.$route.query
+    let wallet = localCache.get('wallet')
+    let loginUser = localCache.get('loginUser')
     if (wallet && name) {
-      this.wallet = wallet;
-      this.loginUser = loginUser;
-      this.getEviDetail(wallet.name, name);
+      this.wallet = wallet
+      this.loginUser = loginUser
+      this.getEviDetail(wallet.name, name)
     }
   },
   methods: {
     confirmDia() {
-      this.isShowVerDia = false;
-      this.isShowSuccess = false;
-      this.isShowError = false;
-      this.$router.go(-1);
+      this.isShowVerDia = false
+      this.isShowSuccess = false
+      this.isShowError = false
+      this.$router.go(-1)
     },
     clearOldVal() {
-      let uploadFilesArr = this.$refs.upload.uploadFiles; //上传文件列表
+      let uploadFilesArr = this.$refs.upload.uploadFiles //上传文件列表
       if (uploadFilesArr.length == 0) {
       } else {
-        this.$refs.upload.uploadFiles = [];
+        this.$refs.upload.uploadFiles = []
       }
     },
     uploadFalse(error) {
-      this.$message.error(error);
+      this.$message.error(error)
     },
     uploadChange(file, fileList) {
-      this.fileList.splice(0, 1, file);
+      this.fileList.splice(0, 1, file)
     },
     uploadSuccess(res) {
       if (res.code == 200) {
-        let { data } = res;
+        let { data } = res
         if (data) {
-          this.upfileName = data.file;
-          this.curFileMd5 = data.md5;
+          this.upfileName = data.file
+          this.curFileMd5 = data.md5
         }
       } else if (res.code == 3002) {
-        this.$message.error(res.msg);
+        this.$message.error(res.msg)
       }
     },
     async getEviDetail(account, name) {
       let eviDetail = await queryEvidenceDetail({
         account,
         name,
-      });
+      })
       if (eviDetail) {
-        this.eviDetail = eviDetail;
+        this.eviDetail = eviDetail
       }
     },
     downLoadSign(ceviDetail) {
       if (!ceviDetail.file) {
-        this.$message.error("暂无存证文件,无法下载");
-        return;
+        this.$message.error('暂无存证文件,无法下载')
+        return
       }
-      let { wallet, eviDetail, loginUser } = this;
+      let { wallet, eviDetail, loginUser } = this
       if (wallet && eviDetail && loginUser) {
-        let origin = window.location.origin;
-        let elink = document.createElement("a");
-        elink.download = wallet.address;
-        elink.style.display = "none";
-        elink.href = `${origin}/api/claims/download/${loginUser.name}/${wallet.name}/${eviDetail.file}`;
-        document.body.appendChild(elink);
-        elink.click();
-        document.body.removeChild(elink);
+        let origin = window.location.origin
+        let elink = document.createElement('a')
+        elink.download = wallet.address
+        elink.style.display = 'none'
+        elink.href = `${process.env.VUE_APP_PRO_BASE_URL}/claims/download/${loginUser.name}/${wallet.name}/${eviDetail.file}`
+        document.body.appendChild(elink)
+        elink.click()
+        document.body.removeChild(elink)
       }
     },
     showVerDialog(eviDetail) {
       if (!eviDetail.file) {
-        this.$message.error("暂无存证文件,无法校验");
-        return;
+        this.$message.error('暂无存证文件,无法校验')
+        return
       }
-      this.isShowVerDia = true;
+      this.isShowVerDia = true
     },
     async verificateFile() {
-      let { upfileName, wallet, eviDetail, curFileMd5 } = this;
+      let { upfileName, wallet, eviDetail, curFileMd5 } = this
       if (!upfileName) {
-        this.$message.error("请上传认证文件");
-        return;
+        this.$message.error('请上传认证文件')
+        return
       }
 
       let verInfo = await verifyFile({
         account: wallet.name,
         name: eviDetail.name,
         md5: curFileMd5,
-      });
+      })
       if (verInfo) {
-        this.isShowSuccess = true;
+        this.isShowSuccess = true
       } else {
-        this.isShowError = true;
+        this.isShowError = true
       }
     },
     onCopy(text) {
       if (text) {
-        this.$message("复制成功");
+        this.$message('复制成功')
       }
     },
     onError(e) {
-      console.log(e);
+      console.log(e)
     },
   },
-};
+}
 </script>
 <style>
 .wallet {
@@ -340,7 +340,7 @@ export default {
 
 /*detail start* */
 .assets-title {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -365,7 +365,7 @@ export default {
 }
 .row-name {
   width: 80px;
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -378,7 +378,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -419,7 +419,7 @@ export default {
   border-radius: 5px;
 }
 .dialog-title {
-  font-family: "PingFangSC-Medium", "PingFang SC Medium", "PingFang SC",
+  font-family: 'PingFangSC-Medium', 'PingFang SC Medium', 'PingFang SC',
     sans-serif;
   font-weight: 500;
   font-style: normal;
@@ -443,7 +443,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -487,7 +487,7 @@ export default {
   height: 54px;
 }
 .success-dia-desc {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 16px;

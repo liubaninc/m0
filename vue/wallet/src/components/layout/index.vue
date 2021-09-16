@@ -21,35 +21,35 @@
 </template>
 
 <script>
-import Header from "@/components/header/header.vue";
-import LeftSide from "@/components/leftSide";
+import Header from '@/components/header/header.vue'
+import LeftSide from '@/components/leftSide'
 export default {
-  name: "Layout",
+  name: 'Layout',
   components: { Header, LeftSide },
   data() {
     return {
       isAside: true,
-    };
+    }
   },
   watch: {
     $route(to, from) {
-      if (/^\/(wallet)|(wallet\/)/.test(to.path)) {
-        this.isAside = false;
+      if (/^\/(wallet)|(wallet\/)|\/(download)|(download\/)/.test(to.path)) {
+        this.isAside = false
       } else {
-        this.isAside = true;
+        this.isAside = true
       }
     },
   },
   created() {
-    let hash = window.location.hash;
-    if (/^#\/(wallet)|(wallet\/)/.test(hash)) {
-      this.isAside = false;
+    let hash = window.location.hash
+    if (/^#\/(wallet)|(wallet\/)|\/(download)|(download\/)/.test(hash)) {
+      this.isAside = false
     } else {
-      this.isAside = true;
+      this.isAside = true
     }
   },
   methods: {},
-};
+}
 </script>
 <style scoped>
 .layout {
@@ -81,7 +81,7 @@ export default {
 }
 
 .left-side {
-  width: 200px;
+  width: 200px !important;
 }
 .content {
   margin: 0 auto;

@@ -4,11 +4,10 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/cosmos/cosmos-sdk/crypto/types"
 	"io/ioutil"
 	"net/http"
 	"strings"
-
-	"github.com/cosmos/cosmos-sdk/crypto/types"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
@@ -168,6 +167,7 @@ func (api *API) getUtxoResponse(c *gin.Context, tp string, request *UTXORequest)
 		if request.Commit {
 			// 广播交易
 			result, err := api.client.BroadcastTx(txBuilder.GetTx())
+
 			if err != nil {
 				return nil, err
 			}

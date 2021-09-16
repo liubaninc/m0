@@ -40,26 +40,27 @@
             {{ item.text }}
           </div>
           <template v-if="item.children.length">
+            <!-- :class="
+                child.url && $route.fullPath.indexOf(child.url) != -1
+                  ? 'curRow'
+                  : ''
+              " -->
+            <!-- <div
+              class="menu-row-list"
+              v-for="(child, index) in item.children"
+              :key="child.id"
+              :class="child.url && $route.path == child.url ? 'curRow' : ''"
+              @click="selTab(child, index)"
+            > -->
             <div
               class="menu-row-list"
               v-for="(child, index) in item.children"
               :key="child.id"
-              :class="
-                child.url && $route.fullPath.indexOf(child.url) != -1
-                  ? 'curRow'
-                  : ''
-              "
+              :class="child.url && $route.path == child.url ? 'curRow' : ''"
               @click="selTab(child, index)"
             >
-              <!-- :class="curIndex == child.preKey + index ? 'curRow' : ''" -->
               <router-link :to="`${child.url}?address=${wallet.address}`">
-                <!---list-tab-cur-->
                 <div class="row-list-tab">
-                  <!-- <img
-                    src="../../assets/images/detail/menu/assets_icon.png"
-                    alt=""
-                    srcset=""
-                  /> -->
                   <span class="item-icon" :class="child.icon"></span>
 
                   {{ child.text }}
@@ -97,6 +98,7 @@ export default {
   },
   created() {
     let wallet = localCache.get('wallet')
+    console.log('=======>', this.$route)
     if (wallet) {
       this.wallet = wallet
       this.getBlock()

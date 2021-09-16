@@ -13,7 +13,7 @@ const router = new VueRouter({
   mode: "hash",
   linkActiveClass: "Aactive",
   routes: [...routes],
-  scrollBehavior(to, from, savedPosition) {
+  scrollBehavior (to, from, savedPosition) {
     if (savedPosition) {
       return savedPosition;
     } else {
@@ -27,8 +27,10 @@ NProgress.configure({
   speed: 500,
   trickleRate: 0.02,
   trickleSpeed: 500,
-  showSpinner: false,
+  showSpinner: true,
 });
+
+NProgress.inc(0.2)
 
 router.beforeEach(async (to, from, next) => {
   NProgress.start();

@@ -417,10 +417,14 @@ func (synced *Syncer) processBlock(resultBlock *coretypes.ResultBlock, db *gorm.
 			if err != nil {
 				return err
 			}
-
+			if nil == res.Contract {
+				synced.logger.Error("get contract by %s nil", strings.TrimLeft(contract, ":"))
+				continue
+			}
 			if result := db.FirstOrInit(&item, map[string]interface{}{"name": res.Contract.Name}); result.Error != nil {
 				return result.Error
 			}
+
 			for index, hash := range contractHashs[contract] {
 				upgrade := model.ContractUpgrade{
 					Name:    item.Name,

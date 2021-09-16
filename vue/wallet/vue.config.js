@@ -1,15 +1,13 @@
-/**
- * 配置参考:
- * https://cli.vuejs.org/zh/config/
- */
 const path = require("path");
-
-function resolve(dir) {
+function resolve (dir) {
   return path.join(__dirname, dir);
 }
-
-let url = "http://localhost:8080";
-// let url = "http://192.168.7.241:8080";
+// let url = "http://8.131.229.225:8080";
+// let url = "http://47.94.246.214:37110";
+// let url = "http://47.94.246.214:37304";
+// let url = "http://47.94.246.214:37946";
+let url = "http://192.168.7.189:8080";
+// http://47.94.246.214:37874/swagger/index.html#/
 // let url = "http://192.168.7.241:8080";
 module.exports = {
   publicPath: "./", // 打包基本路径
@@ -24,7 +22,6 @@ module.exports = {
   lintOnSave: false,
   productionSourceMap: false, // 生产环境是否需要打包map
   chainWebpack: (config) => {
-    // 配置路径别名
     config.resolve.alias
       .set("@", resolve("src"))
       .set("@components", resolve("src/components"))
@@ -62,10 +59,9 @@ module.exports = {
       // 为开发环境修改配置...
     }
   },
-  // 配置转发代理cli 3.5 以后不需要再配置
   devServer: {
     disableHostCheck: true,
-    port: 8086,
+    // port: 8080,
     // open: true, // 配置浏览器自动打开
     // host: 'localhost', // 默认是localhost
     proxy: {

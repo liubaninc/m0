@@ -10,10 +10,18 @@ axios.defaults.baseURL =
 //http request 拦截器
 axios.interceptors.request.use(
   (config) => {
-    config.data = JSON.stringify(config.data);
+    let headers = {};
+    if (config.config && config.config) {
+      headers = config.config;
+    } else {
+      headers = {
+        // "Content-Type": "application/x-www-form-urlencoded",
+        "Content-Type": "application/json; charset=utf-8",
+      };
+    }
     config.headers = {
-      "Content-Type": "application/json; charset=utf-8",
       Authorization: localCache.get("authorization") || "",
+      ...headers,
     };
     return config;
   },
@@ -89,7 +97,7 @@ axios.interceptors.response.use(
  * @returns {Promise}
  */
 
-export function get(url, params = {}) {
+export function get (url, params = {}) {
   if (url.startsWith("/pConfig")) {
     axios.defaults.baseURL = "";
   } else {
@@ -119,20 +127,30 @@ export function get(url, params = {}) {
  * @returns {Promise}
  */
 
-export function post(url, data = {}) {
+export function post (url, data = {}, config) {
   axios.defaults.baseURL =
     process.env.NODE_ENV == "development"
       ? process.env.VUE_APP_DEV_BASE_URL
       : process.env.VUE_APP_PRO_BASE_URL;
+
   return new Promise((resolve, reject) => {
-    axios.post(url, data).then(
-      (response) => {
-        resolve(response.data);
-      },
-      (err) => {
-        reject(err);
-      }
+    axios({
+      url,
+      method: "post",
+      data,
+      config,
+    }).then(
+      (response) => resolve(response.data),
+      (err) => reject(err)
     );
+    // axios.post(url, data).then(
+    //   (response) => {
+    //     resolve(response.data);
+    //   },
+    //   (err) => {
+    //     reject(err);
+    //   }
+    // );
   });
 }
 
@@ -143,7 +161,7 @@ export function post(url, data = {}) {
  * @returns {Promise}
  */
 
-export function patch(url, data = {}) {
+export function patch (url, data = {}) {
   return new Promise((resolve, reject) => {
     axios.patch(url, data).then(
       (response) => {
@@ -163,7 +181,7 @@ export function patch(url, data = {}) {
  * @returns {Promise}
  */
 
-export function put(url, data = {}) {
+export function put (url, data = {}) {
   return new Promise((resolve, reject) => {
     axios.put(url, data).then(
       (response) => {

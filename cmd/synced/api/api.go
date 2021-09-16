@@ -122,6 +122,7 @@ func (api *API) Run(port int) {
 	v1.POST("/mcontract/list/:account", api.MContractList)
 	v1.POST("mcontract/tx/sign", api.MContractSign)
 	v1.POST("/mcontract/operate", api.OperateContract)
+	v1.POST("/mcontract/delete/:id", api.DeleteContract)
 	v1.POST("/mcontract/create", api.CreateMContract)
 	v1.POST("/mcontract/tx/upload", api.MContractUploadTx)
 

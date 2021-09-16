@@ -108,8 +108,8 @@
   </div>
 </template>
 <script>
-import { createWallet } from "@/server/wallet";
-import { localCache } from "@/utils/utils";
+import { createWallet } from '@/server/wallet'
+import { localCache } from '@/utils/utils'
 
 export default {
   data() {
@@ -117,55 +117,65 @@ export default {
       algorithms: [
         {
           id: 10001,
-          text: "SECP256K1",
+          text: 'SECP256K1',
         },
         {
           id: 10002,
-          text: "SM2",
+          text: 'SM2',
         },
       ],
       active: 1,
-      walletName: "",
+      walletName: '',
       curAlg: 0,
-      pwd: "",
-      repwd: "",
-    };
+      pwd: '',
+      repwd: '',
+    }
   },
   methods: {
     chooseAlg(alg, index) {
-      this.curAlg = index;
+      this.curAlg = index
     },
     async createWallet() {
-      let { walletName, pwd, repwd, curAlg, algorithms } = this;
+      let { walletName, pwd, repwd, curAlg, algorithms } = this
       if (!walletName) {
-        return this.$message.error("请输入钱包名称");
+        return this.$message.error('请输入钱包名称')
       }
       if (curAlg < 0) {
-        return this.$message.error("请选择签名算法");
+        return this.$message.error('请选择签名算法')
       }
 
       if (!/^(?=.*[0-9])(?=.*[a-zA-Z]).{10,30}$/.test(pwd)) {
-        return this.$message.error("请设置至少10位字母数字混合的密码");
+        return this.$message.error('请设置至少10位字母数字混合的密码')
       }
       if (!repwd) {
-        return this.$message.error("请输入确认密码");
+        return this.$message.error('请输入确认密码')
       }
       if (pwd != repwd) {
-        return this.$message.error("俩次输入的密码不一致");
+        return this.$message.error('俩次输入的密码不一致')
       }
+
+      this.loading = this.$loading({
+        lock: true,
+        text: '创建中...',
+        spinner: 'el-icon-loading',
+        background: 'rgba(0, 0, 0, 0.7)',
+      })
 
       let walletInfo = await createWallet.call(this, {
         name: walletName,
         password: pwd,
         algo: algorithms[curAlg].text,
-      });
+      })
       if (walletInfo) {
-        localCache.set("walletInfo", walletInfo);
-        this.$router.push(`/wallet/walCreateSuccess`);
+        this.loading.close()
+        localCache.set('walletInfo', walletInfo)
+        this.$router.push(`/wallet/walCreateSuccess`)
+      } else {
+        this.loading.close()
       }
     },
   },
-};
+}
 </script>
 <style scoped>
 .wallet {
@@ -197,7 +207,7 @@ export default {
   display: flex;
   align-items: center;
   justify-items: center;
-  font-family: "PingFangSC-Medium", "PingFang SC Medium", "PingFang SC",
+  font-family: 'PingFangSC-Medium', 'PingFang SC Medium', 'PingFang SC',
     sans-serif;
   font-weight: 500;
   font-style: normal;
@@ -211,7 +221,7 @@ export default {
   margin: 0 12px 0 0;
 }
 .form-rows-name {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -219,7 +229,7 @@ export default {
   margin: 10px 0;
 }
 .form-rows-desc {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -237,7 +247,7 @@ export default {
 }
 
 .wallet-btn-default {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;

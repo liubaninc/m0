@@ -58,7 +58,13 @@
                 <div class="assets-info-row transferout-info-row">
                   <span class="row-name">资产名称 </span>
                   <div
-                    class="cm-row-bg row-line sign-row-line assets-line padd-left"
+                    class="
+                      cm-row-bg
+                      row-line
+                      sign-row-line
+                      assets-line
+                      padd-left
+                    "
                   >
                     <template v-if="trxInfo.coins && trxInfo.coins.length">
                       {{ trxInfo.coins[0].denom }}
@@ -84,7 +90,11 @@
                       placement="top"
                     >
                       <div
-                        class="cm-row-bg cm-text-overflow sign-row-line qm-file-input"
+                        class="
+                          cm-row-bg cm-text-overflow
+                          sign-row-line
+                          qm-file-input
+                        "
                       >
                         {{ trxInfo.signatures[0] }}
                       </div>
@@ -92,7 +102,11 @@
                   </template>
                   <template v-else>
                     <div
-                      class="cm-row-bg cm-text-overflow sign-row-line qm-file-input"
+                      class="
+                        cm-row-bg cm-text-overflow
+                        sign-row-line
+                        qm-file-input
+                      "
                     >
                       ------
                     </div>
@@ -118,7 +132,12 @@
                         placement="top"
                       >
                         <div
-                          class="cm-row-bg cm-text-overflow sign-row-line qm-file-input target-url"
+                          class="
+                            cm-row-bg cm-text-overflow
+                            sign-row-line
+                            qm-file-input
+                            target-url
+                          "
                         >
                           {{ out.address }}
                         </div>
@@ -143,7 +162,7 @@
                 <div class="assets-info-row">
                   <span class="row-name"> 当前钱包类型 </span>
                   <div class="row-line">
-                    {{ wallet.threshold | walType }}钱包
+                    {{ wallet.threshold | walType }}
                   </div>
                 </div>
                 <div class="assets-info-row">
@@ -193,44 +212,44 @@
   </div>
 </template>
 <script>
-import { upLoadFile } from "@/server/upload";
-import { queryTrxDetail, trxSign } from "@/server/transaction";
-import { localCache } from "@/utils/utils";
+import { upLoadFile } from '@/server/upload'
+import { queryTrxDetail, trxSign } from '@/server/transaction'
+import { localCache } from '@/utils/utils'
 
 export default {
   data() {
     return {
       fileList: [],
-      upfileName: "",
-      pwd: "",
+      upfileName: '',
+      pwd: '',
       trxInfo: {},
       wallet: {},
-    };
+    }
   },
   created() {
-    let wallet = localCache.get("wallet");
-    this.wallet = wallet;
+    let wallet = localCache.get('wallet')
+    this.wallet = wallet
   },
   filters: {
     formateAmount(amount) {
-      if (!amount) return amount;
-      return /^\d*/.exec(amount)[0];
+      if (!amount) return amount
+      return /^\d*/.exec(amount)[0]
     },
   },
   methods: {
     clearOldVal() {
-      let uploadFilesArr = this.$refs.upload.uploadFiles; //上传文件列表
+      let uploadFilesArr = this.$refs.upload.uploadFiles //上传文件列表
       if (uploadFilesArr.length == 0) {
       } else {
-        this.$refs.upload.uploadFiles = [];
+        this.$refs.upload.uploadFiles = []
       }
     },
     async confirmSign() {
-      let { pwd, trxInfo, wallet } = this;
+      let { pwd, trxInfo, wallet } = this
 
       if (!pwd) {
-        this.$message.error("请输入密码");
-        return;
+        this.$message.error('请输入密码')
+        return
       }
 
       let resTrx = await trxSign.call(this, {
@@ -239,44 +258,46 @@ export default {
         hash: trxInfo.hash,
         name: wallet.name,
         password: pwd,
-      });
+      })
       if (resTrx) {
-        this.$router.push(`/assets/transferOutIng?hash=${resTrx.hash}`);
+        this.$router.push(`/assets/transferOutIng?hash=${resTrx.hash}`)
       }
     },
     actionUrl() {
-      return window.location.origin + "/api/tx/upload";
+      return window.location.origin + '/api/tx/upload'
     },
     headers() {
       return {
-        Authorization: localCache.get("authorization") || "",
-      };
+        Authorization: localCache.get('authorization') || '',
+      }
     },
     uploadBefore(file) {
-      this.upfileName = file.name;
+      this.upfileName = file.name
     },
     uploadFalse(error) {
-      this.$message.error(error);
+      this.$message.error(error)
     },
     uploadChange(file, fileList) {
-      this.fileList.splice(0, 1, file);
+      this.fileList.splice(0, 1, file)
     },
     uploadSuccess(res) {
       if (res.code == 200) {
-        this.getTrxInfo(res.data);
+        this.getTrxInfo(res.data)
+      } else {
+        this.$message.error(res.msg)
       }
     },
 
     async getTrxInfo(hash) {
       let trxInfo = await queryTrxDetail({
         hash,
-      });
+      })
       if (trxInfo) {
-        this.trxInfo = trxInfo;
+        this.trxInfo = trxInfo
       }
     },
   },
-};
+}
 </script>
 <style scoped>
 .detail-warpper {
@@ -286,7 +307,7 @@ export default {
 
 /*detail start* */
 .assets-title {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -325,7 +346,7 @@ export default {
 }
 .publish .row-name {
   width: 100px;
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -338,7 +359,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -370,7 +391,7 @@ export default {
   align-items: flex-start;
 }
 .assets-info-desc {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -402,7 +423,7 @@ export default {
   line-height: 40px;
   padding: 0 0 0 20px;
 
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -422,7 +443,7 @@ export default {
 .publish {
 }
 .publish-assets-desc {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -437,7 +458,7 @@ export default {
 }
 .publish-del-btn {
   width: 100px;
-  font-family: PingFangSC-Regular, "PingFang SC", sans-serif;
+  font-family: PingFangSC-Regular, 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;

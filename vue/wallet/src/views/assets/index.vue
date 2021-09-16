@@ -134,13 +134,13 @@
   </div>
 </template>
 <script>
-import { queryAssetLists, queryAssetsListPage } from "@/server/assets";
-import { localCache } from "@/utils/utils";
+import { queryAssetLists, queryAssetsListPage } from '@/server/assets'
+import { localCache } from '@/utils/utils'
 export default {
   data() {
     return {
       isVisibility: false,
-      curAssets: "全部",
+      curAssets: '全部',
       assetSelectLists: {},
       assetLists: [],
       wallet: {},
@@ -149,110 +149,110 @@ export default {
         total: 0,
         pageNum: 1,
       },
-    };
+    }
   },
   created() {
-    let wallet = localCache.get("wallet");
+    let wallet = localCache.get('wallet')
     if (wallet) {
-      this.wallet = wallet;
-      this.getAssetsList(wallet.address);
-      this.getAssets(wallet.address, this.page.pageNum, this.page.pageSize);
+      this.wallet = wallet
+      this.getAssetsList(wallet.address)
+      this.getAssets(wallet.address, this.page.pageNum, this.page.pageSize)
       this.timer = setInterval(() => {
-        this.getAssets(wallet.address, this.page.pageNum, this.page.pageSize);
-      }, 1000 * 60);
+        this.getAssets(wallet.address, this.page.pageNum, this.page.pageSize)
+      }, 1000 * 60)
     }
   },
   destroyed() {
-    clearInterval(this.timer);
+    clearInterval(this.timer)
   },
   methods: {
     handleSizeChange(pageSize) {
-      this.getAssets(this.wallet.address, this.page.pageNum, pageSize);
+      this.getAssets(this.wallet.address, this.page.pageNum, pageSize)
     },
     handleCurrentChange(pageNum) {
-      this.getAssets(this.wallet.address, pageNum, this.page.pageSize);
+      this.getAssets(this.wallet.address, pageNum, this.page.pageSize)
     },
     burnAssets(assets) {
       if (assets) {
-        this.$router.push(`/assets/destoryAssets?assetsName=${assets.denom}`);
+        this.$router.push(`/assets/destoryAssets?assetsName=${assets.denom}`)
       }
     },
     addAssets(assets) {
       if (assets) {
-        this.$router.push(`/assets/addSessets?assetsName=${assets.denom}`);
+        this.$router.push(`/assets/addSessets?assetsName=${assets.denom}`)
       }
     },
     publishAssets(assets) {
-      this.$router.push(`/assets/publishAsset`);
+      this.$router.push(`/assets/publishAsset`)
     },
     toAssetDetail(assets) {
       if (assets.denom) {
         this.$router.push(
           `/assets/detail?denom=${assets.denom}&address=${this.wallet.address}`
-        );
+        )
       }
     },
     trxOutassets(asset) {
-      let { wallet } = this;
+      let { wallet } = this
       if (wallet.threshold > 0) {
-        this.$router.push(`/assets/transferOutMore?coin=${asset.denom}`);
+        this.$router.push(`/assets/transferOutMore?coin=${asset.denom}`)
       } else {
-        this.$router.push(`/assets/transferOut?coin=${asset.denom}`);
+        this.$router.push(`/assets/transferOut?coin=${asset.denom}`)
       }
     },
     receiveAssets(assets) {
       this.$router.push(
         `/assets/receive?address=${this.wallet.address}&name=${assets.denom}`
-      );
+      )
     },
     toTrxLists(assets) {
       this.$router.push(
         `/trx?address=${this.wallet.address}&coin=${assets.denom}`
-      );
+      )
     },
     hideZeroAssets(mark) {
       if (mark) {
         this.assetLists = this.assetSelectLists.filter(
           (assets) => assets.amount != 0
-        );
+        )
       } else {
-        this.assetSelectLists = this.assetSelectLists;
+        this.assetSelectLists = this.assetSelectLists
       }
     },
     changeAsset(name) {
-      this.assetLists = this.getAssetsRowList(name);
+      this.assetLists = this.getAssetsRowList(name)
     },
     getAssetsRowList(name) {
-      if (name == "全部") return this.assetSelectLists;
-      return this.assetSelectLists.filter((assets) => assets.denom == name);
+      if (name == '全部') return this.assetSelectLists
+      return this.assetSelectLists.filter((assets) => assets.denom == name)
     },
     async getAssets(address, pageNum, pageSize) {
       let { coins, page_num, page_size, total } = await queryAssetsListPage({
         address,
         page_num: pageNum,
         page_size: pageSize,
-      });
+      })
       if (coins) {
-        this.assetLists = coins;
-        this.page.pageNum = page_num;
-        this.page.total = total;
-        this.page.pageSize = pageSize;
+        this.assetLists = coins
+        this.page.pageNum = page_num
+        this.page.total = total
+        this.page.pageSize = pageSize
       }
     },
     async getAssetsList(address) {
       let assetLists = await queryAssetLists({
         address,
-      });
+      })
       if (assetLists) {
-        this.assetSelectLists = assetLists.coins;
+        this.assetSelectLists = assetLists.coins
       }
     },
   },
-};
+}
 </script>
-<style >
+<style scoped>
 .trx-title {
-  font-family: "PingFangSC-Medium", "PingFang SC Medium", "PingFang SC",
+  font-family: 'PingFangSC-Medium', 'PingFang SC Medium', 'PingFang SC',
     sans-serif;
   font-weight: 500;
   font-style: normal;
@@ -264,7 +264,7 @@ export default {
 }
 
 .trx-condition-row span {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -298,14 +298,14 @@ export default {
   width: 40%;
 }
 .assets-title {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
   color: #768ca8;
 }
 .assets-name {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 18px;
@@ -330,7 +330,7 @@ export default {
   transform: translate(-16px, 0px);
 }
 .trx-hash {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 12px;
@@ -354,12 +354,13 @@ export default {
 .tp-item-tab {
   text-align: center;
   cursor: pointer;
-  color: #22ac95;
+  color: #63f7d4;
   width: 120px;
   height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  font-size: 12px;
 }
 .tp-item-tab img {
   width: 22px;
@@ -411,7 +412,7 @@ export default {
   height: 40px;
   line-height: 40px;
   display: block;
-  font-family: "PingFangSC-Medium", "PingFang SC Medium", "PingFang SC",
+  font-family: 'PingFangSC-Medium', 'PingFang SC Medium', 'PingFang SC',
     sans-serif;
   font-weight: 500;
   font-style: normal;

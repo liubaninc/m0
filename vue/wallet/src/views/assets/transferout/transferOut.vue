@@ -141,93 +141,106 @@
   </div>
 </template>
 <script>
-import { queryAssetsByAddress, transferOutAssets } from "@/server/assets";
-import { localCache } from "@/utils/utils";
+import { queryAssetsByAddress, transferOutAssets } from '@/server/assets'
+import { localCache } from '@/utils/utils'
 
 export default {
   data() {
     return {
-      address: "",
+      address: '',
+      name: '',
       assetInfo: {},
       keysInput: [],
-      to: "",
-      amount: "",
-      pwd: "",
-      coin: "",
-    };
+      to: '',
+      amount: '',
+      pwd: '',
+      coin: '',
+    }
   },
   created() {
-    let { coin } = this.$route.query;
-    let { address, threshold } = localCache.get("wallet");
+    let { coin } = this.$route.query
+    let { address, threshold, name } = localCache.get('wallet')
     if (address && coin) {
-      this.address = address;
-      this.coin = coin;
-      this.threshold = threshold;
-      this.getAssetsInfo(address, coin);
+      this.address = address
+      this.name = name
+      this.coin = coin
+      this.threshold = threshold
+      this.getAssetsInfo(address, coin)
     }
   },
   methods: {
     async transferOutAsset() {
-      let { assetInfo, address: from, pwd, amount, to, keysInput } = this;
+      let { assetInfo, address: from, name, pwd, amount, to, keysInput } = this
 
       if (!to) {
-        this.$message.error(`目标地址不能为空`);
-        return;
+        this.$message.error(`目标地址不能为空`)
+        return
       }
 
       if (!amount) {
-        this.$message.error(`转出数量不能为空`);
-        return;
+        this.$message.error(`转出数量不能为空`)
+        return
       }
       if (assetInfo.amount * 1 < amount * 1) {
-        this.$message.error(`转出数量不能多余资产余额`);
-        return;
+        this.$message.error(`转出数量不能多余资产余额`)
+        return
       }
       if (!pwd) {
-        this.$message.error(`密码不能为空`);
-        return;
+        this.$message.error(`密码不能为空`)
+        return
       }
 
       if (keysInput.length) {
-        let keyAmu = 0;
+        let keyAmu = 0
         keysInput.forEach((item) => {
-          let mnt = /[^0-9](.+)?/gi.exec(item["amount"]);
+          let mnt = /[^0-9](.+)?/gi.exec(item['amount'])
           if (!mnt) {
-            item["amount"] = "" + item["amount"] + this.coin;
+            item['amount'] = '' + item['amount'] + this.coin
           }
-          keyAmu += parseInt(item["amount"]);
-        });
+          keyAmu += parseInt(item['amount'])
+        })
         if (keyAmu + amount * 1 > assetInfo.amount * 1) {
-          return this.$message.error(`转出数量不能多余资产余额`);
+          return this.$message.error(`转出数量不能多余资产余额`)
         }
       }
+
+      this.loading = this.$loading({
+        lock: true,
+        text: '转出中...',
+        spinner: 'el-icon-loading',
+        background: 'rgba(0, 0, 0, 0.7)',
+      })
+
       let trxs = await transferOutAssets.call(this, {
-        from,
+        from: name,
         tos: [{ to, amount: amount + this.coin }, ...keysInput],
         password: pwd,
         commit: true,
-      });
+      })
       if (trxs) {
+        this.loading.close()
         this.$router.push(
           `/assets/transferOutSuccess?hash=${trxs.hash}&coin=${this.coin}`
-        );
+        )
+      } else {
+        this.loading.close()
       }
     },
     addRow() {
-      this.keysInput.push({ to: "", amount: "" });
+      this.keysInput.push({ to: '', amount: '' })
     },
     delRow(index) {
-      this.keysInput.splice(index, 1);
+      this.keysInput.splice(index, 1)
     },
-    async getAssetsInfo(addrs, coin = "") {
+    async getAssetsInfo(addrs, coin = '') {
       let { address, coins } = await queryAssetsByAddress({
         address: addrs,
         coin,
-      });
-      this.assetInfo = coins[0];
+      })
+      this.assetInfo = coins[0]
     },
   },
-};
+}
 </script>
 <style scoped>
 .detail-warpper {
@@ -237,7 +250,7 @@ export default {
 
 /*detail start* */
 .assets-title {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -276,7 +289,7 @@ export default {
 }
 .transferout .row-name {
   width: 100px;
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -289,7 +302,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -321,7 +334,7 @@ export default {
   align-items: flex-start;
 }
 .assets-info-desc {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -353,7 +366,7 @@ export default {
   line-height: 40px;
   padding: 0 0 0 20px;
 
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -376,7 +389,7 @@ export default {
   width: 80%;
 }
 .del-row {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;

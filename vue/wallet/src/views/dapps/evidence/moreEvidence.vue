@@ -37,6 +37,8 @@
                   placeholder="请输入内容"
                   resize="none"
                   v-model="textarea"
+                  maxlength="50"
+                  show-word-limit
                 >
                 </el-input>
               </div>
@@ -51,6 +53,8 @@
                   placeholder="请输入内容"
                   resize="none"
                   v-model="textarea"
+                  maxlength="50"
+                  show-word-limit
                 >
                 </el-input>
               </div>
@@ -102,11 +106,11 @@
 export default {
   data() {
     return {
-      input: "",
-      textarea: "",
-    };
+      input: '',
+      textarea: '',
+    }
   },
-};
+}
 </script>
 <style>
 .detail-warpper {
@@ -116,7 +120,7 @@ export default {
 
 /*detail start* */
 .assets-title {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -141,7 +145,7 @@ export default {
 }
 .singleevid .row-name {
   width: 100px;
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -154,7 +158,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -186,7 +190,7 @@ export default {
   align-items: flex-start;
 }
 .assets-info-desc {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;

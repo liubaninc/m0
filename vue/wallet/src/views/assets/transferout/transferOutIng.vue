@@ -79,55 +79,56 @@
   </div>
 </template>
 <script>
-import { queryTrxDetail, updownSignFile } from "@/server/transaction";
-import { localCache } from "@/utils/utils";
+import { queryTrxDetail, updownSignFile } from '@/server/transaction'
+import { localCache } from '@/utils/utils'
 
 export default {
   data() {
     return {
       trxInfo: {},
       wallet: {},
-    };
+    }
   },
   created() {
-    let { hash } = this.$route.query;
-    let wallet = localCache.get("wallet");
+    let { hash } = this.$route.query
+    let wallet = localCache.get('wallet')
     if (hash) {
-      this.wallet = wallet;
-      this.getTrxInfo(hash);
+      this.wallet = wallet
+      this.getTrxInfo(hash)
     }
   },
   methods: {
     downLoadFile(hash) {
-      this.downloadFileByHash(hash);
+      this.downloadFileByHash(hash)
     },
     toBankAssets() {
-      let { wallet } = this;
+      let { wallet } = this
       if (wallet.address) {
-        this.$router.push(`/assets`);
+        this.$router.push(`/assets`)
       }
     },
     async getTrxInfo(hash) {
       let trxInfo = await queryTrxDetail({
         hash,
-      });
+      })
       if (trxInfo) {
-        this.trxInfo = trxInfo;
+        this.trxInfo = trxInfo
       }
     },
     downloadFileByHash(hash) {
-      let origin = window.location.origin;
-      let elink = document.createElement("a");
-      elink.download = hash;
-      elink.style.display = "none";
-      elink.href = `${origin}/api/download/${hash}`;
-      console.log(elink.href);
-      document.body.appendChild(elink);
-      elink.click();
-      document.body.removeChild(elink);
+      let origin = window.location.origin
+      let elink = document.createElement('a')
+      elink.download = hash
+      elink.style.display = 'none'
+      // elink.href = `${origin}/api/download/${hash}`;
+      elink.href = `${process.env.VUE_APP_PRO_BASE_URL}/download/${hash}`
+      console.log(elink.href)
+      document.body.appendChild(elink)
+      elink.click()
+      document.body.removeChild(elink)
     },
   },
-};
+}
 </script>
 <style>
 .wallet {
@@ -182,7 +183,7 @@ export default {
 }
 .form-info-row {
   display: flex;
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -214,7 +215,7 @@ export default {
 
 .info-row-name {
   width: 100px;
-  font-family: "PingFangSC-Medium", "PingFang SC Medium", "PingFang SC",
+  font-family: 'PingFangSC-Medium', 'PingFang SC Medium', 'PingFang SC',
     sans-serif;
   font-weight: 500;
   font-style: normal;
@@ -223,7 +224,7 @@ export default {
 }
 
 .wallet-btn-default {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -238,7 +239,7 @@ export default {
 
 .wallet-ct-success {
   text-align: center;
-  font-family: "PingFangSC-Medium", "PingFang SC Medium", "PingFang SC",
+  font-family: 'PingFangSC-Medium', 'PingFang SC Medium', 'PingFang SC',
     sans-serif;
   font-weight: 500;
   font-style: normal;
@@ -277,7 +278,7 @@ export default {
 }
 
 .transfer-desc {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -287,7 +288,7 @@ export default {
 }
 
 .qm-cont {
-  font-family: "PingFangSC-Medium", "PingFang SC Medium", "PingFang SC",
+  font-family: 'PingFangSC-Medium', 'PingFang SC Medium', 'PingFang SC',
     sans-serif;
   font-weight: 500;
   font-style: normal;
@@ -295,7 +296,7 @@ export default {
   color: #ff5a58;
 }
 .qm-file {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;

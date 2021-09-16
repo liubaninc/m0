@@ -92,7 +92,7 @@
             <div class="transfer-trx-type">
               <div class="assets-info-row">
                 <span class="row-name"> 当前钱包类型 </span>
-                <div class="row-line">{{ wallet.threshold | walType }}钱包</div>
+                <div class="row-line">{{ wallet.threshold | walType }}</div>
               </div>
               <template v-if="wallet.threshold > 0">
                 <div class="assets-info-row">
@@ -140,75 +140,75 @@
   </div>
 </template>
 <script>
-import { publishAssets } from "@/server/assets";
-import { localCache } from "@/utils/utils";
+import { publishAssets } from '@/server/assets'
+import { localCache } from '@/utils/utils'
 
 export default {
   data() {
     return {
-      assetsName: "",
-      to: "",
-      amount: "",
-      pwd: "",
+      assetsName: '',
+      to: '',
+      amount: '',
+      pwd: '',
       keysInput: [],
       wallet: {},
-    };
+    }
   },
   created() {
-    let { assetsName } = this.$route.query;
-    let wallet = localCache.get("wallet");
-    this.wallet = wallet;
-    this.assetsName = assetsName;
+    let { assetsName } = this.$route.query
+    let wallet = localCache.get('wallet')
+    this.wallet = wallet
+    this.assetsName = assetsName
   },
   methods: {
     async publishAssets() {
-      let { assetsName, to, amount, pwd, keysInput, wallet } = this;
+      let { assetsName, to, amount, pwd, keysInput, wallet } = this
 
       if (!to) {
-        this.$message.error("目标地址不能为空");
-        return;
+        this.$message.error('目标地址不能为空')
+        return
       }
       if (!amount) {
-        this.$message.error("发行数量不能为空");
-        return;
+        this.$message.error('发行数量不能为空')
+        return
       }
       if (!pwd) {
-        this.$message.error("密码不能为空");
-        return;
+        this.$message.error('密码不能为空')
+        return
       }
 
       if (keysInput.length) {
         keysInput.forEach((item) => {
-          let mnt = /[^0-9](.+)?/gi.exec(item["amount"]);
+          let mnt = /[^0-9](.+)?/gi.exec(item['amount'])
           if (!mnt) {
-            item["amount"] = "" + item["amount"] + assetsName;
+            item['amount'] = '' + item['amount'] + assetsName
           }
-        });
+        })
       }
 
-      let commit = wallet.threshold > 1 ? false : true;
+      let commit = wallet.threshold > 1 ? false : true
       let publishInfo = await publishAssets.call(this, {
-        from: wallet && wallet.address,
-        tos: [{ to, amount: "" + amount + assetsName }, ...keysInput],
+        from: wallet && wallet.name,
+        tos: [{ to, amount: '' + amount + assetsName }, ...keysInput],
         password: pwd,
         commit,
-      });
+      })
       if (publishInfo) {
         if (wallet && wallet.threshold > 0) {
-          this.$router.push(`/assets/publicIng?hash=${publishInfo.hash}`);
+          this.$router.push(`/assets/publicIng?hash=${publishInfo.hash}`)
         } else {
-          this.$router.push(`/assets/publicSuccess?hash=${publishInfo.hash}`);
+          this.$router.push(`/assets/publicSuccess?hash=${publishInfo.hash}`)
         }
       }
     },
     addRow() {
-      this.keysInput.push({ to: "", amount: "" });
+      this.keysInput.push({ to: '', amount: '' })
     },
     delRow(index) {
-      this.keysInput.splice(index, 1);
+      this.keysInput.splice(index, 1)
     },
   },
-};
+}
 </script>
 <style>
 .detail-warpper {
@@ -218,7 +218,7 @@ export default {
 
 /*detail start* */
 .assets-title {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -257,7 +257,7 @@ export default {
 }
 .transferout .row-name {
   width: 100px;
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -270,7 +270,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -302,7 +302,7 @@ export default {
   align-items: flex-start;
 }
 .assets-info-desc {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -334,7 +334,7 @@ export default {
   line-height: 40px;
   padding: 0 0 0 20px;
 
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -352,7 +352,7 @@ export default {
 /**end transferout  */
 .publish-del-btn {
   width: 100px;
-  font-family: PingFangSC-Regular, "PingFang SC", sans-serif;
+  font-family: PingFangSC-Regular, 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;

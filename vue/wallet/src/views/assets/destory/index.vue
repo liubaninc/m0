@@ -67,7 +67,7 @@
             <div class="destory-rows-types">
               <div class="assets-info-row destory-info-row">
                 <span class="row-name wallet-type">当前钱包类型 </span>
-                <div class="row-line">{{ wallet.threshold | walType }}钱包</div>
+                <div class="row-line">{{ wallet.threshold | walType }}</div>
               </div>
               <template>
                 <div
@@ -159,46 +159,54 @@
   </div>
 </template>
 <script>
-import { queryAssetsByAddress, burnAssetsByAdd } from "@/server/assets";
-import { localCache } from "@/utils/utils";
+import { queryAssetsByAddress, burnAssetsByAdd } from '@/server/assets'
+import { localCache } from '@/utils/utils'
 export default {
   data() {
     return {
       wallet: {},
       assetDetail: {},
-      burn: "tk12xnsae6sqwnjgtaefteyunxvea2uzevakpl6t8",
-      pwd: "",
-      amount: "",
-      assetsName: "",
-    };
+      burn: 'tk12xnsae6sqwnjgtaefteyunxvea2uzevakpl6t8',
+      pwd: '',
+      amount: '',
+      assetsName: '',
+    }
   },
   created() {
-    let { assetsName } = this.$route.query;
-    let wallet = localCache.get("wallet");
+    let { assetsName } = this.$route.query
+    let wallet = localCache.get('wallet')
     if (wallet) {
-      this.wallet = wallet;
-      this.assetsName = assetsName;
+      this.wallet = wallet
+      this.assetsName = assetsName
 
-      this.getAssetsInfo(wallet.address, assetsName);
+      this.getAssetsInfo(wallet.address, assetsName)
     }
   },
   methods: {
     async burnAssets() {
-      let { amount, pwd, wallet, assetDetail, assetsName, burn } = this;
+      let { amount, pwd, wallet, assetDetail, assetsName, burn } = this
       if (!amount) {
-        this.$message.error("请输入销毁数量");
-        return;
+        this.$message.error('请输入销毁数量')
+        return
       }
       if (!pwd) {
-        this.$message.error("请输入密码");
-        return;
+        this.$message.error('请输入密码')
+        return
       }
 
-      amount = /[^0-9](.+)?/gi.exec(amount) ? amount : amount + assetsName;
+      amount = /[^0-9](.+)?/gi.exec(amount) ? amount : amount + assetsName
 
-      let commit = wallet.threshold > 1 ? false : true;
+      let commit = wallet.threshold > 1 ? false : true
+
+      this.loading = this.$loading({
+        lock: true,
+        text: '销毁中...',
+        spinner: 'el-icon-loading',
+        background: 'rgba(0, 0, 0, 0.7)',
+      })
+
       let resBurn = await burnAssetsByAdd.call(this, {
-        from: wallet.address,
+        from: wallet.name,
         tos: [
           {
             amount,
@@ -206,31 +214,40 @@ export default {
         ],
         commit,
         password: pwd,
-      });
+      })
 
       if (resBurn) {
+        this.loading.close()
         if (wallet && wallet.threshold > 0) {
+          // this.$router.push(
+          //   `/assets/publicIng?hash=${resBurn.hash}&coin=${assetsName}&address=${burn}`
+          // )
           this.$router.push(
-            `/assets/publicIng?hash=${resBurn.hash}&coin=${assetsName}&address=${burn}`
-          );
+            `/assets/publicIng?hash=${resBurn.hash}&coin=${assetsName}`
+          )
         } else {
+          // this.$router.push(
+          //   `/assets/publicSuccess?hash=${resBurn.hash}&coin=${assetsName}&address=${burn}`
+          // )
           this.$router.push(
-            `/assets/publicSuccess?hash=${resBurn.hash}&coin=${assetsName}&address=${burn}`
-          );
+            `/assets/publicSuccess?hash=${resBurn.hash}&coin=${assetsName}`
+          )
         }
+      } else {
+        this.loading.close()
       }
     },
     async getAssetsInfo(address, coin) {
       let assetDetail = await queryAssetsByAddress({
         address,
         coin,
-      });
+      })
       if (assetDetail) {
-        this.assetDetail = assetDetail;
+        this.assetDetail = assetDetail
       }
     },
   },
-};
+}
 </script>
 <style>
 .wallet {
@@ -244,7 +261,7 @@ export default {
 
 /*detail start* */
 .assets-title {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -269,7 +286,7 @@ export default {
 }
 .row-name {
   width: 80px;
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -285,7 +302,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;
@@ -325,7 +342,7 @@ export default {
   border-radius: 5px;
 }
 .dialog-title {
-  font-family: "PingFangSC-Medium", "PingFang SC Medium", "PingFang SC",
+  font-family: 'PingFangSC-Medium', 'PingFang SC Medium', 'PingFang SC',
     sans-serif;
   font-weight: 500;
   font-style: normal;
@@ -382,7 +399,7 @@ export default {
   height: 54px;
 }
 .success-dia-desc {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 16px;
@@ -398,7 +415,7 @@ export default {
   margin: 0 0 18px;
 }
 .row-desc {
-  font-family: "PingFangSC-Regular", "PingFang SC", sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC', sans-serif;
   font-weight: 400;
   font-style: normal;
   font-size: 14px;

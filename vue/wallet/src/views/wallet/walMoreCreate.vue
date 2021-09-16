@@ -116,7 +116,7 @@
           >
           <a
             href="javascript:;"
-            class="cm-btn-200px cm-btn-bg009F72 cm-btn-back"
+            class="cm-btn-200px cm-btn-bg4acb9b cm-btn-back"
             @click="toCreateMoreSignWallet"
             >创建钱包</a
           >
@@ -186,6 +186,12 @@ export default {
       let multis = keysInput.map(({ value }) => value) || []
 
       this.timer = setTimeout(async () => {
+        this.loading = this.$loading({
+          lock: true,
+          text: '创建中...',
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.7)',
+        })
         let mulWalletInfo = await createMoreSignWallet.call(this, {
           name: walletName,
           related: publicKeyName,
@@ -194,8 +200,11 @@ export default {
         })
         if (mulWalletInfo) {
           clearTimeout(this.timer)
+          this.loading.close()
           localCache.set('walletInfo', mulWalletInfo)
           this.$router.push(`/wallet/walCreateSuccess?type=2`)
+        } else {
+          this.loading.close()
         }
       }, 300)
     },
