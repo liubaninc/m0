@@ -5,7 +5,6 @@ import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "cosmos/staking/v1beta1/staking.proto";
 // this line is used by starport scaffolding # 1
-import "m0/validator/last_validator_power.proto";
 import "m0/validator/validator.proto";
 import "m0/validator/params.proto";
 import "gogoproto/gogo.proto";
