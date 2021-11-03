@@ -1,0 +1,12 @@
+syntax = "proto3";
+package liubaninc.m0.mibc;
+
+option go_package = "github.com/liubaninc/m0/x/mibc/types";
+
+message Itx {
+  string creator = 1;
+  uint64 id = 2;
+  string sourceHash = 3;
+  string destinationHash = 4;
+  string log = 6;
+}

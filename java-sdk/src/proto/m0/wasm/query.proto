@@ -1,0 +1,138 @@
+syntax = "proto3";
+package liubaninc.m0.wasm;
+
+import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+// this line is used by starport scaffolding # 1
+import "m0/wasm/approve_deploy.proto";
+import "m0/wasm/propose_deploy.proto";
+import "m0/wasm/ext.proto";
+import "m0/wasm/contract.proto";
+import "m0/utxo/input.proto";
+import "m0/xmodel/xmodel.proto";
+
+
+option go_package = "github.com/liubaninc/m0/x/wasm/types";
+
+// Query defines the gRPC querier service.
+service Query {
+  // this line is used by starport scaffolding # 2
+
+	// Queries a approveDeploy by index.
+	rpc ApproveDeploy(QueryGetApproveDeployRequest) returns (QueryGetApproveDeployResponse) {
+		option (google.api.http).get = "/liubaninc/m0/wasm/approveDeploy/{index}";
+	}
+
+	// Queries a list of approveDeploy items.
+	rpc ApproveDeployAll(QueryAllApproveDeployRequest) returns (QueryAllApproveDeployResponse) {
+		option (google.api.http).get = "/liubaninc/m0/wasm/approveDeploy";
+	}
+
+
+	// Queries a proposeDeploy by index.
+	rpc ProposeDeploy(QueryGetProposeDeployRequest) returns (QueryGetProposeDeployResponse) {
+		option (google.api.http).get = "/liubaninc/m0/wasm/proposeDeploy/{index}";
+	}
+
+	// Queries a list of proposeDeploy items.
+	rpc ProposeDeployAll(QueryAllProposeDeployRequest) returns (QueryAllProposeDeployResponse) {
+		option (google.api.http).get = "/liubaninc/m0/wasm/proposeDeploy";
+	}
+
+  //预执行合约
+  rpc PreExec(InvokeRPCRequest) returns (InvokeRPCResponse) {
+    option (google.api.http) = {
+      post: "/liubaninc/m0/wasm/preexec"
+      body: "*"
+    };
+  }
+
+  rpc Contract(QueryGetContractRequest) returns (QueryGetContractResponse) {
+      option (google.api.http).get = "/liubaninc/m0/wasm/contract/{name}";
+  }
+
+  rpc ContractAll(QueryAllContractRequest) returns (QueryAllContractResponse) {
+      option (google.api.http).get = "/liubaninc/m0/wasm/contract";
+  }
+
+  rpc AccountContractAll(QueryGetAccountAllContractRequest) returns (QueryGetAccountAllContractResponse) {
+      option (google.api.http).get = "/liubaninc/m0/wasm/contract/account/{name}";
+  }
+}
+
+// this line is used by starport scaffolding # 3
+message QueryGetApproveDeployRequest {
+	string index = 1;
+}
+
+message QueryGetApproveDeployResponse {
+	ApproveDeploy ApproveDeploy = 1;
+}
+
+message QueryAllApproveDeployRequest {
+	cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryAllApproveDeployResponse {
+	repeated ApproveDeploy ApproveDeploy = 1;
+	cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+message QueryGetProposeDeployRequest {
+	string index = 1;
+}
+
+message QueryGetProposeDeployResponse {
+	ProposeDeploy ProposeDeploy = 1;
+}
+
+message QueryAllProposeDeployRequest {
+	cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryAllProposeDeployResponse {
+	repeated ProposeDeploy ProposeDeploy = 1;
+	cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+message InvokeRPCRequest {
+  string creator = 1;
+  int64  lock = 2;
+  repeated InvokeRequest requests = 3;
+}
+
+message InvokeRPCResponse {
+  repeated utxo.Input inputs = 1;
+  repeated utxo.Output outputs = 2;
+  repeated InputExt inputsExt = 3;
+  repeated OutputExt outputsExt = 4;
+  repeated bytes response = 5;
+  int64 gas_used = 6;
+  repeated InvokeRequest requests = 7;
+  repeated xmodel.ContractResponse responses = 8;
+}
+
+message QueryGetContractRequest {
+	string name = 1;
+}
+
+message QueryGetContractResponse {
+	Contract contract = 1;
+}
+
+message QueryGetAccountAllContractRequest {
+	string name = 1;
+	cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+message QueryGetAccountAllContractResponse {
+	repeated Contract contract = 1;
+    cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+message QueryAllContractRequest {
+	cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryAllContractResponse {
+	repeated Contract contract = 1;
+	cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}

@@ -1,0 +1,13 @@
+syntax = "proto3";
+package liubaninc.m0.peer;
+
+option go_package = "github.com/liubaninc/m0/x/peer/types";
+
+import "gogoproto/gogo.proto";
+
+message PeerID {
+  string creator = 1;
+  string index = 2;
+  string certIssuer = 3; 
+  string certSerialNum = 4; 
+}

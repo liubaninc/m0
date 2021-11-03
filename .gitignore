@@ -5,6 +5,8 @@ vue/browser/dist
 vue/src
 secret.yml
 .idea
+/java-sdk/.idea
+/java-sdk/target
 
 # Build
 vendor

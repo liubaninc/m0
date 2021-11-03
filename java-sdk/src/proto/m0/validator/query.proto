@@ -1,0 +1,79 @@
+syntax = "proto3";
+package liubaninc.m0.validator;
+
+import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "cosmos/staking/v1beta1/staking.proto";
+// this line is used by starport scaffolding # 1
+import "m0/validator/validator.proto";
+import "m0/validator/params.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/liubaninc/m0/x/validator/types";
+
+// Query defines the gRPC querier service.
+service Query {
+    // this line is used by starport scaffolding # 2
+
+	// Queries a validator by id.
+	rpc Validator(QueryGetValidatorRequest) returns (QueryGetValidatorResponse) {
+		option (google.api.http).get = "/liubaninc/m0/validator/validator/{address}";
+	}
+
+	// Queries a list of validator items.
+	rpc ValidatorAll(QueryAllValidatorRequest) returns (QueryAllValidatorResponse) {
+		option (google.api.http).get = "/liubaninc/m0/validator/validator";
+	}
+
+	// HistoricalInfo queries the historical info for given height.
+	rpc HistoricalInfo(QueryHistoricalInfoRequest) returns (QueryHistoricalInfoResponse) {
+		option (google.api.http).get = "/cosmos/staking/v1beta1/historical_info/{height}";
+	}
+
+	// Parameters queries the staking parameters.
+	rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+		option (google.api.http).get = "/cosmos/staking/v1beta1/params";
+	}
+
+}
+
+// this line is used by starport scaffolding # 3
+message QueryGetValidatorRequest {
+	string address = 1;
+}
+
+message QueryGetValidatorResponse {
+	Validator Validator = 1;
+}
+
+message QueryAllValidatorRequest {
+	cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryAllValidatorResponse {
+	repeated Validator Validator = 1;
+	cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryHistoricalInfoRequest is request type for the Query/HistoricalInfo RPC
+// method.
+message QueryHistoricalInfoRequest {
+	// height defines at which height to query the historical info.
+	int64 height = 1;
+}
+
+// QueryHistoricalInfoResponse is response type for the Query/HistoricalInfo RPC
+// method.
+message QueryHistoricalInfoResponse {
+	// hist defines the historical info at the given height.
+	cosmos.staking.v1beta1.HistoricalInfo hist = 1;
+}
+
+// QueryParamsRequest is request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is response type for the Query/Params RPC method.
+message QueryParamsResponse {
+	// params holds all the parameters of this module.
+	Params params = 1 [(gogoproto.nullable) = false];
+}

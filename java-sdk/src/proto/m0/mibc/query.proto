@@ -1,0 +1,43 @@
+syntax = "proto3";
+package liubaninc.m0.mibc;
+
+import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+// this line is used by starport scaffolding # 1
+import "m0/mibc/itx.proto";
+
+option go_package = "github.com/liubaninc/m0/x/mibc/types";
+
+// Query defines the gRPC querier service.
+service Query {
+    // this line is used by starport scaffolding # 2
+
+	// Queries a itx by id.
+	rpc Itx(QueryGetItxRequest) returns (QueryGetItxResponse) {
+		option (google.api.http).get = "/liubaninc/m0/mibc/itx/{id}";
+	}
+
+	// Queries a list of itx items.
+	rpc ItxAll(QueryAllItxRequest) returns (QueryAllItxResponse) {
+		option (google.api.http).get = "/liubaninc/m0/mibc/itx";
+	}
+
+}
+
+// this line is used by starport scaffolding # 3
+message QueryGetItxRequest {
+	uint64 id = 1;
+}
+
+message QueryGetItxResponse {
+	Itx Itx = 1;
+}
+
+message QueryAllItxRequest {
+	cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryAllItxResponse {
+	repeated Itx Itx = 1;
+	cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}

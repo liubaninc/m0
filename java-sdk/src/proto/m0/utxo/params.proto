@@ -1,0 +1,11 @@
+syntax = "proto3";
+package liubaninc.m0.utxo;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/liubaninc/m0/x/utxo/types";
+
+message Params {
+  option (gogoproto.goproto_stringer)       = false;
+  uint64 max_desc_characters = 1 [(gogoproto.moretags) = "yaml:\"max_desc_characters,omitempty\""];
+}
